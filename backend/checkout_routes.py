@@ -13,6 +13,7 @@ from checkout_schemas import (
     CheckoutAddressStep, CheckoutProgressResponse, CheckoutAnalytics
 )
 from stripe_webhooks import create_checkout_session
+from csv_export import save_to_csv
 import os
 
 router = APIRouter(prefix="/api/checkout", tags=["checkout"])
@@ -74,6 +75,12 @@ async def save_email_step(data: CheckoutEmailStep, db: Session = Depends(get_db)
     db.commit()
     db.refresh(progress)
     
+    # Save to CSV (server-side secure backup)
+    try:
+        save_to_csv(progress)
+    except Exception as e:
+        print(f"⚠️ CSV save error (non-critical): {e}")
+    
     return CheckoutProgressResponse(
         session_id=progress.session_id,
         current_step="phone",
@@ -105,6 +112,12 @@ async def save_phone_step(data: CheckoutPhoneStep, db: Session = Depends(get_db)
     
     db.commit()
     db.refresh(progress)
+    
+    # Save to CSV (server-side secure backup)
+    try:
+        save_to_csv(progress)
+    except Exception as e:
+        print(f"⚠️ CSV save error (non-critical): {e}")
     
     return CheckoutProgressResponse(
         session_id=progress.session_id,
@@ -142,6 +155,12 @@ async def save_address_step(data: CheckoutAddressStep, db: Session = Depends(get
     
     db.commit()
     db.refresh(progress)
+    
+    # Save to CSV (server-side secure backup)
+    try:
+        save_to_csv(progress)
+    except Exception as e:
+        print(f"⚠️ CSV save error (non-critical): {e}")
     
     return CheckoutProgressResponse(
         session_id=progress.session_id,
@@ -292,4 +311,28 @@ async def get_checkout_analytics(db: Session = Depends(get_db)):
     )
 
 # Submissions endpoint removed - use /analytics dashboard instead for privacy
+
+@router.get("/download-csv")
+async def download_csv():
+    """
+    Download CSV file with all checkout submissions
+    (Admin only - add authentication in production!)
+    """
+    from fastapi.responses import FileResponse
+    from csv_export import get_csv_path
+    
+    csv_path = get_csv_path()
+    
+    if not csv_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="CSV file not found. No submissions yet."
+        )
+    
+    return FileResponse(
+        path=csv_path,
+        media_type='text/csv',
+        filename='checkout_submissions.csv',
+        headers={'Content-Disposition': 'attachment; filename="checkout_submissions.csv"'}
+    )
 

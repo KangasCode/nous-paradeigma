@@ -32,6 +32,10 @@ wheels/
 *.sqlite
 *.sqlite3
 
+# CSV Data (sensitive customer information)
+backend/data/
+*.csv
+
 # IDEs
 .vscode/
 .idea/
