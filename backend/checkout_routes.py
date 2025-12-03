@@ -158,6 +158,7 @@ async def save_address_step(data: CheckoutAddressStep, db: Session = Depends(get
 async def create_payment_session(session_id: str, db: Session = Depends(get_db)):
     """
     Create Stripe checkout session after all steps completed
+    OR complete in demo mode if Stripe not configured
     """
     progress = db.query(CheckoutProgress).filter(
         CheckoutProgress.session_id == session_id
@@ -175,7 +176,31 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             detail="Complete all checkout steps first"
         )
     
-    # Get price ID for selected plan
+    # Mark payment initiated
+    progress.step_payment_initiated = True
+    progress.payment_initiated_at = datetime.utcnow()
+    
+    # Check if we're in DEMO MODE (no Stripe configured)
+    stripe_key = os.getenv("STRIPE_SECRET_KEY")
+    demo_mode = os.getenv("DEMO_MODE", "false").lower() == "true"
+    
+    if demo_mode or not stripe_key or stripe_key.startswith("sk_test_your") or stripe_key == "your-stripe-secret-key":
+        # DEMO MODE: Complete checkout without payment
+        print(f"✅ DEMO MODE: Checkout completed for {progress.email} - Plan: {progress.selected_plan}")
+        
+        progress.step_payment_completed = True
+        progress.payment_completed_at = datetime.utcnow()
+        progress.converted = True
+        db.commit()
+        
+        base_url = os.getenv("BASE_URL", "http://localhost:8000")
+        return {
+            "checkout_url": f"{base_url}/success?demo=true",
+            "session_id": session_id,
+            "demo_mode": True
+        }
+    
+    # PRODUCTION MODE: Use real Stripe
     price_id = PLAN_PRICE_MAP.get(progress.selected_plan)
     if not price_id:
         raise HTTPException(
@@ -183,9 +208,6 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             detail="Price ID not configured for this plan"
         )
     
-    # Mark payment initiated
-    progress.step_payment_initiated = True
-    progress.payment_initiated_at = datetime.utcnow()
     db.commit()
     
     # Create Stripe checkout session
@@ -198,7 +220,7 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
         cancel_url=f"{base_url}/cancel"
     )
     
-    return {"checkout_url": stripe_session.url, "session_id": session_id}
+    return {"checkout_url": stripe_session.url, "session_id": session_id, "demo_mode": False}
 
 @router.get("/progress/{session_id}", response_model=CheckoutProgressResponse)
 async def get_checkout_progress(session_id: str, db: Session = Depends(get_db)):
