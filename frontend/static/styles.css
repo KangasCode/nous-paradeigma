@@ -2191,6 +2191,11 @@ select:focus {
         width: 100%;
     }
 
+    /* Hide "Get Started" button on mobile */
+    #showRegister {
+        display: none !important;
+    }
+
     .language-switcher {
         order: -1;
         width: 100%;
