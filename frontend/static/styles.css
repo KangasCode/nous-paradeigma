@@ -2168,23 +2168,103 @@ select:focus {
    ============================================================================ */
 
 @media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px 0;
+        margin-bottom: 30px;
+    }
+
+    .logo h1 {
+        font-size: 2rem;
+    }
+
+    .nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .language-switcher {
+        order: -1;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
     .hero {
         grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 40px 0;
         text-align: center;
     }
 
     .hero-title {
-        font-size: 2rem;
+        font-size: 2.2rem;
+        line-height: 1.3;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
     }
 
     .zodiac-circle {
-        width: 300px;
-        height: 300px;
+        width: 280px;
+        height: 280px;
         margin: 0 auto;
+    }
+
+    .cosmic-video {
+        min-width: 120%;
+        min-height: 120%;
     }
 
     .features-grid {
         grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .feature-card {
+        padding: 30px 25px;
+    }
+
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .crystal-section {
+        padding: 60px 0;
+    }
+
+    .crystal-headline {
+        font-size: 2rem;
+    }
+
+    .crystal-subheadline {
+        font-size: 1.5rem;
+    }
+
+    .destiny-message {
+        padding: 0 15px;
+    }
+
+    .destiny-message p {
+        font-size: 1rem;
+    }
+
+    .crystal-video-wrapper {
+        max-width: 280px;
     }
 
     .testimonials-grid {
@@ -2192,34 +2272,152 @@ select:focus {
         gap: 25px;
     }
 
+    .testimonial-card {
+        padding: 25px 20px;
+    }
+
+    .gatherings-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .circle-symbol {
+        width: 200px;
+        height: 200px;
+    }
+
+    .ring {
+        font-size: 10rem;
+    }
+
+    .star-moon {
+        font-size: 2rem;
+    }
+
+    .gatherings-title {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .badges-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .badge-card {
+        padding: 25px 20px;
+    }
+
+    .merch-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        text-align: center;
+    }
+
+    .merch-title {
+        font-size: 2rem;
+    }
+
+    .merch-icon {
+        font-size: 8rem;
+    }
+
+    .lifetime-card {
+        padding: 40px 30px;
+    }
+
+    .lifetime-title {
+        font-size: 2rem;
+    }
+
+    .lifetime-amount {
+        font-size: 4rem;
+    }
+
     .pricing-grid {
         grid-template-columns: 1fr;
         gap: 25px;
     }
 
+    .pricing-card {
+        padding: 35px 25px;
+    }
+
     .pricing-card.featured {
         transform: scale(1);
+        padding: 40px 30px;
     }
 
     .pricing-card.featured:hover {
         transform: scale(1) translateY(-5px);
     }
-    
-    .crystal-headline {
-        font-size: 2.5rem;
+
+    .featured-badge {
+        font-size: 0.7rem;
+        padding: 6px 35px;
     }
-    
-    .crystal-video-wrapper {
-        max-width: 300px;
+
+    .faq-container {
+        padding: 0 15px;
+    }
+
+    .faq-item {
+        padding: 25px 20px;
+    }
+
+    .faq-question {
+        font-size: 1.2rem;
+    }
+
+    .faq-answer {
+        padding-left: 0;
+        margin-top: 10px;
+    }
+
+    .checkout-flow {
+        padding: 40px 20px;
+    }
+
+    .checkout-progress {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .progress-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .progress-label {
+        font-size: 0.75rem;
+    }
+
+    .progress-line {
+        width: 30px;
+        margin: 0 5px;
+    }
+
+    .checkout-title {
+        font-size: 1.8rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
     }
 
     .success-features {
         flex-direction: column;
     }
 
-    .nav {
-        flex-direction: column;
-        gap: 10px;
+    .modal-content {
+        padding: 35px 25px;
+        width: 95%;
+    }
+
+    .btn-large {
+        padding: 12px 30px;
+        font-size: 0.9rem;
     }
 }
 
