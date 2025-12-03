@@ -1267,6 +1267,16 @@ body::before {
     align-items: center;
 }
 
+.pricing-grid-two {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    align-items: stretch;
+}
+
 .pricing-card {
     padding: 40px 30px;
     background: rgba(30, 28, 31, 0.6);
@@ -1382,6 +1392,17 @@ body::before {
     color: var(--muted-gold);
     text-shadow: 0 0 20px rgba(193, 161, 90, 0.4);
     display: inline-block;
+}
+
+.amount-original {
+    font-family: var(--font-primary);
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--light-gray);
+    text-decoration: line-through;
+    margin-right: 15px;
+    display: inline-block;
+    opacity: 0.7;
 }
 
 .pricing-card.featured .amount {
@@ -2168,6 +2189,11 @@ select:focus {
    ============================================================================ */
 
 @media (max-width: 768px) {
+    .pricing-grid-two {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
     .container {
         padding: 0 15px;
     }
