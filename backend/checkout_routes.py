@@ -291,44 +291,5 @@ async def get_checkout_analytics(db: Session = Depends(get_db)):
         conversion_rate=round(conversion_rate, 2)
     )
 
-@router.get("/submissions")
-async def get_all_submissions(db: Session = Depends(get_db)):
-    """
-    Get all checkout submissions with contact details
-    (Admin endpoint - should be protected in production)
-    """
-    submissions = db.query(CheckoutProgress).order_by(
-        CheckoutProgress.created_at.desc()
-    ).all()
-    
-    results = []
-    for sub in submissions:
-        results.append({
-            "id": sub.id,
-            "session_id": sub.session_id,
-            "email": sub.email,
-            "phone": sub.phone,
-            "address": f"{sub.address_line1}, {sub.city}, {sub.postal_code}, {sub.country}" if sub.city else None,
-            "selected_plan": sub.selected_plan,
-            "completed_steps": {
-                "email": sub.step_email_completed,
-                "phone": sub.step_phone_completed,
-                "address": sub.step_address_completed,
-                "payment": sub.step_payment_completed
-            },
-            "converted": sub.converted,
-            "created_at": sub.created_at.isoformat() if sub.created_at else None,
-            "last_step_at": (
-                sub.payment_completed_at or 
-                sub.address_completed_at or 
-                sub.phone_completed_at or 
-                sub.email_completed_at or 
-                sub.created_at
-            ).isoformat() if (sub.payment_completed_at or sub.address_completed_at or sub.phone_completed_at or sub.email_completed_at or sub.created_at) else None
-        })
-    
-    return {
-        "total_submissions": len(results),
-        "submissions": results
-    }
+# Submissions endpoint removed - use /analytics dashboard instead for privacy
 

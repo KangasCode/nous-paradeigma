@@ -82,6 +82,11 @@ async def checkout_page(request: Request, plan: str = "cosmic"):
     """Serve the checkout page"""
     return templates.TemplateResponse("checkout.html", {"request": request, "plan": plan})
 
+@app.get("/analytics", response_class=HTMLResponse)
+async def analytics_page(request: Request):
+    """Serve the analytics dashboard"""
+    return templates.TemplateResponse("analytics.html", {"request": request})
+
 # ============================================================================
 # Authentication Endpoints
 # ============================================================================

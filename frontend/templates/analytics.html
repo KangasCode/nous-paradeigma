@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Analytics - Nous Paradeigma</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .analytics-dashboard {
+            max-width: 900px;
+            margin: 60px auto;
+        }
+        
+        .analytics-title {
+            font-family: var(--font-primary);
+            font-size: 2.5rem;
+            color: var(--starlight-white);
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 0 0 20px rgba(193, 161, 90, 0.4);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(30, 28, 31, 0.8);
+            border: 2px solid var(--nebula-gray);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--muted-gold);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(193, 161, 90, 0.2);
+        }
+        
+        .stat-number {
+            font-family: var(--font-primary);
+            font-size: 3.5rem;
+            font-weight: 500;
+            color: var(--muted-gold);
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(193, 161, 90, 0.5);
+        }
+        
+        .stat-label {
+            font-family: var(--font-secondary);
+            font-size: 0.95rem;
+            color: var(--light-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .conversion-card {
+            background: linear-gradient(135deg, rgba(60, 42, 77, 0.6) 0%, rgba(30, 28, 31, 0.8) 100%);
+            border: 2px solid var(--celestial-blue);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(106, 136, 255, 0.3);
+        }
+        
+        .conversion-rate {
+            font-family: var(--font-primary);
+            font-size: 5rem;
+            font-weight: 500;
+            color: var(--celestial-blue);
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(106, 136, 255, 0.6);
+        }
+        
+        .conversion-label {
+            font-family: var(--font-secondary);
+            font-size: 1.2rem;
+            color: var(--starlight-white);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .refresh-btn {
+            margin: 30px auto 0;
+            display: block;
+        }
+        
+        .funnel-visual {
+            margin: 50px 0;
+            padding: 30px;
+            background: rgba(30, 28, 31, 0.6);
+            border: 1px solid var(--nebula-gray);
+            border-radius: 12px;
+        }
+        
+        .funnel-step {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(15, 14, 16, 0.8);
+            border-left: 4px solid var(--muted-gold);
+            border-radius: 6px;
+        }
+        
+        .funnel-step-label {
+            font-family: var(--font-secondary);
+            font-size: 1.1rem;
+            color: var(--off-white);
+        }
+        
+        .funnel-step-count {
+            font-family: var(--font-primary);
+            font-size: 2rem;
+            color: var(--muted-gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <h1>✨ Nous Paradeigma</h1>
+            </div>
+            <nav class="nav">
+                <a href="/" class="btn btn-ghost">Back to Site</a>
+            </nav>
+        </header>
+
+        <div class="analytics-dashboard">
+            <h1 class="analytics-title">Checkout Analytics</h1>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalStarted">-</div>
+                    <div class="stat-label">Started Checkout</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="emailCompleted">-</div>
+                    <div class="stat-label">Completed Email</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="phoneCompleted">-</div>
+                    <div class="stat-label">Completed Phone</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="addressCompleted">-</div>
+                    <div class="stat-label">Completed Address</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="paymentClicked">-</div>
+                    <div class="stat-label">Clicked Payment</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="paymentCompleted">-</div>
+                    <div class="stat-label">Payment Complete</div>
+                </div>
+            </div>
+
+            <div class="conversion-card">
+                <div class="conversion-rate" id="conversionRate">-%</div>
+                <div class="conversion-label">Conversion Rate</div>
+            </div>
+
+            <div class="funnel-visual">
+                <h3 style="text-align: center; color: var(--starlight-white); margin-bottom: 30px; font-family: var(--font-primary);">Funnel Visualization</h3>
+                <div class="funnel-step">
+                    <span class="funnel-step-label">🚀 Started Checkout</span>
+                    <span class="funnel-step-count" id="funnel-started">-</span>
+                </div>
+                <div class="funnel-step">
+                    <span class="funnel-step-label">📧 Completed Email</span>
+                    <span class="funnel-step-count" id="funnel-email">-</span>
+                </div>
+                <div class="funnel-step">
+                    <span class="funnel-step-label">📱 Completed Phone</span>
+                    <span class="funnel-step-count" id="funnel-phone">-</span>
+                </div>
+                <div class="funnel-step">
+                    <span class="funnel-step-label">🏠 Completed Address</span>
+                    <span class="funnel-step-count" id="funnel-address">-</span>
+                </div>
+                <div class="funnel-step">
+                    <span class="funnel-step-label">💳 Clicked Payment</span>
+                    <span class="funnel-step-count" id="funnel-payment">-</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-large refresh-btn" onclick="loadAnalytics()">↻ Refresh Data</button>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/checkout/analytics');
+                const data = await response.json();
+                
+                // Update stat cards
+                document.getElementById('totalStarted').textContent = data.total_started;
+                document.getElementById('emailCompleted').textContent = data.step_email_completed;
+                document.getElementById('phoneCompleted').textContent = data.step_phone_completed;
+                document.getElementById('addressCompleted').textContent = data.step_address_completed;
+                document.getElementById('paymentClicked').textContent = data.step_payment_initiated;
+                document.getElementById('paymentCompleted').textContent = data.step_payment_completed;
+                document.getElementById('conversionRate').textContent = data.conversion_rate + '%';
+                
+                // Update funnel visualization
+                document.getElementById('funnel-started').textContent = data.total_started;
+                document.getElementById('funnel-email').textContent = data.step_email_completed;
+                document.getElementById('funnel-phone').textContent = data.step_phone_completed;
+                document.getElementById('funnel-address').textContent = data.step_address_completed;
+                document.getElementById('funnel-payment').textContent = data.step_payment_initiated;
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Load analytics on page load
+        loadAnalytics();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadAnalytics, 30000);
+    </script>
+</body>
+</html>
+
