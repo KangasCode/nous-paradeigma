@@ -21,90 +21,90 @@
             <div class="checkout-progress">
                 <div class="progress-step active" id="progress-email">
                     <div class="progress-circle">1</div>
-                    <span class="progress-label">Email</span>
+                    <span class="progress-label" data-i18n="progress.email">Email</span>
                 </div>
                 <div class="progress-line"></div>
                 <div class="progress-step" id="progress-phone">
                     <div class="progress-circle">2</div>
-                    <span class="progress-label">Phone</span>
+                    <span class="progress-label" data-i18n="progress.phone">Phone</span>
                 </div>
                 <div class="progress-line"></div>
                 <div class="progress-step" id="progress-address">
                     <div class="progress-circle">3</div>
-                    <span class="progress-label">Address</span>
+                    <span class="progress-label" data-i18n="progress.address">Address</span>
                 </div>
                 <div class="progress-line"></div>
                 <div class="progress-step" id="progress-capacity">
                     <div class="progress-circle">4</div>
-                    <span class="progress-label">Verification</span>
+                    <span class="progress-label" data-i18n="progress.verification">Verification</span>
                 </div>
                 <div class="progress-line"></div>
                 <div class="progress-step" id="progress-payment">
                     <div class="progress-circle">5</div>
-                    <span class="progress-label">Payment</span>
+                    <span class="progress-label" data-i18n="progress.payment">Payment</span>
                 </div>
             </div>
 
             <div class="checkout-container">
                 <!-- Step 1: Email -->
                 <div class="checkout-step active" id="step-email">
-                    <h2 class="checkout-title">Your Email</h2>
-                    <p class="checkout-subtitle">We'll send your cosmic insights here</p>
+                    <h2 class="checkout-title" data-i18n="email.title">Your Email</h2>
+                    <p class="checkout-subtitle" data-i18n="email.subtitle">We'll send your cosmic insights here</p>
                     <form id="emailForm" class="checkout-form">
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" required placeholder="you@example.com">
+                            <label for="email" data-i18n="email.label">Email Address</label>
+                            <input type="email" id="email" required data-i18n-placeholder="email.placeholder" placeholder="you@example.com">
                         </div>
                         <div id="emailError" class="error-message"></div>
-                        <button type="submit" class="btn btn-primary btn-large btn-full">Continue</button>
+                        <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.continue">Continue</button>
                     </form>
                 </div>
 
                 <!-- Step 2: Phone -->
                 <div class="checkout-step" id="step-phone">
-                    <h2 class="checkout-title">Your Phone Number</h2>
-                    <p class="checkout-subtitle">For important updates about your readings</p>
+                    <h2 class="checkout-title" data-i18n="phone.title">Your Phone Number</h2>
+                    <p class="checkout-subtitle" data-i18n="phone.subtitle">For important updates about your readings</p>
                     <form id="phoneForm" class="checkout-form">
                         <div class="form-group">
-                            <label for="phone">Phone Number</label>
-                            <input type="tel" id="phone" required placeholder="+1 (555) 123-4567">
+                            <label for="phone" data-i18n="phone.label">Phone Number</label>
+                            <input type="tel" id="phone" required data-i18n-placeholder="phone.placeholder" placeholder="+1 (555) 123-4567">
                         </div>
                         <div id="phoneError" class="error-message"></div>
-                        <button type="submit" class="btn btn-primary btn-large btn-full">Continue</button>
-                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('email')">Back</button>
+                        <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.continue">Continue</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('email')" data-i18n="button.back">Back</button>
                     </form>
                 </div>
 
                 <!-- Step 3: Address -->
                 <div class="checkout-step" id="step-address">
-                    <h2 class="checkout-title">Your Address</h2>
-                    <p class="checkout-subtitle">To personalize your cosmic location readings</p>
+                    <h2 class="checkout-title" data-i18n="address.title">Your Address</h2>
+                    <p class="checkout-subtitle" data-i18n="address.subtitle">To personalize your cosmic location readings</p>
                     <form id="addressForm" class="checkout-form">
                         <div class="form-group">
-                            <label for="address1">Address Line 1</label>
-                            <input type="text" id="address1" required placeholder="123 Cosmic Street">
+                            <label for="address1" data-i18n="address.line1">Address Line 1</label>
+                            <input type="text" id="address1" required data-i18n-placeholder="address.placeholder1" placeholder="123 Cosmic Street">
                         </div>
                         <div class="form-group">
-                            <label for="address2">Address Line 2 (Optional)</label>
-                            <input type="text" id="address2" placeholder="Apartment, suite, etc.">
+                            <label for="address2" data-i18n="address.line2">Address Line 2 (Optional)</label>
+                            <input type="text" id="address2" data-i18n-placeholder="address.line2Placeholder" placeholder="Apartment, suite, etc.">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="city">City</label>
-                                <input type="text" id="city" required placeholder="San Francisco">
+                                <label for="city" data-i18n="address.city">City</label>
+                                <input type="text" id="city" required data-i18n-placeholder="address.placeholderCity" placeholder="San Francisco">
                             </div>
                             <div class="form-group">
-                                <label for="postal">Postal Code</label>
-                                <input type="text" id="postal" required placeholder="94102">
+                                <label for="postal" data-i18n="address.postal">Postal Code</label>
+                                <input type="text" id="postal" required data-i18n-placeholder="address.placeholderPostal" placeholder="94102">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="country">Country</label>
-                            <input type="text" id="country" required placeholder="United States">
+                            <label for="country" data-i18n="address.country">Country</label>
+                            <input type="text" id="country" required data-i18n-placeholder="address.placeholderCountry" placeholder="United States">
                         </div>
                         <div id="addressError" class="error-message"></div>
-                        <button type="submit" class="btn btn-primary btn-large btn-full">Continue</button>
-                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('phone')">Back</button>
+                        <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.continue">Continue</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('phone')" data-i18n="button.back">Back</button>
                     </form>
                 </div>
 
@@ -116,8 +116,8 @@
                             <div class="capacity-spinner"></div>
                             <div class="capacity-pulse"></div>
                         </div>
-                        <h2 class="checkout-title">Verifying Membership Availability</h2>
-                        <p class="checkout-subtitle">Checking current capacity...</p>
+                        <h2 class="checkout-title" data-i18n="capacity.checking">Verifying Membership Availability</h2>
+                        <p class="checkout-subtitle" data-i18n="capacity.checkingSubtitle">Checking current capacity...</p>
                         <div class="capacity-dots">
                             <span></span><span></span><span></span>
                         </div>
@@ -126,25 +126,25 @@
                     <!-- Waitlist Form (Hidden initially) -->
                     <div class="capacity-waitlist" id="capacityWaitlist" style="display: none;">
                         <div class="capacity-icon">🌟</div>
-                        <h2 class="checkout-title">We're At Full Capacity</h2>
-                        <p class="checkout-subtitle">
+                        <h2 class="checkout-title" data-i18n="capacity.fullTitle">We're At Full Capacity</h2>
+                        <p class="checkout-subtitle" data-i18n="capacity.fullSubtitle">
                             Our exclusive membership is currently full to ensure we can provide the highest quality cosmic guidance to each member.
                         </p>
                         <div class="waitlist-highlight">
-                            <p><strong>Join our priority waiting list</strong></p>
-                            <p>Be the first to know when a spot opens up</p>
+                            <p><strong data-i18n="capacity.waitlistTitle">Join our priority waiting list</strong></p>
+                            <p data-i18n="capacity.waitlistSubtitle">Be the first to know when a spot opens up</p>
                         </div>
                         <form id="waitlistForm" class="checkout-form">
                             <div class="form-group">
-                                <label for="waitlistEmail">Your Email</label>
-                                <input type="email" id="waitlistEmail" required placeholder="you@example.com">
+                                <label for="waitlistEmail" data-i18n="capacity.emailLabel">Your Email</label>
+                                <input type="email" id="waitlistEmail" required data-i18n-placeholder="email.placeholder" placeholder="you@example.com">
                             </div>
                             <div id="waitlistError" class="error-message"></div>
-                            <div id="waitlistSuccess" class="success-message" style="display: none;">
+                            <div id="waitlistSuccess" class="success-message" style="display: none;" data-i18n="capacity.success">
                                 ✓ You've been added to the waiting list! We'll notify you as soon as a spot opens.
                             </div>
-                            <button type="submit" class="btn btn-primary btn-large btn-full">Join Waiting List</button>
-                            <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')">Back</button>
+                            <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.joinWaitlist">Join Waiting List</button>
+                            <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')" data-i18n="button.back">Back</button>
                         </form>
                     </div>
                 </div>
@@ -153,23 +153,23 @@
                 <div class="checkout-step" id="step-payment">
                     <div class="payment-ready">
                         <div class="success-icon-small">✓</div>
-                        <h2 class="checkout-title">Ready for Payment</h2>
-                        <p class="checkout-subtitle">You're one step away from unlocking your cosmic guidance</p>
+                        <h2 class="checkout-title" data-i18n="payment.title">Ready for Payment</h2>
+                        <p class="checkout-subtitle" data-i18n="payment.subtitle">You're one step away from unlocking your cosmic guidance</p>
                         
                         <div class="order-summary">
-                            <h3>Order Summary</h3>
+                            <h3 data-i18n="payment.summary">Order Summary</h3>
                             <div class="summary-item">
-                                <span class="summary-label">Plan:</span>
+                                <span class="summary-label" data-i18n="payment.plan">Plan:</span>
                                 <span class="summary-value" id="summary-plan">-</span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">Email:</span>
+                                <span class="summary-label" data-i18n="payment.email">Email:</span>
                                 <span class="summary-value" id="summary-email">-</span>
                             </div>
                         </div>
                         
-                        <button id="proceedToPayment" class="btn btn-primary btn-large btn-full">Proceed to Secure Payment</button>
-                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')">Back</button>
+                        <button id="proceedToPayment" class="btn btn-primary btn-large btn-full" data-i18n="payment.proceed">Proceed to Secure Payment</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')" data-i18n="button.back">Back</button>
                     </div>
                 </div>
             </div>
@@ -185,10 +185,143 @@
     <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div class="loading-spinner">
             <div class="spinner"></div>
-            <p>Processing...</p>
+            <p data-i18n="loading.processing">Processing...</p>
         </div>
     </div>
 
+    <script>
+        // Checkout translations (exposed globally)
+        window.checkoutTranslations = {
+            en: {
+                'progress.email': 'Email',
+                'progress.phone': 'Phone',
+                'progress.address': 'Address',
+                'progress.verification': 'Verification',
+                'progress.payment': 'Payment',
+                'email.title': 'Your Email',
+                'email.subtitle': 'We\'ll send your cosmic insights here',
+                'email.label': 'Email Address',
+                'email.placeholder': 'you@example.com',
+                'phone.title': 'Your Phone Number',
+                'phone.subtitle': 'For important updates about your readings',
+                'phone.label': 'Phone Number',
+                'phone.placeholder': '+1 (555) 123-4567',
+                'address.title': 'Your Address',
+                'address.subtitle': 'To personalize your cosmic location readings',
+                'address.line1': 'Address Line 1',
+                'address.line2': 'Address Line 2 (Optional)',
+                'address.line2Placeholder': 'Apartment, suite, etc.',
+                'address.city': 'City',
+                'address.postal': 'Postal Code',
+                'address.country': 'Country',
+                'address.placeholder1': '123 Cosmic Street',
+                'address.placeholderCity': 'San Francisco',
+                'address.placeholderPostal': '94102',
+                'address.placeholderCountry': 'United States',
+                'capacity.checking': 'Verifying Membership Availability',
+                'capacity.checkingSubtitle': 'Checking current capacity...',
+                'capacity.fullTitle': 'We\'re At Full Capacity',
+                'capacity.fullSubtitle': 'Our exclusive membership is currently full to ensure we can provide the highest quality cosmic guidance to each member.',
+                'capacity.waitlistTitle': 'Join our priority waiting list',
+                'capacity.waitlistSubtitle': 'Be the first to know when a spot opens up',
+                'capacity.emailLabel': 'Your Email',
+                'capacity.success': '✓ You\'ve been added to the waiting list! We\'ll notify you as soon as a spot opens.',
+                'payment.title': 'Ready for Payment',
+                'payment.subtitle': 'You\'re one step away from unlocking your cosmic guidance',
+                'payment.summary': 'Order Summary',
+                'payment.plan': 'Plan:',
+                'payment.email': 'Email:',
+                'payment.proceed': 'Proceed to Secure Payment',
+                'button.continue': 'Continue',
+                'button.back': 'Back',
+                'button.joinWaitlist': 'Join Waiting List',
+                'loading.processing': 'Processing...'
+            },
+            fi: {
+                'progress.email': 'Sähköposti',
+                'progress.phone': 'Puhelin',
+                'progress.address': 'Osoite',
+                'progress.verification': 'Vahvistus',
+                'progress.payment': 'Maksu',
+                'email.title': 'Sähköpostiosoitteesi',
+                'email.subtitle': 'Lähetämme kosmiset oivallukset tähän osoitteeseen',
+                'email.label': 'Sähköpostiosoite',
+                'email.placeholder': 'nimi@esimerkki.com',
+                'phone.title': 'Puhelinnumerosi',
+                'phone.subtitle': 'Tärkeiden päivitysten saamiseksi lukemistasi',
+                'phone.label': 'Puhelinnumero',
+                'phone.placeholder': '+358 50 123 4567',
+                'address.title': 'Osoitteesi',
+                'address.subtitle': 'Kosmisten sijaintilukemistesi personointia varten',
+                'address.line1': 'Osoiterivi 1',
+                'address.line2': 'Osoiterivi 2 (valinnainen)',
+                'address.line2Placeholder': 'Asunto, huoneisto jne.',
+                'address.city': 'Kaupunki',
+                'address.postal': 'Postinumero',
+                'address.country': 'Maa',
+                'address.placeholder1': 'Kosminen katu 123',
+                'address.placeholderCity': 'Helsinki',
+                'address.placeholderPostal': '00100',
+                'address.placeholderCountry': 'Suomi',
+                'capacity.checking': 'Jäsenyyden Saatavuuden Vahvistaminen',
+                'capacity.checkingSubtitle': 'Tarkistetaan nykyistä kapasiteettia...',
+                'capacity.fullTitle': 'Olemme Täysi Kapasiteetti',
+                'capacity.fullSubtitle': 'Eksklusiivinen jäsenyytemme on tällä hetkellä täynnä varmistaaksemme, että voimme tarjota korkeimman laadun kosmista ohjausta jokaiselle jäsenelle.',
+                'capacity.waitlistTitle': 'Liity prioriteettijonoon',
+                'capacity.waitlistSubtitle': 'Ole ensimmäinen, joka saa tietää kun paikka aukeaa',
+                'capacity.emailLabel': 'Sähköpostiosoitteesi',
+                'capacity.success': '✓ Olet lisätty jonoon! Ilmoitamme heti kun paikka aukeaa.',
+                'payment.title': 'Valmis Maksamaan',
+                'payment.subtitle': 'Olet yhden askeleen päässä kosmisen ohjauksesi avaamisesta',
+                'payment.summary': 'Tilauksen Yhteenveto',
+                'payment.plan': 'Suunnitelma:',
+                'payment.email': 'Sähköposti:',
+                'payment.proceed': 'Jatka Turvalliseen Maksuun',
+                'button.continue': 'Jatka',
+                'button.back': 'Takaisin',
+                'button.joinWaitlist': 'Liity Jonoon',
+                'loading.processing': 'Käsitellään...'
+            }
+        };
+
+        // Language detection and translation
+        function setCheckoutLanguage(lang) {
+            const translations = checkoutTranslations[lang] || checkoutTranslations['fi'];
+            const htmlElement = document.documentElement;
+            htmlElement.setAttribute('lang', lang);
+            
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[key]) {
+                    element.textContent = translations[key];
+                }
+            });
+            
+            // Update placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[key]) {
+                    element.placeholder = translations[key];
+                }
+            });
+            
+            // Update success message if it exists
+            const successElement = document.getElementById('waitlistSuccess');
+            if (successElement) {
+                const successKey = successElement.getAttribute('data-i18n');
+                if (successKey && translations[successKey]) {
+                    successElement.textContent = translations[successKey];
+                }
+            }
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentLang = localStorage.getItem('language') || 'fi';
+            setCheckoutLanguage(currentLang);
+        });
+    </script>
     <script src="/static/checkout.js?v=2"></script>
 </body>
 </html>

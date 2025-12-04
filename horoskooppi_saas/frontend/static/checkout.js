@@ -3,6 +3,19 @@ const API_BASE = '/api';
 let checkoutSessionId = null;
 let selectedPlan = null;
 
+// Get current language
+function getCurrentLanguage() {
+    return localStorage.getItem('language') || 'fi';
+}
+
+// Get translation
+function t(key) {
+    const lang = getCurrentLanguage();
+    const translations = window.checkoutTranslations || {};
+    const langTranslations = translations[lang] || translations['fi'] || {};
+    return langTranslations[key] || key;
+}
+
 // Get plan from URL or localStorage
 function getSelectedPlan() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -315,6 +328,14 @@ document.getElementById('waitlistForm').addEventListener('submit', async (e) => 
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.detail || 'Failed to join waiting list');
+        }
+        
+        // Update success message with current language
+        const lang = getCurrentLanguage();
+        const translations = window.checkoutTranslations || {};
+        const langTranslations = translations[lang] || translations['fi'] || {};
+        if (langTranslations['capacity.success']) {
+            successElement.textContent = langTranslations['capacity.success'];
         }
         
         // Show success message
