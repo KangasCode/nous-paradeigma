@@ -65,7 +65,11 @@ async def startup_event():
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     """Serve the main landing page"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    response = templates.TemplateResponse("index.html", {"request": request})
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
@@ -85,7 +89,11 @@ async def cancel_page(request: Request):
 @app.get("/checkout", response_class=HTMLResponse)
 async def checkout_page(request: Request, plan: str = "cosmic"):
     """Serve the checkout page"""
-    return templates.TemplateResponse("checkout.html", {"request": request, "plan": plan})
+    response = templates.TemplateResponse("checkout.html", {"request": request, "plan": plan})
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 @app.get("/analytics", response_class=HTMLResponse)
 async def analytics_page(request: Request):
