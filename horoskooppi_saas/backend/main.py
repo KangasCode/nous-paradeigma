@@ -46,9 +46,47 @@ app.add_middleware(
 app.include_router(checkout_router)
 
 # Get absolute paths for static files and templates
+# Handle both local development and Render deployment
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "..", "frontend", "static")
-TEMPLATES_DIR = os.path.join(BASE_DIR, "..", "frontend", "templates")
+# Try multiple possible paths
+possible_static_dirs = [
+    os.path.join(BASE_DIR, "..", "frontend", "static"),
+    os.path.join(os.path.dirname(BASE_DIR), "frontend", "static"),
+    "frontend/static",
+    "../frontend/static"
+]
+possible_template_dirs = [
+    os.path.join(BASE_DIR, "..", "frontend", "templates"),
+    os.path.join(os.path.dirname(BASE_DIR), "frontend", "templates"),
+    "frontend/templates",
+    "../frontend/templates"
+]
+
+# Find existing directories
+STATIC_DIR = None
+TEMPLATES_DIR = None
+
+for static_dir in possible_static_dirs:
+    abs_static = os.path.abspath(static_dir)
+    if os.path.exists(abs_static) and os.path.isdir(abs_static):
+        STATIC_DIR = abs_static
+        print(f"✅ Found static directory: {STATIC_DIR}")
+        break
+
+for template_dir in possible_template_dirs:
+    abs_template = os.path.abspath(template_dir)
+    if os.path.exists(abs_template) and os.path.isdir(abs_template):
+        TEMPLATES_DIR = abs_template
+        print(f"✅ Found templates directory: {TEMPLATES_DIR}")
+        break
+
+if not STATIC_DIR:
+    STATIC_DIR = os.path.join(BASE_DIR, "..", "frontend", "static")
+    print(f"⚠️ Using default static directory: {STATIC_DIR}")
+
+if not TEMPLATES_DIR:
+    TEMPLATES_DIR = os.path.join(BASE_DIR, "..", "frontend", "templates")
+    print(f"⚠️ Using default templates directory: {TEMPLATES_DIR}")
 
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
