@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waitlist - Nous Paradeigma</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .waitlist-dashboard {
+            padding: 60px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .waitlist-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .waitlist-count {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(193, 161, 90, 0.2), rgba(106, 136, 255, 0.2));
+            border: 2px solid var(--muted-gold);
+            border-radius: 12px;
+            padding: 30px 50px;
+            margin: 30px 0;
+        }
+        
+        .count-number {
+            font-size: 4rem;
+            font-family: var(--font-primary);
+            color: var(--muted-gold);
+            font-weight: 500;
+        }
+        
+        .count-label {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+        
+        .waitlist-table {
+            background: rgba(30, 28, 31, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .waitlist-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .waitlist-table th {
+            background: rgba(193, 161, 90, 0.1);
+            padding: 20px;
+            text-align: left;
+            color: var(--muted-gold);
+            font-weight: 400;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .waitlist-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(72, 71, 76, 0.3);
+            color: var(--text-primary);
+        }
+        
+        .waitlist-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .waitlist-table tr:hover {
+            background: rgba(193, 161, 90, 0.05);
+        }
+        
+        .plan-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+        
+        .plan-starlight { background: rgba(106, 136, 255, 0.2); color: #6A88FF; }
+        .plan-cosmic { background: rgba(193, 161, 90, 0.2); color: #C1A15A; }
+        .plan-celestial { background: rgba(175, 143, 98, 0.2); color: #AF8F62; }
+        .plan-lifetime { background: rgba(214, 192, 138, 0.2); color: #D6C08A; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .capacity-toggle {
+            margin-top: 40px;
+            text-align: center;
+            padding: 30px;
+            background: rgba(30, 28, 31, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            margin-top: 15px;
+        }
+        
+        .status-full {
+            background: rgba(193, 161, 90, 0.2);
+            border: 1px solid var(--muted-gold);
+            color: var(--muted-gold);
+        }
+        
+        .status-open {
+            background: rgba(106, 255, 136, 0.2);
+            border: 1px solid #6AFF88;
+            color: #6AFF88;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: status-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes status-pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>✨ Nous Paradeigma</h1>
+            </div>
+            <nav class="nav">
+                <a href="/">Home</a>
+                <a href="/analytics">Analytics</a>
+                <a href="/waitlist" class="active">Waitlist</a>
+            </nav>
+        </header>
+
+        <main class="waitlist-dashboard">
+            <div class="waitlist-header">
+                <h1 class="hero-title">Priority Waitlist</h1>
+                <p class="hero-subtitle">Exclusive members waiting for access</p>
+                
+                <div class="waitlist-count">
+                    <div class="count-number" id="totalCount">-</div>
+                    <div class="count-label">People Waiting</div>
+                </div>
+            </div>
+
+            <!-- Capacity Status -->
+            <div class="capacity-toggle">
+                <h3>Current Capacity Status</h3>
+                <div id="statusIndicator" class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="statusText">Checking...</span>
+                </div>
+                <p style="margin-top: 15px; color: var(--text-secondary); font-size: 0.9rem;">
+                    Change status in environment variables: <code>CAPACITY_FULL=true/false</code>
+                </p>
+            </div>
+
+            <!-- Waitlist Table -->
+            <div class="waitlist-table" style="margin-top: 40px;">
+                <div id="loadingState" class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading waitlist...</p>
+                </div>
+
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">📋</div>
+                    <h3>No waitlist entries yet</h3>
+                    <p>When customers join the waitlist, they'll appear here</p>
+                </div>
+
+                <table id="waitlistTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Email</th>
+                            <th>Plan</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="waitlistBody">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        // Load capacity status
+        async function loadCapacityStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/checkout/capacity-status`);
+                const data = await response.json();
+                
+                const indicator = document.getElementById('statusIndicator');
+                const statusText = document.getElementById('statusText');
+                
+                if (data.is_full) {
+                    indicator.className = 'status-indicator status-full';
+                    statusText.textContent = '🔒 Capacity Full - Showing Waitlist';
+                } else {
+                    indicator.className = 'status-indicator status-open';
+                    statusText.textContent = '✅ Capacity Open - Accepting Customers';
+                }
+            } catch (error) {
+                console.error('Error loading capacity status:', error);
+            }
+        }
+
+        // Load waitlist count
+        async function loadWaitlistCount() {
+            try {
+                const response = await fetch(`${API_BASE}/checkout/waitlist/count`);
+                const data = await response.json();
+                document.getElementById('totalCount').textContent = data.total;
+            } catch (error) {
+                console.error('Error loading waitlist count:', error);
+                document.getElementById('totalCount').textContent = 'Error';
+            }
+        }
+
+        // Load waitlist entries (mock - you'll need to add backend endpoint)
+        async function loadWaitlistEntries() {
+            // This is a placeholder - you would need to create a backend endpoint
+            // For now, we'll just show the count
+            
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const table = document.getElementById('waitlistTable');
+            
+            // Simulate loading
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            loadingState.style.display = 'none';
+            
+            // For now, show empty state with message
+            emptyState.style.display = 'block';
+            emptyState.innerHTML = `
+                <div class="empty-state-icon">🔐</div>
+                <h3>Direct Database Access Required</h3>
+                <p>View waitlist entries in the database:</p>
+                <code style="display: block; margin: 20px auto; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; max-width: 500px;">
+                    sqlite3 horoskooppi.db "SELECT * FROM waitlist ORDER BY created_at DESC;"
+                </code>
+                <p style="margin-top: 20px; color: var(--text-secondary);">
+                    Or add a <code>/api/checkout/waitlist/entries</code> endpoint for web access
+                </p>
+            `;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        // Initialize
+        async function init() {
+            await Promise.all([
+                loadCapacityStatus(),
+                loadWaitlistCount(),
+                loadWaitlistEntries()
+            ]);
+        }
+
+        init();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadWaitlistCount();
+            loadCapacityStatus();
+        }, 30000);
+    </script>
+</body>
+</html>
+

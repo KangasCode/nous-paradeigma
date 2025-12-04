@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Nous Paradeigma</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>✨ Nous Paradeigma</h1>
+            </div>
+        </header>
+
+        <!-- Checkout Flow -->
+        <main class="checkout-flow">
+            <!-- Progress Indicator -->
+            <div class="checkout-progress">
+                <div class="progress-step active" id="progress-email">
+                    <div class="progress-circle">1</div>
+                    <span class="progress-label">Email</span>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" id="progress-phone">
+                    <div class="progress-circle">2</div>
+                    <span class="progress-label">Phone</span>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" id="progress-address">
+                    <div class="progress-circle">3</div>
+                    <span class="progress-label">Address</span>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" id="progress-capacity">
+                    <div class="progress-circle">4</div>
+                    <span class="progress-label">Verification</span>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" id="progress-payment">
+                    <div class="progress-circle">5</div>
+                    <span class="progress-label">Payment</span>
+                </div>
+            </div>
+
+            <div class="checkout-container">
+                <!-- Step 1: Email -->
+                <div class="checkout-step active" id="step-email">
+                    <h2 class="checkout-title">Your Email</h2>
+                    <p class="checkout-subtitle">We'll send your cosmic insights here</p>
+                    <form id="emailForm" class="checkout-form">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" required placeholder="you@example.com">
+                        </div>
+                        <div id="emailError" class="error-message"></div>
+                        <button type="submit" class="btn btn-primary btn-large btn-full">Continue</button>
+                    </form>
+                </div>
+
+                <!-- Step 2: Phone -->
+                <div class="checkout-step" id="step-phone">
+                    <h2 class="checkout-title">Your Phone Number</h2>
+                    <p class="checkout-subtitle">For important updates about your readings</p>
+                    <form id="phoneForm" class="checkout-form">
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" required placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div id="phoneError" class="error-message"></div>
+                        <button type="submit" class="btn btn-primary btn-large btn-full">Continue</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('email')">Back</button>
+                    </form>
+                </div>
+
+                <!-- Step 3: Address -->
+                <div class="checkout-step" id="step-address">
+                    <h2 class="checkout-title">Your Address</h2>
+                    <p class="checkout-subtitle">To personalize your cosmic location readings</p>
+                    <form id="addressForm" class="checkout-form">
+                        <div class="form-group">
+                            <label for="address1">Address Line 1</label>
+                            <input type="text" id="address1" required placeholder="123 Cosmic Street">
+                        </div>
+                        <div class="form-group">
+                            <label for="address2">Address Line 2 (Optional)</label>
+                            <input type="text" id="address2" placeholder="Apartment, suite, etc.">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" required placeholder="San Francisco">
+                            </div>
+                            <div class="form-group">
+                                <label for="postal">Postal Code</label>
+                                <input type="text" id="postal" required placeholder="94102">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <input type="text" id="country" required placeholder="United States">
+                        </div>
+                        <div id="addressError" class="error-message"></div>
+                        <button type="submit" class="btn btn-primary btn-large btn-full">Continue</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('phone')">Back</button>
+                    </form>
+                </div>
+
+                <!-- Step 4: Capacity Check -->
+                <div class="checkout-step" id="step-capacity">
+                    <!-- Checking Animation -->
+                    <div class="capacity-checking" id="capacityChecking">
+                        <div class="capacity-spinner-container">
+                            <div class="capacity-spinner"></div>
+                            <div class="capacity-pulse"></div>
+                        </div>
+                        <h2 class="checkout-title">Verifying Membership Availability</h2>
+                        <p class="checkout-subtitle">Checking current capacity...</p>
+                        <div class="capacity-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+
+                    <!-- Waitlist Form (Hidden initially) -->
+                    <div class="capacity-waitlist" id="capacityWaitlist" style="display: none;">
+                        <div class="capacity-icon">🌟</div>
+                        <h2 class="checkout-title">We're At Full Capacity</h2>
+                        <p class="checkout-subtitle">
+                            Our exclusive membership is currently full to ensure we can provide the highest quality cosmic guidance to each member.
+                        </p>
+                        <div class="waitlist-highlight">
+                            <p><strong>Join our priority waiting list</strong></p>
+                            <p>Be the first to know when a spot opens up</p>
+                        </div>
+                        <form id="waitlistForm" class="checkout-form">
+                            <div class="form-group">
+                                <label for="waitlistEmail">Your Email</label>
+                                <input type="email" id="waitlistEmail" required placeholder="you@example.com">
+                            </div>
+                            <div id="waitlistError" class="error-message"></div>
+                            <div id="waitlistSuccess" class="success-message" style="display: none;">
+                                ✓ You've been added to the waiting list! We'll notify you as soon as a spot opens.
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-large btn-full">Join Waiting List</button>
+                            <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')">Back</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Step 5: Payment Ready -->
+                <div class="checkout-step" id="step-payment">
+                    <div class="payment-ready">
+                        <div class="success-icon-small">✓</div>
+                        <h2 class="checkout-title">Ready for Payment</h2>
+                        <p class="checkout-subtitle">You're one step away from unlocking your cosmic guidance</p>
+                        
+                        <div class="order-summary">
+                            <h3>Order Summary</h3>
+                            <div class="summary-item">
+                                <span class="summary-label">Plan:</span>
+                                <span class="summary-value" id="summary-plan">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Email:</span>
+                                <span class="summary-value" id="summary-email">-</span>
+                            </div>
+                        </div>
+                        
+                        <button id="proceedToPayment" class="btn btn-primary btn-large btn-full">Proceed to Secure Payment</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')">Back</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <script src="/static/checkout.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,72 @@
+# Fysiikan tehtävät: Tasainen ja kiihtyvä liike
+
+## 1. Tasainen nopeus
+
+### Kysymys
+
+Auto kulkee suoralla tiellä tasaisella nopeudella 20 m/s.
+- a) Kuinka pitkän matkan auto kulkee 15 sekunnissa?
+- b) Kuinka kauan kestää kulkea 600 metrin matka tällä nopeudella?
+
+### Tarvittavat kaavat
+
+Tasainen liike:
+- Nopeus: $v = \frac{s}{t}$
+- Matka: $s = v \cdot t$
+- Aika: $t = \frac{s}{v}$
+
+### Ratkaisu ja vastaus
+
+**a)**
+
+$s = v \cdot t = 20 \text{ m/s} \cdot 15 \text{ s} = 300 \text{ m}$
+
+**Vastaus: Auto kulkee 300 m.**
+
+**b)**
+
+$t = \frac{s}{v} = \frac{600 \text{ m}}{20 \text{ m/s}} = 30 \text{ s}$
+
+**Vastaus: Matkaan kuluu 30 s.**
+
+---
+
+## 2. Tasaisesti kiihtyvä liike
+
+### Kysymys
+
+Auto lähtee liikkeelle nopeudesta 5 m/s ja kiihtyy tasaisesti kiihtyvyydellä 2 m/s².
+- a) Mikä on auton nopeus 4 sekunnin kuluttua?
+- b) Kuinka paljon auton nopeus on kasvanut tässä ajassa?
+- c) Kuinka pitkän matkan auto kulkee 4 sekunnissa?
+
+### Tarvittavat kaavat
+
+Tasaisesti kiihtyvä liike:
+- Loppunopeus: $v = v_0 + a \cdot t$
+- Nopeuden muutos: $\Delta v = v - v_0$
+- Kuljettu matka: $s = v_0 \cdot t + \frac{1}{2} a \cdot t^2$
+
+### Ratkaisu ja vastaus
+
+Annetut arvot: $v_0 = 5 \text{ m/s}$, $a = 2 \text{ m/s}^2$, $t = 4 \text{ s}$
+
+**a)**
+
+$v = v_0 + a \cdot t = 5 + 2 \cdot 4 = 5 + 8 = 13 \text{ m/s}$
+
+**Vastaus: Nopeus 4 s kuluttua on 13 m/s.**
+
+**b)**
+
+$\Delta v = v - v_0 = 13 - 5 = 8 \text{ m/s}$
+
+**Vastaus: Nopeus kasvoi 8 m/s.**
+
+**c)**
+
+$s = v_0 \cdot t + \frac{1}{2} a \cdot t^2 = 5 \cdot 4 + \frac{1}{2} \cdot 2 \cdot 4^2$
+
+$s = 20 + 1 \cdot 16 = 36 \text{ m}$
+
+**Vastaus: Auto kulkee 36 m.**

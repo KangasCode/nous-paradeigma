@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cosmic Space - Nous Paradeigma</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>✨ Nous Paradeigma</h1>
+            </div>
+            <nav class="nav">
+                <span id="userEmail" class="user-info"></span>
+                <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+            </nav>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="dashboard">
+            <!-- Subscription Status -->
+            <section class="dashboard-section">
+                <div class="subscription-status" id="subscriptionStatus">
+                    <div class="status-loading">Loading subscription status...</div>
+                </div>
+            </section>
+
+            <!-- Horoscope Generator -->
+            <section class="dashboard-section" id="horoscopeGenerator" style="display: none;">
+                <h2>Receive Your Personal Guidance</h2>
+                <div class="horoscope-form">
+                    <div class="form-group">
+                        <label for="zodiacSign">Your Celestial Sign</label>
+                        <select id="zodiacSign" class="form-control">
+                            <option value="">Choose your sign...</option>
+                            <option value="aries">♈ Aries (March 21 - April 19)</option>
+                            <option value="taurus">♉ Taurus (April 20 - May 20)</option>
+                            <option value="gemini">♊ Gemini (May 21 - June 20)</option>
+                            <option value="cancer">♋ Cancer (June 21 - July 22)</option>
+                            <option value="leo">♌ Leo (July 23 - August 22)</option>
+                            <option value="virgo">♍ Virgo (August 23 - September 22)</option>
+                            <option value="libra">♎ Libra (September 23 - October 22)</option>
+                            <option value="scorpio">♏ Scorpio (October 23 - November 21)</option>
+                            <option value="sagittarius">♐ Sagittarius (November 22 - December 21)</option>
+                            <option value="capricorn">♑ Capricorn (December 22 - January 19)</option>
+                            <option value="aquarius">♒ Aquarius (January 20 - February 18)</option>
+                            <option value="pisces">♓ Pisces (February 19 - March 20)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="predictionType">Guidance Timeline</label>
+                        <select id="predictionType" class="form-control">
+                            <option value="daily">Today's Personal Reading</option>
+                            <option value="weekly">This Week's Cosmic Path</option>
+                            <option value="monthly">This Month's Soul Journey</option>
+                        </select>
+                    </div>
+                    <button id="generateBtn" class="btn btn-primary btn-large">Receive Your Message ✨</button>
+                    <div id="generateError" class="error-message"></div>
+                </div>
+            </section>
+
+            <!-- Current Horoscope Display -->
+            <section class="dashboard-section" id="currentHoroscope" style="display: none;">
+                <h2>Your Cosmic Message</h2>
+                <div class="horoscope-display" id="horoscopeContent">
+                    <!-- Horoscope content will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Previous Horoscopes -->
+            <section class="dashboard-section" id="previousHoroscopes" style="display: none;">
+                <h2>Your Cosmic Journey</h2>
+                <div class="horoscopes-list" id="horoscopesList">
+                    <!-- Previous horoscopes will be listed here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Channeling your cosmic message...</p>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is authenticated
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/';
+        }
+    </script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
+

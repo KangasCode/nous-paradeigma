@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nous Paradeigma - Your Personal Cosmic Guide</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>✨ Nous Paradeigma</h1>
+            </div>
+            <nav class="nav">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en">EN</button>
+                    <span class="lang-separator">|</span>
+                    <button class="lang-btn active" data-lang="fi">FI</button>
+                </div>
+                <button id="showLogin" class="btn btn-ghost" data-i18n="nav.login">Login</button>
+                <button id="showRegister" class="btn btn-primary" data-i18n="nav.getStarted">Get Started</button>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2 class="hero-title" data-i18n="hero.title">Your Personal Guide to the Cosmos</h2>
+                <p class="hero-subtitle" data-i18n="hero.subtitle">Deeply personalized horoscopes crafted uniquely for you. Daily, weekly, and monthly insights that understand your journey and speak directly to your soul.</p>
+                <button id="ctaRegister" class="btn btn-large btn-primary" data-i18n="cta.subscribe">Subscribe and Begin Your Journey</button>
+            </div>
+            <div class="hero-image">
+                <div class="zodiac-circle">
+                    <video class="cosmic-video" autoplay loop muted playsinline>
+                        <source src="/static/woman.mov" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <h3 class="section-title" data-i18n="features.title">Why Nous Paradeigma?</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h4 data-i18n="features.card1Title">Uniquely Yours</h4>
+                    <p data-i18n="features.card1Text">Every reading is deeply personalized to your unique cosmic blueprint and life journey.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌙</div>
+                    <h4 data-i18n="features.card2Title">Daily Guidance</h4>
+                    <p data-i18n="features.card2Text">Fresh cosmic insights crafted specifically for you each day, week, and month.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💫</div>
+                    <h4 data-i18n="features.card3Title">Holistic Vision</h4>
+                    <p data-i18n="features.card3Text">Illuminating your path through love, purpose, wellbeing, and abundance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔮</div>
+                    <h4 data-i18n="features.card4Title">Sacred Space</h4>
+                    <p data-i18n="features.card4Text">Your personal sanctuary where the cosmos speaks directly to you in confidence.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌟</div>
+                    <h4 data-i18n="features.card5Title">Ancient Wisdom</h4>
+                    <p data-i18n="features.card5Text">Timeless astrological knowledge meets modern understanding, bridging millennia of cosmic insight.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h4 data-i18n="features.card6Title">Your Rhythm</h4>
+                    <p data-i18n="features.card6Text">Navigate life's cycles with timing aligned to your personal celestial patterns and energy flow.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works">
+            <h3 class="section-title" data-i18n="howItWorks.title">How Your Reading Is Created</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">🌌</div>
+                    <h4 class="step-title" data-i18n="howItWorks.step1Title">Your Cosmic Blueprint</h4>
+                    <p class="step-text" data-i18n="howItWorks.step1Text">You share your birth details and the system builds your unique celestial map.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">✨</div>
+                    <h4 class="step-title" data-i18n="howItWorks.step2Title">Intelligent Interpretation</h4>
+                    <p class="step-text" data-i18n="howItWorks.step2Text">Our engine analyses cycles, patterns, timing and energy flow.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">💫</div>
+                    <h4 class="step-title" data-i18n="howItWorks.step3Title">Your Daily Guidance</h4>
+                    <p class="step-text" data-i18n="howItWorks.step3Text">You receive clear, personal readings crafted just for your path.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Destiny Belief Section -->
+        <section class="crystal-section">
+            <div class="crystal-content">
+                <h2 class="crystal-headline" data-i18n="destiny.question">Do you believe in destiny?</h2>
+                <p class="crystal-subheadline" data-i18n="destiny.answer">We read the signs.</p>
+                <div class="destiny-message">
+                    <p data-i18n="destiny.text1">Let us reveal what the cosmos has written for you.</p>
+                    <p data-i18n="destiny.text2">Not generic horoscopes. Not vague inspiration.</p>
+                    <p class="destiny-promise" data-i18n="destiny.promise">Accurate, personal insights designed to guide your choices, timing and direction.</p>
+                </div>
+                <div class="crystal-video-container">
+                    <div class="crystal-video-wrapper">
+                        <img src="/static/timantti.gif" alt="Diamond" class="crystal-video">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials">
+            <h3 class="section-title" data-i18n="testimonials.title">What Our Circle Says</h3>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-text" data-i18n="testimonials.quote1">"For the first time, the guidance actually feels personal to me."</p>
+                    <p class="testimonial-author" data-i18n="testimonials.author1">— Mira, Leo</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text" data-i18n="testimonials.quote2">"Daily insights that genuinely help me plan my week."</p>
+                    <p class="testimonial-author" data-i18n="testimonials.author2">— Aino, Virgo</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text" data-i18n="testimonials.quote3">"I've subscribed to many. This is the only one that feels accurate."</p>
+                    <p class="testimonial-author" data-i18n="testimonials.author3">— Elias, Taurus</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Circle Gatherings Section -->
+        <section class="circle-gatherings">
+            <div class="gatherings-content">
+                <div class="gatherings-visual">
+                    <div class="circle-symbol">
+                        <span class="ring ring-1">◯</span>
+                        <span class="ring ring-2">◯</span>
+                        <span class="star-moon">✦ ☽</span>
+                    </div>
+                </div>
+                <div class="gatherings-text">
+                    <h3 class="gatherings-title" data-i18n="gatherings.title">Circle Gatherings</h3>
+                    <p class="gatherings-intro" data-i18n="gatherings.intro">Join a private space where members connect, share stories and explore their cosmic journey together.</p>
+                    <p class="gatherings-desc" data-i18n="gatherings.desc">A calm, supportive environment for those who believe in energy, destiny and the unseen patterns shaping our lives.</p>
+                    <ul class="gatherings-benefits">
+                        <li data-i18n="gatherings.benefit1">✓ Guided conversation themes</li>
+                        <li data-i18n="gatherings.benefit2">✓ Connect and chat with like-minded souls</li>
+                        <li data-i18n="gatherings.benefit3">✓ Early access to cosmic events</li>
+                        <li data-i18n="gatherings.benefit4">✓ Discussion forum for interested members</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <h3 class="section-title" data-i18n="faq.title">Frequently Asked Questions</h3>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <h4 class="faq-question" data-i18n="faq.q1">Is this really personalized?</h4>
+                    <p class="faq-answer" data-i18n="faq.a1">Yes. Every reading uses your personal birth chart and daily movements of the planets.</p>
+                </div>
+                <div class="faq-item">
+                    <h4 class="faq-question" data-i18n="faq.q2">Can I cancel anytime?</h4>
+                    <p class="faq-answer" data-i18n="faq.a2">Yes. One click. No commitments.</p>
+                </div>
+                <div class="faq-item">
+                    <h4 class="faq-question" data-i18n="faq.q3">How accurate are the readings?</h4>
+                    <p class="faq-answer" data-i18n="faq.a3">We combine classical astrology with modern analysis to provide guidance, not fortune-telling.</p>
+                </div>
+                <div class="faq-item">
+                    <h4 class="faq-question" data-i18n="faq.q4">Do I need prior astrology knowledge?</h4>
+                    <p class="faq-answer" data-i18n="faq.a4">No. Everything is explained clearly.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trust Badges Section -->
+        <section class="trust-badges">
+            <h3 class="section-title" data-i18n="trust.title">Trusted Guidance, Modern Methods</h3>
+            <div class="badges-grid">
+                <div class="badge-card">
+                    <div class="badge-icon">🛡️</div>
+                    <h4 class="badge-title" data-i18n="trust.badge1Title">Secure & Private Readings</h4>
+                    <p class="badge-text" data-i18n="trust.badge1Text">Your data stays encrypted and protected.</p>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">⭐</div>
+                    <h4 class="badge-title" data-i18n="trust.badge2Title">AI-Assisted Accuracy</h4>
+                    <p class="badge-text" data-i18n="trust.badge2Text">Modern celestial analysis enhanced with intelligent pattern reading.</p>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">🔮</div>
+                    <h4 class="badge-title" data-i18n="trust.badge3Title">Astrologers Reviewed</h4>
+                    <p class="badge-text" data-i18n="trust.badge3Text">Every reading passes a human quality check.</p>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">🔒</div>
+                    <h4 class="badge-title" data-i18n="trust.badge4Title">Privacy First</h4>
+                    <p class="badge-text" data-i18n="trust.badge4Text">Your cosmic journey remains confidential.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Merch Store Section -->
+        <section class="merch-store">
+            <div class="merch-content">
+                <div class="merch-text">
+                    <h3 class="merch-title" data-i18n="merch.title">Cosmic Merch Store</h3>
+                    <p class="merch-description" data-i18n="merch.description">Exclusive apparel, jewelry and artifacts inspired by your celestial identity.</p>
+                    <div class="merch-discount">
+                        <span class="discount-badge" data-i18n="merch.discount">For members 50% discount sitewide</span>
+                    </div>
+                    <button class="btn btn-ghost btn-large" data-i18n="merch.cta">Explore Collection</button>
+                </div>
+                <div class="merch-visual">
+                    <div class="merch-icon">✦</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="pricing">
+            <h3 class="section-title" data-i18n="pricing.title">Your Personal Cosmic Gateway</h3>
+            
+            <div class="pricing-grid-two">
+                <!-- Lifetime Package -->
+                <div class="pricing-card">
+                    <div class="lifetime-badge" data-i18n="pricing.lifetimeBadge">Lifetime Access</div>
+                    <h4 class="pricing-title" data-i18n="pricing.lifetimeTitle">Eternal Membership</h4>
+                    <div class="pricing-price">
+                        <span class="amount">499€</span>
+                        <span class="period" data-i18n="pricing.lifetimeLabel">one time</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li data-i18n="pricing.cosmic1">✓ Daily personalized cosmic messages</li>
+                        <li data-i18n="pricing.cosmic2">✓ Weekly cosmic guidance</li>
+                        <li data-i18n="pricing.cosmic3">✓ Monthly soul forecasts</li>
+                        <li data-i18n="pricing.cosmic4">✓ Relationship insights for you</li>
+                        <li data-i18n="pricing.cosmic5">✓ Personal celestial timing</li>
+                        <li data-i18n="pricing.cosmic6">✓ Priority guidance</li>
+                        <li data-i18n="pricing.lifetimeFeature">✓ Forever - No recurring payments</li>
+                    </ul>
+                    <button class="btn btn-ghost btn-large pricing-btn" data-i18n="cta.subscribe">Subscribe and Begin Your Journey</button>
+                </div>
+
+                <!-- Cosmic Package (FEATURED) -->
+                <div class="pricing-card featured">
+                    <div class="featured-badge" data-i18n="pricing.featuredBadge">Most Chosen</div>
+                    <h4 class="pricing-title" data-i18n="pricing.cosmicTitle">Cosmic</h4>
+                    <div class="pricing-price">
+                        <span class="amount-original">12,99€</span>
+                        <span class="amount">4,99€</span>
+                        <span class="period" data-i18n="pricing.perMonth">/kk</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li data-i18n="pricing.cosmic1">✓ Daily personalized cosmic messages</li>
+                        <li data-i18n="pricing.cosmic2">✓ Weekly cosmic guidance</li>
+                        <li data-i18n="pricing.cosmic3">✓ Monthly soul forecasts</li>
+                        <li data-i18n="pricing.cosmic4">✓ Relationship insights for you</li>
+                        <li data-i18n="pricing.cosmic5">✓ Personal celestial timing</li>
+                        <li data-i18n="pricing.cosmic6">✓ Priority guidance</li>
+                    </ul>
+                    <button class="btn btn-primary btn-large pricing-btn" data-i18n="cta.subscribe">Subscribe and Begin Your Journey</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- What Does Nous Paradeigma Mean Section -->
+        <section class="meaning-section">
+            <div class="meaning-container">
+                <div class="meaning-icon">✨</div>
+                <h2 class="meaning-title" data-i18n="meaning.title">What Does Nous Paradeigma Mean?</h2>
+                
+                <div class="greek-terms">
+                    <div class="greek-term">
+                        <h3 class="greek-word">Nous <span class="greek-script">(νοῦς)</span></h3>
+                        <p data-i18n="meaning.nous">The Divine Mind, the Spirit, or the pure Intellect and Consciousness that connects us to the cosmos.</p>
+                    </div>
+                    
+                    <div class="greek-term">
+                        <h3 class="greek-word">Paradeigma <span class="greek-script">(παράδειγμα)</span></h3>
+                        <p data-i18n="meaning.paradeigma">The essential Model or celestial Pattern—the unique blueprint that governs reality.</p>
+                    </div>
+                </div>
+                
+                <div class="meaning-together">
+                    <p data-i18n="meaning.together">Together, <span class="brand-name-glow">Nous Paradeigma</span> signifies <strong>Your Personal Cosmic Blueprint</strong>.</p>
+                    <p data-i18n="meaning.explanation">It is the intelligent, hidden pattern woven into the fabric of the universe at your moment of birth. We translate this unique celestial rhythm into clear, actionable guidance, offering a deeply personalized map to navigate your destiny, purpose, and abundance.</p>
+                    <p class="meaning-final" data-i18n="meaning.final">It is your personal guide to the cosmos.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Welcome Back</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div id="loginError" class="error-message"></div>
+                <button type="submit" class="btn btn-primary btn-full">Login</button>
+            </form>
+            <p class="modal-footer">Don't have an account? <a href="#" id="switchToRegister">Register here</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Create Your Account</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" required minlength="8">
+                </div>
+                <div id="registerError" class="error-message"></div>
+                <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+            </form>
+            <p class="modal-footer">Already have an account? <a href="#" id="switchToLogin">Login here</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize language immediately
+        const translations = {
+            en: {
+                'nav.login': 'Login',
+                'nav.getStarted': 'Get Started',
+                'hero.title': 'Your Personal Guide to the Cosmos',
+                'hero.subtitle': 'Deeply personalized horoscopes crafted uniquely for you. Daily, weekly, and monthly insights that understand your journey and speak directly to your soul.',
+                'hero.cta': 'Begin Your Journey',
+                'features.title': 'Why Nous Paradeigma?',
+                'destiny.question': 'Do you believe in destiny?',
+                'destiny.answer': 'We read the signs.',
+                'destiny.text1': 'Let us reveal what the cosmos has written for you.',
+                'destiny.text2': 'Not generic horoscopes. Not vague inspiration.',
+                'destiny.promise': 'Accurate, personal insights designed to guide your choices, timing and direction.',
+                'testimonials.title': 'What Our Circle Says',
+                'testimonials.quote1': '"For the first time, the guidance actually feels personal to me."',
+                'testimonials.author1': '— Mira, Leo',
+                'testimonials.quote2': '"Daily insights that genuinely help me plan my week."',
+                'testimonials.author2': '— Aino, Virgo',
+                'testimonials.quote3': '"I\'ve subscribed to many. This is the only one that feels accurate."',
+                'testimonials.author3': '— Elias, Taurus',
+                'faq.title': 'Frequently Asked Questions',
+                'faq.q1': 'Is this really personalized?',
+                'faq.a1': 'Yes. Every cosmic message uses your personal birth chart and daily movements of the planets.',
+                'faq.q2': 'Can I cancel anytime?',
+                'faq.a2': 'Yes. One click. No commitments.',
+                'faq.q3': 'How accurate are the cosmic messages?',
+                'faq.a3': 'We combine classical astrology with modern analysis to provide guidance, not fortune-telling.',
+                'faq.q4': 'Do I need prior astrology knowledge?',
+                'faq.a4': 'No. Everything is explained clearly.',
+                'howItWorks.title': 'How Your Cosmic Message Is Created',
+                'howItWorks.step1Title': 'Your Cosmic Blueprint',
+                'howItWorks.step1Text': 'You share your birth details and the system builds your unique celestial map.',
+                'howItWorks.step2Title': 'Intelligent Interpretation',
+                'howItWorks.step2Text': 'Our engine analyses cycles, patterns, timing and energy flow.',
+                'howItWorks.step3Title': 'Your Daily Guidance',
+                'howItWorks.step3Text': 'You receive clear, personal cosmic messages crafted just for your path.',
+                'trust.title': 'Trusted Guidance, Modern Methods',
+                'trust.badge1Title': 'Secure & Private Cosmic Messages',
+                'trust.badge1Text': 'Your data stays encrypted and protected.',
+                'trust.badge2Title': 'AI-Assisted Accuracy',
+                'trust.badge2Text': 'Modern celestial analysis enhanced with intelligent pattern reading.',
+                'trust.badge3Title': 'Astrologers Reviewed',
+                'trust.badge3Text': 'Every cosmic message passes a human quality check.',
+                'trust.badge4Title': 'Privacy First',
+                'trust.badge4Text': 'Your cosmic journey remains confidential.',
+                'merch.title': 'Cosmic Merch Store',
+                'merch.description': 'Exclusive apparel, jewelry and artifacts inspired by your celestial identity.',
+                'merch.discount': 'For members 50% discount sitewide',
+                'merch.cta': 'Explore Collection',
+                'gatherings.title': 'Circle Gatherings',
+                'gatherings.intro': 'Join a private space where members connect, share stories and explore their cosmic journey together.',
+                'gatherings.desc': 'A calm, supportive environment for those who believe in energy, destiny and the unseen patterns shaping our lives.',
+                'gatherings.benefit1': '✓ Guided conversation themes',
+                'gatherings.benefit2': '✓ Connect and chat with like-minded souls',
+                'gatherings.benefit3': '✓ Early access to cosmic events',
+                'gatherings.benefit4': '✓ Discussion forum for interested members',
+                'cta.subscribe': 'Subscribe and Begin Your Journey',
+                'pricing.title': 'Your Personal Cosmic Gateway',
+                'features.card1Title': 'Uniquely Yours',
+                'features.card1Text': 'Every cosmic message is deeply personalized to your unique cosmic blueprint and life journey.',
+                'features.card2Title': 'Daily Guidance',
+                'features.card2Text': 'Fresh cosmic insights crafted specifically for you each day, week, and month.',
+                'features.card3Title': 'Holistic Vision',
+                'features.card3Text': 'Illuminating your path through love, purpose, wellbeing, and abundance.',
+                'features.card4Title': 'Sacred Space',
+                'features.card4Text': 'Your personal sanctuary where the cosmos speaks directly to you in confidence.',
+                'features.card5Title': 'Ancient Wisdom',
+                'features.card5Text': 'Timeless astrological knowledge meets modern understanding, bridging millennia of cosmic insight.',
+                'features.card6Title': 'Your Rhythm',
+                'features.card6Text': 'Navigate life\'s cycles with timing aligned to your personal celestial patterns and energy flow.',
+                'pricing.lifetimeBadge': 'Lifetime Access',
+                'pricing.lifetimeTitle': 'Eternal Membership',
+                'pricing.lifetimeLabel': 'one time',
+                'pricing.lifetimeDesc': 'All Celestial features. Forever. No recurring payments. Complete cosmic access for life.',
+                'pricing.lifetimeFeature': '✓ Forever - No recurring payments',
+                'pricing.divider': 'Or choose monthly access',
+                'pricing.perMonth': '/month',
+                'pricing.featuredBadge': 'Most Chosen',
+                'pricing.starlightTitle': 'Starlight',
+                'pricing.starlight1': '✓ Weekly personalized cosmic messages',
+                'pricing.starlight2': '✓ Your zodiac insights',
+                'pricing.starlight3': '✓ Basic cosmic timing',
+                'pricing.starlight4': '✓ Monthly overview',
+                'pricing.cosmicTitle': 'Cosmic',
+                'pricing.cosmic1': '✓ Daily personalized cosmic messages',
+                'pricing.cosmic2': '✓ Weekly cosmic guidance',
+                'pricing.cosmic3': '✓ Monthly soul forecasts',
+                'pricing.cosmic4': '✓ Relationship insights for you',
+                'pricing.cosmic5': '✓ Personal celestial timing',
+                'pricing.cosmic6': '✓ Priority guidance',
+                'pricing.celestialTitle': 'Celestial',
+                'pricing.celestial1': '✓ Everything in Cosmic',
+                'pricing.celestial2': '✓ Unlimited daily cosmic messages',
+                'pricing.celestial3': '✓ Deep soul path analysis',
+                'pricing.celestial4': '✓ Birth chart interpretation',
+                'pricing.celestial5': '✓ Compatibility cosmic messages',
+                'pricing.celestial6': '✓ Personal astrologer support',
+                'pricing.celestial7': '✓ Exclusive cosmic events',
+                'meaning.title': 'What Does Nous Paradeigma Mean?',
+                'meaning.nous': 'The Divine Mind, the Spirit, or the pure Intellect and Consciousness that connects us to the cosmos.',
+                'meaning.paradeigma': 'The essential Model or celestial Pattern—the unique blueprint that governs reality.',
+                'meaning.together': 'Together,  signifies Your Personal Cosmic Blueprint.',
+                'meaning.explanation': 'It is the intelligent, hidden pattern woven into the fabric of the universe at your moment of birth. We translate this unique celestial rhythm into clear, actionable guidance, offering a deeply personalized map to navigate your destiny, purpose, and abundance.',
+                'meaning.final': 'It is your personal guide to the cosmos.'
+            },
+            fi: {
+                'nav.login': 'Kirjaudu',
+                'nav.getStarted': 'Aloita',
+                'hero.title': 'Henkilökohtainen Oppaasi Kosmokseen',
+                'hero.subtitle': 'Syvästi personoidut horoskooppit luodaan ainutlaatuisesti sinulle. Päivittäiset, viikoittaiset ja kuukausittaiset oivallukset jotka ymmärtävät matkasi ja puhuvat suoraan sielullesi.',
+                'hero.cta': 'Aloita Matkasi',
+                'features.title': 'Miksi Nous Paradeigma?',
+                'destiny.question': 'Uskotko kohtaloon?',
+                'destiny.answer': 'Me luemme merkit.',
+                'destiny.text1': 'Anna meidän paljastaa, mitä kosmos on kirjoittanut sinulle.',
+                'destiny.text2': 'Ei yleisiä horoskooppeja. Ei epämääräistä inspiraatiota.',
+                'destiny.promise': 'Tarkkoja, henkilökohtaisia oivalluksia valintojesi, ajoituksesi ja suuntasi ohjaamiseen.',
+                'testimonials.title': 'Mitä Piirissämme Sanotaan',
+                'testimonials.quote1': '"Ensimmäistä kertaa ohjaus tuntuu todella henkilökohtaiselta."',
+                'testimonials.author1': '— Mira, Leijona',
+                'testimonials.quote2': '"Päivittäiset oivallukset auttavat minua aidosti suunnittelemaan viikkoni."',
+                'testimonials.author2': '— Aino, Neitsyt',
+                'testimonials.quote3': '"Olen tilannut monia. Tämä on ainoa joka tuntuu tarkalta."',
+                'testimonials.author3': '— Elias, Härkä',
+                'faq.title': 'Usein Kysytyt Kysymykset',
+                'faq.q1': 'Onko tämä todella personoitu?',
+                'faq.a1': 'Kyllä. Jokainen kosminen viesti käyttää henkilökohtaista syntymäkartaasi ja planeettojen päivittäisiä liikkeitä.',
+                'faq.q2': 'Voinko peruuttaa milloin tahansa?',
+                'faq.a2': 'Kyllä. Yhdellä klikkauksella. Ei sitoumuksia.',
+                'faq.q3': 'Kuinka tarkkoja kosmiset viestit ovat?',
+                'faq.a3': 'Yhdistämme klassisen astrologian moderniin analyysiin tarjotaksemme ohjausta, emme ennustamista.',
+                'faq.q4': 'Tarvitsenko aiempaa astrologian tuntemusta?',
+                'faq.a4': 'Ei. Kaikki selitetään selkeästi.',
+                'howItWorks.title': 'Miten Kosminen Viestisi Luodaan',
+                'howItWorks.step1Title': 'Kosminen Karttasi',
+                'howItWorks.step1Text': 'Jaat syntymätietosi ja järjestelmä rakentaa ainutlaatuisen taivaallisen karttasi.',
+                'howItWorks.step2Title': 'Älykäs Tulkinta',
+                'howItWorks.step2Text': 'Moottori analysoi syklejä, kuvioita, ajoitusta ja energiavirtausta.',
+                'howItWorks.step3Title': 'Päivittäinen Ohjauksesi',
+                'howItWorks.step3Text': 'Saat selkeitä, henkilökohtaisia kosmisia viestejä juuri sinun polullesi.',
+                'trust.title': 'Luotettu Ohjaus, Modernit Menetelmät',
+                'trust.badge1Title': 'Turvalliset & Yksityiset Kosmiset Viestit',
+                'trust.badge1Text': 'Tietosi pysyvät salattuna ja suojattuna.',
+                'trust.badge2Title': 'AI-Avusteinen Tarkkuus',
+                'trust.badge2Text': 'Moderni taivaallinen analyysi tehostettuna älykkäällä kuvion lukemisella.',
+                'trust.badge3Title': 'Astrologien Tarkistama',
+                'trust.badge3Text': 'Jokainen kosminen viesti läpäisee inhimillisen laatutarkastuksen.',
+                'trust.badge4Title': 'Yksityisyys Ensin',
+                'trust.badge4Text': 'Kosminen matkasi pysyy luottamuksellisena.',
+                'merch.title': 'Kosminen Merch-Kauppa',
+                'merch.description': 'Eksklusiivisia vaatteita, koruja ja esineitä inspiroituna taivaallisesta identiteetistäsi.',
+                'merch.discount': 'Jäsenille 50% alennus kaikesta',
+                'merch.cta': 'Tutustu Kokoelmaan',
+                'gatherings.title': 'Piirin Kokoontomiset',
+                'gatherings.intro': 'Liity yksityiseen tilaan jossa jäsenet yhdistyvät, jakavat tarinoita ja tutkivat kosmista matkaansa yhdessä.',
+                'gatherings.desc': 'Rauhallinen, tukeva ympäristö niille jotka uskovat energiaan, kohtaloon ja näkymättömiin kuvioihin jotka muovaavat elämäämme.',
+                'gatherings.benefit1': '✓ Ohjatut keskusteluteemat',
+                'gatherings.benefit2': '✓ Tutustu ja juttele samanhenkisten sielujen kanssa',
+                'gatherings.benefit3': '✓ Varhainen pääsy kosmisiin tapahtumiin',
+                'gatherings.benefit4': '✓ Keskustelupalsta aiheesta kiinnostuneille',
+                'cta.subscribe': 'Tilaa ja Aloita Matkasi',
+                'pricing.title': 'Henkilökohtainen Kosminen Porttisi',
+                'features.card1Title': 'Ainutlaatuisesti Sinun',
+                'features.card1Text': 'Jokainen kosminen viesti on syvästi personoitu ainutlaatuiseen kosmiseen karttaasi ja elämänmatkaasi.',
+                'features.card2Title': 'Päivittäinen Ohjaus',
+                'features.card2Text': 'Tuoreita kosmisia oivalluksia juuri sinulle jokaisena päivänä, viikkona ja kuukautena.',
+                'features.card3Title': 'Kokonaisvaltainen Näkemys',
+                'features.card3Text': 'Valaisemme polkusi rakkauden, tarkoituksen, hyvinvoinnin ja vaurauden läpi.',
+                'features.card4Title': 'Pyhä Tila',
+                'features.card4Text': 'Henkilökohtainen pyhäkkö jossa kosmos puhuu suoraan sinulle luottamuksellisesti.',
+                'features.card5Title': 'Muinainen Viisaus',
+                'features.card5Text': 'Ajaton astrologinen tieto kohtaa modernin ymmärryksen yhdistäen vuosituhansien kosmisen oivalluksen.',
+                'features.card6Title': 'Sinun Rytmisi',
+                'features.card6Text': 'Navigoi elämän syklejä ajoituksen mukaan henkilökohtaisiin taivaallisiin kuvioihisi ja energiavirtaasi.',
+                'pricing.lifetimeBadge': 'Elinikäinen Pääsy',
+                'pricing.lifetimeTitle': 'Ikuinen Jäsenyys',
+                'pricing.lifetimeLabel': 'kertamaksu',
+                'pricing.lifetimeDesc': 'Kaikki Celestial ominaisuudet. Ikuisesti. Ei toistuvia maksuja. Täysi kosminen pääsy koko elämäksi.',
+                'pricing.lifetimeFeature': '✓ Ikuisesti - Ei toistuvia maksuja',
+                'pricing.divider': 'Tai valitse kuukausitilaus',
+                'pricing.perMonth': '/kk',
+                'pricing.featuredBadge': 'Suosituin',
+                'pricing.starlightTitle': 'Starlight',
+                'pricing.starlight1': '✓ Viikottaiset personoidut kosmiset viestit',
+                'pricing.starlight2': '✓ Horoskooppisi oivallukset',
+                'pricing.starlight3': '✓ Perustason kosminen ajoitus',
+                'pricing.starlight4': '✓ Kuukausikatsaus',
+                'pricing.cosmicTitle': 'Cosmic',
+                'pricing.cosmic1': '✓ Päivittäiset personoidut kosmiset viestit',
+                'pricing.cosmic2': '✓ Viikottainen kosminen ohjaus',
+                'pricing.cosmic3': '✓ Kuukausittaiset sieluennusteet',
+                'pricing.cosmic4': '✓ Suhde-oivallukset sinulle',
+                'pricing.cosmic5': '✓ Henkilökohtainen taivaallinen ajoitus',
+                'pricing.cosmic6': '✓ Ensisijainen ohjaus',
+                'pricing.celestialTitle': 'Celestial',
+                'pricing.celestial1': '✓ Kaikki Cosmicista',
+                'pricing.celestial2': '✓ Rajattomat päivittäiset kosmiset viestit',
+                'pricing.celestial3': '✓ Syvä sielupolun analyysi',
+                'pricing.celestial4': '✓ Syntymäkartan tulkinta',
+                'pricing.celestial5': '✓ Yhteensopivuuden kosmiset viestit',
+                'pricing.celestial6': '✓ Henkilökohtainen astrologi-tuki',
+                'pricing.celestial7': '✓ Eksklusiiviset kosmiset tapahtumat',
+                'meaning.title': 'Mitä Nous Paradeigma Tarkoittaa?',
+                'meaning.nous': 'Jumalallinen Mieli, Henki, tai puhdas Äly ja Tietoisuus, joka yhdistää meidät kosmokseen.',
+                'meaning.paradeigma': 'Olennainen Malli tai taivaallinen Kuvio—ainutlaatuinen suunnitelma, joka hallitsee todellisuutta.',
+                'meaning.together': 'Yhdessä  merkitsee Henkilökohtaista Kosmista Suunnitelmaasi.',
+                'meaning.explanation': 'Se on älykäs, piilotettu kuvio, joka on kudottu universumin kankaaseen syntymähetkesi. Käännämme tämän ainutlaatuisen taivaallisen rytmin selkeäksi, toimivaksi ohjaukseksi, tarjoten syvästi personoidun kartan kohtalosi, tarkoituksesi ja runsauden navigointiin.',
+                'meaning.final': 'Se on henkilökohtainen oppaasi kosmokseen.'
+            }
+        };
+
+        function setLanguage(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+            });
+            
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+            
+            localStorage.setItem('language', lang);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentLang = localStorage.getItem('language') || 'fi';
+            setLanguage(currentLang);
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setLanguage(btn.getAttribute('data-lang'));
+                });
+            });
+        });
+    </script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
+
