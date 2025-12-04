@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: nous-paradeigma
+    runtime: python
+    plan: free
+    buildCommand: pip install -r horoskooppi_saas/backend/requirements.txt
+    startCommand: cd horoskooppi_saas/backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///./horoskooppi.db
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: BASE_URL
+        sync: false
+      - key: DEMO_MODE
+        value: true
+      - key: CAPACITY_FULL
+        value: true
+
