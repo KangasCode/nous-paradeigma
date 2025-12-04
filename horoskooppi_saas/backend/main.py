@@ -61,21 +61,22 @@ async def startup_event():
     init_db()
     print("Database initialized successfully")
 
-# Root endpoint - serve index page
+# Root endpoint - serve index page (HEAD requests handled automatically by FastAPI)
 @app.get("/", response_class=HTMLResponse)
-@app.head("/")
 async def root(request: Request):
     """Serve the main landing page"""
-    # Handle HEAD requests for healthcheck
-    if request.method == "HEAD":
-        from fastapi.responses import Response
-        return Response(status_code=200)
-    
     response = templates.TemplateResponse("index.html", {"request": request})
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
+
+# Health check endpoint for Render
+@app.get("/health")
+@app.head("/health")
+async def health():
+    """Health check endpoint for Render"""
+    return {"status": "ok"}
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
