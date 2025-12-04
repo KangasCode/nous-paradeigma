@@ -63,8 +63,14 @@ async def startup_event():
 
 # Root endpoint - serve index page
 @app.get("/", response_class=HTMLResponse)
+@app.head("/")
 async def root(request: Request):
     """Serve the main landing page"""
+    # Handle HEAD requests for healthcheck
+    if request.method == "HEAD":
+        from fastapi.responses import Response
+        return Response(status_code=200)
+    
     response = templates.TemplateResponse("index.html", {"request": request})
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Pragma"] = "no-cache"
