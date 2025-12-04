@@ -111,7 +111,11 @@ else:
     print(f"❌ Templates directory not found: {TEMPLATES_DIR}")
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+# Enable template auto-reload to prevent caching
+from jinja2 import Environment, FileSystemLoader
+jinja_env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), auto_reload=True)
+templates = Jinja2Templates(env=jinja_env)
 
 # Initialize database on startup
 @app.on_event("startup")
@@ -136,6 +140,25 @@ async def root(request: Request):
 async def health():
     """Health check endpoint for Render"""
     return {"status": "ok"}
+
+# Debug endpoint to check file paths (remove in production)
+@app.get("/api/debug/paths")
+async def debug_paths():
+    """Debug endpoint to check file paths"""
+    import os
+    BASE = os.path.dirname(os.path.abspath(__file__))
+    
+    return {
+        "base_dir": BASE,
+        "static_dir": STATIC_DIR,
+        "templates_dir": TEMPLATES_DIR,
+        "static_exists": os.path.exists(STATIC_DIR),
+        "templates_exists": os.path.exists(TEMPLATES_DIR),
+        "static_files": os.listdir(STATIC_DIR) if os.path.exists(STATIC_DIR) else [],
+        "template_files": os.listdir(TEMPLATES_DIR) if os.path.exists(TEMPLATES_DIR) else [],
+        "cwd": os.getcwd(),
+        "checkout_html_exists": os.path.exists(os.path.join(TEMPLATES_DIR, "checkout.html")) if os.path.exists(TEMPLATES_DIR) else False
+    }
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
