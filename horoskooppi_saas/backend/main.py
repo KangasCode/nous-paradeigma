@@ -89,6 +89,27 @@ if not TEMPLATES_DIR:
     print(f"⚠️ Using default templates directory: {TEMPLATES_DIR}")
 
 # Mount static files and templates
+print(f"📁 Mounting static files from: {STATIC_DIR}")
+print(f"📁 Mounting templates from: {TEMPLATES_DIR}")
+
+# Verify files exist
+import os
+if os.path.exists(STATIC_DIR):
+    files = os.listdir(STATIC_DIR)
+    print(f"✅ Static files found: {files[:10]}...")  # Show first 10
+else:
+    print(f"❌ Static directory not found: {STATIC_DIR}")
+
+if os.path.exists(TEMPLATES_DIR):
+    files = os.listdir(TEMPLATES_DIR)
+    print(f"✅ Template files found: {files}")
+    if "checkout.html" in files:
+        print("✅ checkout.html found!")
+    else:
+        print("❌ checkout.html NOT found!")
+else:
+    print(f"❌ Templates directory not found: {TEMPLATES_DIR}")
+
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
