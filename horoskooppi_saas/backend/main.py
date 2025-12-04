@@ -45,9 +45,14 @@ app.add_middleware(
 # Include routers
 app.include_router(checkout_router)
 
+# Get absolute paths for static files and templates
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "..", "frontend", "static")
+TEMPLATES_DIR = os.path.join(BASE_DIR, "..", "frontend", "templates")
+
 # Mount static files and templates
-app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
-templates = Jinja2Templates(directory="../frontend/templates")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # Initialize database on startup
 @app.on_event("startup")
