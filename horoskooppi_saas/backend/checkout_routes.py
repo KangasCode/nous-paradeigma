@@ -2,6 +2,8 @@
 Checkout funnel routes and tracking
 """
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
 from sqlalchemy.orm import Session
 from datetime import datetime
 import secrets
@@ -18,6 +20,7 @@ from csv_export import save_to_csv
 import os
 
 router = APIRouter(prefix="/api/checkout", tags=["checkout"])
+security = HTTPBasic()
 
 # Plan to Stripe Price ID mapping
 PLAN_PRICE_MAP = {
@@ -329,13 +332,31 @@ async def get_checkout_analytics(db: Session = Depends(get_db)):
 # Submissions endpoint removed - use /analytics dashboard instead for privacy
 
 @router.get("/download-csv")
-async def download_csv():
+async def download_csv(credentials: HTTPBasicCredentials = Depends(security)):
     """
-    Download CSV file with all checkout submissions
-    (Admin only - add authentication in production!)
+    Download CSV file with all checkout submissions.
+    Protected by HTTP Basic (set env ADMIN_DOWNLOAD_USER / ADMIN_DOWNLOAD_PASS).
     """
     from fastapi.responses import FileResponse
     from csv_export import get_csv_path
+
+    admin_user = os.getenv("ADMIN_DOWNLOAD_USER", "admin")
+    admin_pass = os.getenv("ADMIN_DOWNLOAD_PASS")
+
+    if not admin_pass:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Download is not configured (missing ADMIN_DOWNLOAD_PASS)"
+        )
+
+    valid_user = secrets.compare_digest(credentials.username, admin_user)
+    valid_pass = secrets.compare_digest(credentials.password, admin_pass)
+    if not (valid_user and valid_pass):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Basic"},
+        )
     
     csv_path = get_csv_path()
     
