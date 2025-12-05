@@ -8,12 +8,14 @@ from datetime import datetime
 from pathlib import Path
 
 # CSV file location (secure, server-side only)
-CSV_DIR = Path(__file__).parent / "data"
+# Use persistent volume if available
+DATA_DIR = Path(os.getenv("DATA_DIR", "/data"))
+CSV_DIR = DATA_DIR
 CSV_FILE = CSV_DIR / "checkout_submissions.csv"
 
 def ensure_csv_exists():
     """Create CSV file with headers if it doesn't exist"""
-    CSV_DIR.mkdir(exist_ok=True)
+    CSV_DIR.mkdir(parents=True, exist_ok=True)
     
     if not CSV_FILE.exists():
         with open(CSV_FILE, 'w', newline='', encoding='utf-8') as f:

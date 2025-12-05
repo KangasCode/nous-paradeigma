@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./horoskooppi.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:////data/horoskooppi.db")
 
 # Create engine
 engine = create_engine(
