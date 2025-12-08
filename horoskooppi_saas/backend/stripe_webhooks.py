@@ -216,3 +216,4 @@ def create_customer_portal_session(customer_id: str, return_url: str) -> dict:
             detail=f"Failed to create portal session: {str(e)}"
         )
 
+

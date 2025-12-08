@@ -412,3 +412,4 @@ For issues or questions:
 
 **Built with ❤️ using FastAPI, Stripe, and Google Gemini AI**
 
+
