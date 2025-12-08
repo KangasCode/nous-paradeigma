@@ -46,74 +46,34 @@ app.add_middleware(
 # Include routers
 app.include_router(checkout_router)
 
-# Get absolute paths for static files and templates
-# Handle both local development and Render deployment
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Try multiple possible paths
-possible_static_dirs = [
-    os.path.join(BASE_DIR, "..", "frontend", "static"),
-    os.path.join(os.path.dirname(BASE_DIR), "frontend", "static"),
-    "frontend/static",
-    "../frontend/static"
-]
-possible_template_dirs = [
-    os.path.join(BASE_DIR, "..", "frontend", "templates"),
-    os.path.join(os.path.dirname(BASE_DIR), "frontend", "templates"),
-    "frontend/templates",
-    "../frontend/templates"
-]
+# Explicitly resolve paths relative to this file
+# backend/main.py -> backend/ -> horoskooppi_saas/ -> frontend/static
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # backend/
+PROJECT_ROOT = os.path.dirname(BASE_DIR) # horoskooppi_saas/
+FRONTEND_DIR = os.path.join(PROJECT_ROOT, "frontend")
+STATIC_DIR = os.path.join(FRONTEND_DIR, "static")
+TEMPLATES_DIR = os.path.join(FRONTEND_DIR, "templates")
 
-# Find existing directories
-STATIC_DIR = None
-TEMPLATES_DIR = None
+# Verify paths
+print(f"🔍 Path Resolution:")
+print(f"   Base: {BASE_DIR}")
+print(f"   Static: {STATIC_DIR}")
+print(f"   Templates: {TEMPLATES_DIR}")
 
-for static_dir in possible_static_dirs:
-    abs_static = os.path.abspath(static_dir)
-    if os.path.exists(abs_static) and os.path.isdir(abs_static):
-        STATIC_DIR = abs_static
-        print(f"✅ Found static directory: {STATIC_DIR}")
-        break
-
-for template_dir in possible_template_dirs:
-    abs_template = os.path.abspath(template_dir)
-    if os.path.exists(abs_template) and os.path.isdir(abs_template):
-        TEMPLATES_DIR = abs_template
-        print(f"✅ Found templates directory: {TEMPLATES_DIR}")
-        break
-
-if not STATIC_DIR:
-    STATIC_DIR = os.path.join(BASE_DIR, "..", "frontend", "static")
-    print(f"⚠️ Using default static directory: {STATIC_DIR}")
-
-if not TEMPLATES_DIR:
-    TEMPLATES_DIR = os.path.join(BASE_DIR, "..", "frontend", "templates")
-    print(f"⚠️ Using default templates directory: {TEMPLATES_DIR}")
-
-# Mount static files and templates
-print(f"📁 Mounting static files from: {STATIC_DIR}")
-print(f"📁 Mounting templates from: {TEMPLATES_DIR}")
-
-# Verify files exist
-import os
-if os.path.exists(STATIC_DIR):
-    files = os.listdir(STATIC_DIR)
-    print(f"✅ Static files found: {files[:10]}...")  # Show first 10
+if not os.path.exists(STATIC_DIR):
+    print(f"⚠️ WARNING: Static directory not found at {STATIC_DIR}")
 else:
-    print(f"❌ Static directory not found: {STATIC_DIR}")
+    print(f"✅ Static directory found")
 
-if os.path.exists(TEMPLATES_DIR):
-    files = os.listdir(TEMPLATES_DIR)
-    print(f"✅ Template files found: {files}")
-    if "checkout.html" in files:
-        print("✅ checkout.html found!")
-    else:
-        print("❌ checkout.html NOT found!")
+if not os.path.exists(TEMPLATES_DIR):
+    print(f"⚠️ WARNING: Templates directory not found at {TEMPLATES_DIR}")
 else:
-    print(f"❌ Templates directory not found: {TEMPLATES_DIR}")
+    print(f"✅ Templates directory found")
 
+# Mount static files
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# Enable template auto-reload to prevent caching
+# Setup templates
 from jinja2 import Environment, FileSystemLoader
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), auto_reload=True)
 templates = Jinja2Templates(env=jinja_env)
@@ -146,19 +106,15 @@ async def health():
 @app.get("/api/debug/paths")
 async def debug_paths():
     """Debug endpoint to check file paths"""
-    import os
-    BASE = os.path.dirname(os.path.abspath(__file__))
-    
     return {
-        "base_dir": BASE,
+        "base_dir": BASE_DIR,
         "static_dir": STATIC_DIR,
         "templates_dir": TEMPLATES_DIR,
         "static_exists": os.path.exists(STATIC_DIR),
         "templates_exists": os.path.exists(TEMPLATES_DIR),
         "static_files": os.listdir(STATIC_DIR) if os.path.exists(STATIC_DIR) else [],
         "template_files": os.listdir(TEMPLATES_DIR) if os.path.exists(TEMPLATES_DIR) else [],
-        "cwd": os.getcwd(),
-        "checkout_html_exists": os.path.exists(os.path.join(TEMPLATES_DIR, "checkout.html")) if os.path.exists(TEMPLATES_DIR) else False
+        "cwd": os.getcwd()
     }
 
 @app.get("/dashboard", response_class=HTMLResponse)
