@@ -4,6 +4,7 @@ Google Gemini API client for horoscope generation
 import os
 import google.generativeai as genai
 from typing import Optional
+from datetime import datetime
 
 class GeminiClient:
     """Client for interacting with Google Gemini API"""
@@ -94,15 +95,36 @@ Technical rules for star chart calculation: For natal chart generation, convert 
 The system will deliver structured input to you including natal chart data, current transit data, prediction type, and previous predictions. You must output only the new prediction text according to the category rules above. Ensure all interpretations are unique, consistent with the transits, and clearly structured. Always create content that feels newly written, not derivative of earlier predictions.
 """
 
-        # Context construction (Placeholder for now until birth data is implemented)
+        # Get astrology data
+        try:
+            from astrology_service import astrology_service
+            # Calculate positions (using current date for transits)
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            # For now, we don't have user birth data here, so we skip natal chart calculation
+            # In future: natal_data = astrology_service.calculate_natal_chart(...)
+            transit_data = astrology_service.calculate_transits(current_date)
+            
+            astrology_context = f"""
+            CALCULATED ASTROLOGY DATA:
+            Current Date: {current_date}
+            
+            Transits (Current Planetary Positions):
+            {transit_data}
+            """
+        except ImportError:
+             astrology_context = "[System: Astrology service unavailable]"
+
+        # Context construction
         context_data = f"""
         CURRENT TASK:
         Prediction Type: {prediction_type.upper()}
         Zodiac Sign: {zodiac_sign.capitalize()}
         
-        [SYSTEM NOTE: Full natal chart and transit calculation inputs are currently unavailable. 
-        Please act as the astrological engine and generate a {prediction_type} prediction for {zodiac_sign.capitalize()} 
-        based on general current planetary positions if known, or general archetypes for this sign.]
+        {astrology_context}
+        
+        [SYSTEM NOTE: Full natal chart data is currently unavailable as user birth data is not yet collected. 
+        Please generate a {prediction_type} prediction for {zodiac_sign.capitalize()} 
+        using the provided Transit data and general archetypes for this sign.]
         """
 
         full_prompt = f"{base_prompt}\n\n{type_instructions.get(prediction_type, type_instructions['daily'])}\n\n{technical_rules}\n\n{context_data}"
@@ -125,4 +147,3 @@ Remember: The universe has a plan for you. Stay positive and trust your journey!
 
 # Create a singleton instance
 gemini_client = GeminiClient()
-
