@@ -141,8 +141,16 @@ if (window.location.pathname === '/') {
                 });
 
                 if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.detail || 'Login failed');
+                    let errorMessage = 'Login failed';
+                    try {
+                        const error = await response.json();
+                        errorMessage = error.detail || errorMessage;
+                    } catch (e) {
+                        // If response is not JSON, try to get text
+                        const text = await response.text();
+                        errorMessage = text || `Server error: ${response.status}`;
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 const data = await response.json();
