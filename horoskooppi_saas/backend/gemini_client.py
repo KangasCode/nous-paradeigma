@@ -3,8 +3,9 @@ Google Gemini API client for horoscope generation
 """
 import os
 import google.generativeai as genai
-from typing import Optional
+from typing import Optional, Tuple, Any, Dict
 from datetime import datetime
+import json
 
 class GeminiClient:
     """Client for interacting with Google Gemini API"""
@@ -37,7 +38,7 @@ class GeminiClient:
         self, 
         zodiac_sign: str, 
         prediction_type: str = "daily"
-    ) -> str:
+    ) -> Tuple[str, Dict[str, Any]]:
         """
         Generate a horoscope prediction for a zodiac sign
         
@@ -46,25 +47,44 @@ class GeminiClient:
             prediction_type: Type of prediction ('daily', 'weekly', 'monthly')
         
         Returns:
-            Generated horoscope text
+            Tuple containing:
+            - Generated horoscope text
+            - Dictionary with raw calculation data
         """
         self._ensure_initialized()
         
+        # 1. Fetch Astrology Data
+        transit_data = {}
+        try:
+            from astrology_service import astrology_service
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            # For now, we simulate natal data absence or add placeholders
+            transit_data = astrology_service.calculate_transits(current_date)
+            # Add date meta
+            transit_data["date"] = current_date
+        except ImportError:
+            print("Astrology service import failed")
+            transit_data = {"error": "Service unavailable"}
+        except Exception as e:
+            print(f"Astrology calculation failed: {e}")
+            transit_data = {"error": str(e)}
+
+        # 2. Generate Content
         # If model is not available, use fallback
         if not self.model:
-            return self._generate_fallback_horoscope(zodiac_sign, prediction_type)
+            return self._generate_fallback_horoscope(zodiac_sign, prediction_type), transit_data
         
-        prompt = self._create_prompt(zodiac_sign, prediction_type)
+        prompt = self._create_prompt(zodiac_sign, prediction_type, transit_data)
         
         try:
             response = self.model.generate_content(prompt)
-            return response.text
+            return response.text, transit_data
         except Exception as e:
             # Fallback response if API fails
             print(f"Gemini API error: {e}. Using fallback.")
-            return self._generate_fallback_horoscope(zodiac_sign, prediction_type)
+            return self._generate_fallback_horoscope(zodiac_sign, prediction_type), transit_data
     
-    def _create_prompt(self, zodiac_sign: str, prediction_type: str) -> str:
+    def _create_prompt(self, zodiac_sign: str, prediction_type: str, transit_data: Dict[str, Any]) -> str:
         """Create a prompt for horoscope generation"""
         
         # Base instructions
@@ -95,26 +115,15 @@ Technical rules for star chart calculation: For natal chart generation, convert 
 The system will deliver structured input to you including natal chart data, current transit data, prediction type, and previous predictions. You must output only the new prediction text according to the category rules above. Ensure all interpretations are unique, consistent with the transits, and clearly structured. Always create content that feels newly written, not derivative of earlier predictions.
 """
 
-        # Get astrology data
-        try:
-            from astrology_service import astrology_service
-            # Calculate positions (using current date for transits)
-            current_date = datetime.now().strftime("%Y-%m-%d")
-            # For now, we don't have user birth data here, so we skip natal chart calculation
-            # In future: natal_data = astrology_service.calculate_natal_chart(...)
-            transit_data = astrology_service.calculate_transits(current_date)
-            
-            astrology_context = f"""
-            CALCULATED ASTROLOGY DATA:
-            Current Date: {current_date}
-            
-            Transits (Current Planetary Positions):
-            {transit_data}
-            """
-        except ImportError:
-             astrology_context = "[System: Astrology service unavailable]"
-
         # Context construction
+        astrology_context = f"""
+        CALCULATED ASTROLOGY DATA:
+        Current Date: {transit_data.get('date', 'Unknown')}
+        
+        Transits (Current Planetary Positions):
+        {json.dumps(transit_data, indent=2)}
+        """
+
         context_data = f"""
         CURRENT TASK:
         Prediction Type: {prediction_type.upper()}

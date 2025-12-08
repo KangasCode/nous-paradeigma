@@ -14,6 +14,12 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     full_name = Column(String)
+    
+    # Birth Data
+    birth_date = Column(String, nullable=True) # YYYY-MM-DD
+    birth_time = Column(String, nullable=True) # HH:MM
+    birth_city = Column(String, nullable=True)
+    
     is_active = Column(Boolean, default=True)
     is_subscriber = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -48,9 +54,9 @@ class Horoscope(Base):
     zodiac_sign = Column(String, nullable=False)  # aries, taurus, etc.
     prediction_type = Column(String, default="daily")  # daily, weekly, monthly
     content = Column(Text, nullable=False)
+    raw_data = Column(Text, nullable=True) # JSON string of calculation data
     created_at = Column(DateTime, default=datetime.utcnow)
     prediction_date = Column(DateTime, nullable=False)
     
     # Relationships
     user = relationship("User", back_populates="horoscopes")
-

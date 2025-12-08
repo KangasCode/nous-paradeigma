@@ -412,6 +412,34 @@ if (window.location.pathname === '/dashboard') {
             day: 'numeric'
         });
 
+        // Parse raw data if available
+        let rawDataHtml = '';
+        if (horoscope.raw_data) {
+            try {
+                const rawData = JSON.parse(horoscope.raw_data);
+                if (rawData && rawData.positions) {
+                    const planetItems = Object.entries(rawData.positions).map(([planet, data]) => `
+                        <div class="planet-item">
+                            <span class="planet-name">${planet}</span>
+                            <span class="planet-sign">${data.sign}</span>
+                            <span class="planet-deg">${data.deg.toFixed(2)}°</span>
+                        </div>
+                    `).join('');
+                    
+                    rawDataHtml = `
+                        <div class="astrology-data">
+                            <h4>Current Planetary Positions</h4>
+                            <div class="planet-grid">
+                                ${planetItems}
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.error("Error parsing raw data", e);
+            }
+        }
+
         container.innerHTML = `
             <div class="horoscope-card">
                 <div class="horoscope-header">
@@ -420,6 +448,7 @@ if (window.location.pathname === '/dashboard') {
                 </div>
                 <div class="horoscope-date">${formattedDate}</div>
                 <div class="horoscope-text">${horoscope.content.replace(/\n/g, '<br>')}</div>
+                ${rawDataHtml}
             </div>
         `;
 

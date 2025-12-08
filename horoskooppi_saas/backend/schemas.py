@@ -1,14 +1,17 @@
 """
-Pydantic schemas for request/response validation
+Pydantic models for request/response validation
 """
 from pydantic import BaseModel, EmailStr, Field
-from datetime import datetime
 from typing import Optional, List
+from datetime import datetime
 
-# User schemas
+# User Schemas
 class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
+    birth_date: Optional[str] = None
+    birth_time: Optional[str] = None
+    birth_city: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8)
@@ -22,32 +25,33 @@ class UserResponse(UserBase):
     is_active: bool
     is_subscriber: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
 class Token(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str
 
 class TokenData(BaseModel):
     email: Optional[str] = None
 
-# Subscription schemas
-class SubscriptionResponse(BaseModel):
+# Subscription Schemas
+class SubscriptionBase(BaseModel):
+    status: str
+    current_period_end: Optional[datetime] = None
+
+class SubscriptionResponse(SubscriptionBase):
     id: int
     user_id: int
-    status: str
-    current_period_start: Optional[datetime]
-    current_period_end: Optional[datetime]
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
-# Horoscope schemas
+# Horoscope Schemas
 class HoroscopeCreate(BaseModel):
-    zodiac_sign: str = Field(..., pattern="^(aries|taurus|gemini|cancer|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces)$")
+    zodiac_sign: str = Field(..., min_length=3, max_length=20)
     prediction_type: str = Field(default="daily", pattern="^(daily|weekly|monthly)$")
 
 class HoroscopeResponse(BaseModel):
@@ -55,17 +59,12 @@ class HoroscopeResponse(BaseModel):
     zodiac_sign: str
     prediction_type: str
     content: str
+    raw_data: Optional[str] = None
     created_at: datetime
     prediction_date: datetime
-    
+
     class Config:
         from_attributes = True
 
-# Stripe schemas
 class CheckoutSessionCreate(BaseModel):
     price_id: str
-
-class StripeWebhookEvent(BaseModel):
-    type: str
-    data: dict
-

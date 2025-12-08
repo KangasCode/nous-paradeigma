@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import os
+import json
 
 from database import get_db, init_db
 from models import User, Horoscope, Subscription
@@ -214,7 +215,10 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     new_user = User(
         email=user_data.email,
         full_name=user_data.full_name,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        birth_date=user_data.birth_date,
+        birth_time=user_data.birth_time,
+        birth_city=user_data.birth_city
     )
     
     db.add(new_user)
@@ -328,7 +332,7 @@ async def generate_horoscope(
 ):
     """Generate a new horoscope prediction (subscribers only)"""
     # Generate horoscope using Gemini
-    content = gemini_client.generate_horoscope(
+    content, raw_data = gemini_client.generate_horoscope(
         zodiac_sign=horoscope_data.zodiac_sign,
         prediction_type=horoscope_data.prediction_type
     )
@@ -339,6 +343,7 @@ async def generate_horoscope(
         zodiac_sign=horoscope_data.zodiac_sign,
         prediction_type=horoscope_data.prediction_type,
         content=content,
+        raw_data=json.dumps(raw_data),
         prediction_date=datetime.utcnow()
     )
     
@@ -418,4 +423,3 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
