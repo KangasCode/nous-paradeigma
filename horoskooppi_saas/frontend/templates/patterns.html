@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Predictions - Nous Paradeigma</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Navigation Tabs */
+        .prediction-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(138, 116, 249, 0.3);
+            padding-bottom: 1rem;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            color: var(--text-secondary);
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(138, 116, 249, 0.1);
+        }
+        
+        .tab-btn.active {
+            background: rgba(138, 116, 249, 0.2);
+            border-color: var(--primary-purple);
+            color: var(--text-primary);
+        }
+        
+        .tab-count {
+            background: rgba(138, 116, 249, 0.3);
+            padding: 0.1rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+        
+        /* Prediction Cards */
+        .predictions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .prediction-card {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .prediction-card:hover {
+            border-color: rgba(138, 116, 249, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .prediction-header {
+            background: rgba(138, 116, 249, 0.1);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .prediction-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .prediction-type-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .badge-daily {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+        
+        .badge-weekly {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .badge-monthly {
+            background: rgba(138, 116, 249, 0.2);
+            color: var(--primary-purple);
+        }
+        
+        .prediction-zodiac {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gold);
+            font-weight: 500;
+        }
+        
+        .prediction-date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .prediction-content {
+            padding: 1.5rem;
+        }
+        
+        .prediction-text {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        
+        .prediction-text strong {
+            color: var(--text-primary);
+        }
+        
+        .prediction-text h2, .prediction-text h3 {
+            color: var(--gold);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Raw Data Section */
+        .raw-data-toggle {
+            background: rgba(138, 116, 249, 0.1);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .raw-data-toggle:hover {
+            background: rgba(138, 116, 249, 0.2);
+        }
+        
+        .raw-data-content {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            overflow-x: auto;
+        }
+        
+        .raw-data-content.show {
+            display: block;
+        }
+        
+        /* Generate Button */
+        .generate-section {
+            background: linear-gradient(135deg, rgba(138, 116, 249, 0.1) 0%, rgba(30, 30, 50, 0.9) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .generate-section h3 {
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .generate-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        /* Back Navigation */
+        .back-nav {
+            margin-bottom: 2rem;
+        }
+        
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>✨ Nous Paradeigma</h1>
+            </div>
+            <nav class="nav">
+                <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
+                <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+            </nav>
+        </header>
+
+        <main class="dashboard">
+            <!-- Back Navigation -->
+            <div class="back-nav">
+                <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+            </div>
+
+            <h2 style="color: var(--gold); margin-bottom: 2rem;">🔮 Your Predictions</h2>
+
+            <!-- Generate Section -->
+            <section class="generate-section" id="generateSection">
+                <h3>Generate New Prediction</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Your Zodiac: <strong id="userZodiac">Loading...</strong>
+                </p>
+                <div class="generate-buttons">
+                    <button class="btn btn-primary" data-type="daily">🌅 Daily</button>
+                    <button class="btn btn-primary" data-type="weekly">📅 Weekly</button>
+                    <button class="btn btn-primary" data-type="monthly">🌙 Monthly</button>
+                </div>
+                <div id="generateError" class="error-message" style="margin-top: 1rem;"></div>
+            </section>
+
+            <!-- Prediction Tabs -->
+            <div class="prediction-tabs">
+                <button class="tab-btn active" data-filter="all">
+                    All <span class="tab-count" id="countAll">0</span>
+                </button>
+                <button class="tab-btn" data-filter="daily">
+                    Daily <span class="tab-count" id="countDaily">0</span>
+                </button>
+                <button class="tab-btn" data-filter="weekly">
+                    Weekly <span class="tab-count" id="countWeekly">0</span>
+                </button>
+                <button class="tab-btn" data-filter="monthly">
+                    Monthly <span class="tab-count" id="countMonthly">0</span>
+                </button>
+            </div>
+
+            <!-- Predictions List -->
+            <div class="predictions-grid" id="predictionsGrid">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔮</div>
+                    <h3>Loading predictions...</h3>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Channeling your cosmic message...</p>
+        </div>
+    </div>
+
+    <script>
+        const ZODIAC_SYMBOLS = {
+            'aries': '♈', 'taurus': '♉', 'gemini': '♊', 'cancer': '♋',
+            'leo': '♌', 'virgo': '♍', 'libra': '♎', 'scorpio': '♏',
+            'sagittarius': '♐', 'capricorn': '♑', 'aquarius': '♒', 'pisces': '♓'
+        };
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/';
+        }
+
+        let userData = null;
+        let allPredictions = [];
+        let currentFilter = 'all';
+
+        // Load user data
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error('Failed to load user data');
+                }
+                
+                userData = await response.json();
+                
+                if (userData.zodiac_sign) {
+                    const symbol = ZODIAC_SYMBOLS[userData.zodiac_sign.toLowerCase()] || '✨';
+                    document.getElementById('userZodiac').textContent = 
+                        `${symbol} ${userData.zodiac_sign.charAt(0).toUpperCase() + userData.zodiac_sign.slice(1)}`;
+                } else {
+                    document.getElementById('generateSection').innerHTML = `
+                        <h3>⚠️ Complete Your Profile</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                            To generate predictions, please add your birth date in your profile.
+                        </p>
+                        <a href="/ownpage" class="btn btn-primary">Update Profile</a>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Load all predictions
+        async function loadPredictions() {
+            try {
+                const response = await fetch('/api/horoscopes', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Failed to load predictions');
+                
+                allPredictions = await response.json();
+                // Sort by created_at descending (newest first)
+                allPredictions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                updateCounts();
+                displayPredictions();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('predictionsGrid').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Error loading predictions</h3>
+                        <p>Please try refreshing the page.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateCounts() {
+            document.getElementById('countAll').textContent = allPredictions.length;
+            document.getElementById('countDaily').textContent = allPredictions.filter(p => p.prediction_type === 'daily').length;
+            document.getElementById('countWeekly').textContent = allPredictions.filter(p => p.prediction_type === 'weekly').length;
+            document.getElementById('countMonthly').textContent = allPredictions.filter(p => p.prediction_type === 'monthly').length;
+        }
+
+        function displayPredictions() {
+            const grid = document.getElementById('predictionsGrid');
+            
+            let filtered = allPredictions;
+            if (currentFilter !== 'all') {
+                filtered = allPredictions.filter(p => p.prediction_type === currentFilter);
+            }
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔮</div>
+                        <h3>No ${currentFilter === 'all' ? '' : currentFilter + ' '}predictions yet</h3>
+                        <p>Generate your first prediction above!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = filtered.map((p, index) => {
+                const symbol = ZODIAC_SYMBOLS[p.zodiac_sign.toLowerCase()] || '✨';
+                const badgeClass = `badge-${p.prediction_type}`;
+                const date = new Date(p.created_at).toLocaleString();
+                
+                // Parse markdown-like content
+                let content = p.content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/\n/g, '<br>');
+                content = `<p>${content}</p>`;
+                
+                return `
+                    <div class="prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-meta">
+                                <span class="prediction-type-badge ${badgeClass}">${p.prediction_type}</span>
+                                <span class="prediction-zodiac">${symbol} ${p.zodiac_sign.charAt(0).toUpperCase() + p.zodiac_sign.slice(1)}</span>
+                            </div>
+                            <span class="prediction-date">${date}</span>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="prediction-text">${content}</div>
+                            ${p.raw_data ? `
+                                <button class="raw-data-toggle" onclick="toggleRawData(${index})">
+                                    📊 View Calculation Data
+                                </button>
+                                <div class="raw-data-content" id="rawData${index}">
+                                    <pre>${formatRawData(p.raw_data)}</pre>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatRawData(rawDataStr) {
+            try {
+                const data = JSON.parse(rawDataStr);
+                return JSON.stringify(data, null, 2);
+            } catch {
+                return rawDataStr;
+            }
+        }
+
+        function toggleRawData(index) {
+            const el = document.getElementById(`rawData${index}`);
+            el.classList.toggle('show');
+        }
+
+        // Tab handlers
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                displayPredictions();
+            });
+        });
+
+        // Generate handlers
+        document.querySelectorAll('[data-type]').forEach(btn => {
+            if (!btn.classList.contains('tab-btn')) {
+                btn.addEventListener('click', async () => {
+                    if (!userData || !userData.zodiac_sign) {
+                        window.location.href = '/ownpage';
+                        return;
+                    }
+                    
+                    const type = btn.dataset.type;
+                    const overlay = document.getElementById('loadingOverlay');
+                    
+                    overlay.style.display = 'flex';
+                    
+                    try {
+                        const response = await fetch('/api/horoscopes/generate', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                zodiac_sign: userData.zodiac_sign,
+                                prediction_type: type
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            const error = await response.json();
+                            throw new Error(error.detail || 'Failed to generate');
+                        }
+                        
+                        // Reload predictions to show the new one
+                        await loadPredictions();
+                        // Scroll to top to see new prediction
+                        window.scrollTo(0, 0);
+                    } catch (error) {
+                        alert(error.message);
+                    } finally {
+                        overlay.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        });
+
+        // Initialize
+        loadUserData();
+        loadPredictions();
+    </script>
+</body>
+</html>
+

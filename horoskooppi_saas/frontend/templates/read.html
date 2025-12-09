@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study & Learn - Nous Paradeigma</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Blog Grid */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .blog-card {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(138, 116, 249, 0.6);
+            box-shadow: 0 15px 40px rgba(138, 116, 249, 0.2);
+        }
+        
+        .blog-image {
+            height: 180px;
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--gold) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+        
+        .blog-content {
+            padding: 1.5rem;
+        }
+        
+        .blog-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        
+        .blog-title {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        
+        .blog-excerpt {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .read-more {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .read-more:hover {
+            text-decoration: underline;
+        }
+        
+        /* Categories */
+        .categories {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            padding: 0.5rem 1.25rem;
+            background: rgba(138, 116, 249, 0.1);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn:hover, .category-btn.active {
+            background: rgba(138, 116, 249, 0.3);
+            color: var(--text-primary);
+        }
+        
+        /* Featured Section */
+        .featured-section {
+            background: linear-gradient(135deg, rgba(138, 116, 249, 0.1) 0%, rgba(30, 30, 50, 0.95) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.4);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        @media (max-width: 768px) {
+            .featured-section {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+        
+        .featured-image {
+            background: linear-gradient(135deg, var(--primary-purple), var(--gold));
+            border-radius: 16px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+        }
+        
+        .featured-content h2 {
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .featured-content p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Learning Paths */
+        .learning-paths {
+            margin-top: 3rem;
+        }
+        
+        .learning-paths h2 {
+            color: var(--gold);
+            margin-bottom: 2rem;
+        }
+        
+        .path-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .path-card {
+            background: rgba(20, 20, 40, 0.6);
+            border: 1px solid rgba(138, 116, 249, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .path-card:hover {
+            border-color: rgba(138, 116, 249, 0.5);
+        }
+        
+        .path-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .path-title {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .path-lessons {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        /* Back Navigation */
+        .back-nav {
+            margin-bottom: 2rem;
+        }
+        
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .back-link:hover {
+            color: var(--gold);
+        }
+        
+        /* Coming Soon Overlay */
+        .coming-soon-overlay {
+            position: relative;
+        }
+        
+        .coming-soon-overlay::after {
+            content: 'Coming Soon';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(212, 175, 55, 0.9);
+            color: #1a1a2e;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .coming-soon-overlay > * {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>✨ Nous Paradeigma</h1>
+            </div>
+            <nav class="nav">
+                <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
+                <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+            </nav>
+        </header>
+
+        <main class="dashboard">
+            <!-- Back Navigation -->
+            <div class="back-nav">
+                <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+            </div>
+
+            <h1 style="color: var(--gold); margin-bottom: 1rem;">📚 Study & Learn</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 3rem;">
+                Deepen your understanding of astrology, cosmic patterns, and self-discovery.
+            </p>
+
+            <!-- Featured Article -->
+            <section class="featured-section">
+                <div class="featured-image">🌟</div>
+                <div class="featured-content">
+                    <span style="color: var(--gold); font-size: 0.85rem; text-transform: uppercase;">Featured Guide</span>
+                    <h2>Understanding Your Birth Chart</h2>
+                    <p>
+                        Your birth chart is a cosmic snapshot of the sky at the moment you were born. 
+                        Learn how the positions of planets, houses, and aspects create your unique astrological blueprint.
+                    </p>
+                    <a href="#" class="btn btn-primary">Start Reading</a>
+                </div>
+            </section>
+
+            <!-- Categories -->
+            <div class="categories">
+                <button class="category-btn active">All</button>
+                <button class="category-btn">Basics</button>
+                <button class="category-btn">Planets</button>
+                <button class="category-btn">Houses</button>
+                <button class="category-btn">Aspects</button>
+                <button class="category-btn">Transits</button>
+            </div>
+
+            <!-- Blog Grid -->
+            <div class="blog-grid">
+                <article class="blog-card">
+                    <div class="blog-image">♈</div>
+                    <div class="blog-content">
+                        <span class="blog-category">Zodiac Signs</span>
+                        <h3 class="blog-title">The 12 Zodiac Signs: Complete Guide</h3>
+                        <p class="blog-excerpt">
+                            Explore the characteristics, strengths, and challenges of each zodiac sign in our comprehensive guide.
+                        </p>
+                        <div class="blog-meta">
+                            <span>15 min read</span>
+                            <a href="#" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card">
+                    <div class="blog-image">🌙</div>
+                    <div class="blog-content">
+                        <span class="blog-category">Moon</span>
+                        <h3 class="blog-title">Understanding Your Moon Sign</h3>
+                        <p class="blog-excerpt">
+                            Your Moon sign reveals your emotional nature and inner world. Discover what yours says about you.
+                        </p>
+                        <div class="blog-meta">
+                            <span>10 min read</span>
+                            <a href="#" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card">
+                    <div class="blog-image">⬆️</div>
+                    <div class="blog-content">
+                        <span class="blog-category">Ascendant</span>
+                        <h3 class="blog-title">Your Rising Sign Explained</h3>
+                        <p class="blog-excerpt">
+                            The Ascendant shapes how others perceive you. Learn about its powerful influence on your personality.
+                        </p>
+                        <div class="blog-meta">
+                            <span>8 min read</span>
+                            <a href="#" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card">
+                    <div class="blog-image">🏠</div>
+                    <div class="blog-content">
+                        <span class="blog-category">Houses</span>
+                        <h3 class="blog-title">The 12 Houses of Astrology</h3>
+                        <p class="blog-excerpt">
+                            Each house represents a different area of life. Learn what planets in each house mean for you.
+                        </p>
+                        <div class="blog-meta">
+                            <span>20 min read</span>
+                            <a href="#" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card">
+                    <div class="blog-image">🔗</div>
+                    <div class="blog-content">
+                        <span class="blog-category">Aspects</span>
+                        <h3 class="blog-title">Planetary Aspects: How Planets Interact</h3>
+                        <p class="blog-excerpt">
+                            Conjunctions, squares, trines, and oppositions - understand how planetary relationships shape your chart.
+                        </p>
+                        <div class="blog-meta">
+                            <span>12 min read</span>
+                            <a href="#" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card">
+                    <div class="blog-image">🔄</div>
+                    <div class="blog-content">
+                        <span class="blog-category">Transits</span>
+                        <h3 class="blog-title">How to Read Transits</h3>
+                        <p class="blog-excerpt">
+                            Current planetary movements affect your natal chart. Learn to interpret transits in your daily life.
+                        </p>
+                        <div class="blog-meta">
+                            <span>15 min read</span>
+                            <a href="#" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Learning Paths -->
+            <section class="learning-paths">
+                <h2>🎓 Learning Paths</h2>
+                <div class="path-grid">
+                    <div class="path-card">
+                        <div class="path-icon">🌱</div>
+                        <h3 class="path-title">Astrology Basics</h3>
+                        <p class="path-lessons">5 lessons • 2 hours</p>
+                    </div>
+                    <div class="path-card">
+                        <div class="path-icon">🪐</div>
+                        <h3 class="path-title">Planetary Influences</h3>
+                        <p class="path-lessons">8 lessons • 4 hours</p>
+                    </div>
+                    <div class="path-card">
+                        <div class="path-icon">📊</div>
+                        <h3 class="path-title">Chart Interpretation</h3>
+                        <p class="path-lessons">10 lessons • 6 hours</p>
+                    </div>
+                    <div class="path-card">
+                        <div class="path-icon">🔮</div>
+                        <h3 class="path-title">Advanced Techniques</h3>
+                        <p class="path-lessons">12 lessons • 8 hours</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/';
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        });
+
+        // Category filtering (placeholder functionality)
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
+

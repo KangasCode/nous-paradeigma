@@ -13,12 +13,19 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    full_name = Column(String)
     
-    # Birth Data
-    birth_date = Column(String, nullable=True) # YYYY-MM-DD
-    birth_time = Column(String, nullable=True) # HH:MM
-    birth_city = Column(String, nullable=True)
+    # Profile Data
+    full_name = Column(String)
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    
+    # Birth Data (immutable after registration - used for predictions)
+    birth_date = Column(String, nullable=True)  # YYYY-MM-DD - CANNOT BE CHANGED
+    birth_time = Column(String, nullable=True)  # HH:MM - CANNOT BE CHANGED
+    birth_city = Column(String, nullable=True)  # CANNOT BE CHANGED
+    zodiac_sign = Column(String, nullable=True)  # Auto-calculated from birth_date - NEVER EDITABLE
     
     is_active = Column(Boolean, default=True)
     is_subscriber = Column(Boolean, default=False)

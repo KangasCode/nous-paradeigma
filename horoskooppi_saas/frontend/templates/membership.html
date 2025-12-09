@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership - Nous Paradeigma</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .membership-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Status Card */
+        .status-card {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+            border: 2px solid rgba(138, 116, 249, 0.4);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .status-card.active {
+            border-color: rgba(76, 175, 80, 0.6);
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(20, 20, 40, 0.98) 100%);
+        }
+        
+        .status-card.inactive {
+            border-color: rgba(244, 67, 54, 0.4);
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.05) 0%, rgba(20, 20, 40, 0.98) 100%);
+        }
+        
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-title {
+            font-size: 1.75rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        
+        .status-badge.active {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .status-badge.inactive {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        /* Subscription Details */
+        .subscription-details {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: var(--text-muted);
+        }
+        
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        /* Action Buttons */
+        .action-section {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .action-section h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .action-section p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-danger {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            color: #f44336;
+        }
+        
+        .btn-danger:hover {
+            background: rgba(244, 67, 54, 0.3);
+        }
+        
+        /* Benefits Section */
+        .benefits-section {
+            background: rgba(138, 116, 249, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .benefits-section h3 {
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .benefit-icon {
+            font-size: 1.25rem;
+        }
+        
+        .benefit-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Upgrade/Resubscribe Section */
+        .resubscribe-section {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(30, 30, 50, 0.95) 100%);
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .resubscribe-section h2 {
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .resubscribe-section p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        /* Back Navigation */
+        .back-nav {
+            margin-bottom: 2rem;
+        }
+        
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .back-link:hover {
+            color: var(--gold);
+        }
+        
+        /* Warning Box */
+        .warning-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .warning-box h4 {
+            color: #ffc107;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .warning-box p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>✨ Nous Paradeigma</h1>
+            </div>
+            <nav class="nav">
+                <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
+                <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+            </nav>
+        </header>
+
+        <main class="dashboard">
+            <!-- Back Navigation -->
+            <div class="back-nav">
+                <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+            </div>
+
+            <div class="membership-container">
+                <h1 style="color: var(--gold); margin-bottom: 2rem;">💎 Membership Status</h1>
+
+                <!-- Status Card -->
+                <div class="status-card" id="statusCard">
+                    <div class="status-icon" id="statusIcon">⏳</div>
+                    <h2 class="status-title" id="statusTitle">Loading...</h2>
+                    <p class="status-subtitle" id="statusSubtitle">Checking your membership status</p>
+                    <span class="status-badge" id="statusBadge">Loading</span>
+                    
+                    <div class="subscription-details" id="subscriptionDetails" style="display: none;">
+                        <div class="detail-row">
+                            <span class="detail-label">Plan</span>
+                            <span class="detail-value" id="planName">Cosmic Explorer</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Started</span>
+                            <span class="detail-value" id="startDate">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Current Period Ends</span>
+                            <span class="detail-value" id="endDate">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Member Benefits -->
+                <section class="benefits-section" id="benefitsSection" style="display: none;">
+                    <h3>✨ Your Membership Benefits</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <span class="benefit-icon">🔮</span>
+                            <span class="benefit-text">Unlimited Daily Predictions</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">📅</span>
+                            <span class="benefit-text">Weekly Cosmic Paths</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">🌙</span>
+                            <span class="benefit-text">Monthly Soul Journeys</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">📚</span>
+                            <span class="benefit-text">Full Learning Library</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">📊</span>
+                            <span class="benefit-text">Natal Chart Analysis</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">💾</span>
+                            <span class="benefit-text">Prediction Archive</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Manage Subscription (Active Members) -->
+                <section class="action-section" id="manageSection" style="display: none;">
+                    <h3>⚙️ Manage Subscription</h3>
+                    <p>Need to update your payment method or billing information?</p>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="manageBtn">Manage Billing</button>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>⚠️ Cancel Membership</h4>
+                        <p>If you cancel, you'll retain access until the end of your current billing period. Your prediction history will be preserved.</p>
+                        <button class="btn btn-danger" style="margin-top: 1rem;" id="cancelBtn">Cancel Membership</button>
+                    </div>
+                </section>
+
+                <!-- Resubscribe Section (Inactive Members) -->
+                <section class="resubscribe-section" id="resubscribeSection" style="display: none;">
+                    <h2>🌟 Rejoin Your Cosmic Journey</h2>
+                    <p>
+                        We've missed you! Reactivate your membership to continue receiving personalized cosmic guidance 
+                        and unlock all your previous predictions.
+                    </p>
+                    <a href="/checkout?plan=cosmic" class="btn btn-primary btn-large">Resubscribe Now</a>
+                </section>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/';
+        }
+
+        async function loadMembershipStatus() {
+            try {
+                // First get user info
+                const userResponse = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!userResponse.ok) {
+                    if (userResponse.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error('Failed to load user data');
+                }
+                
+                const userData = await userResponse.json();
+                
+                // Try to get subscription info
+                let subscription = null;
+                try {
+                    const subResponse = await fetch('/api/subscription', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (subResponse.ok) {
+                        subscription = await subResponse.json();
+                    }
+                } catch (e) {
+                    console.log('No subscription endpoint available');
+                }
+                
+                updateDisplay(userData, subscription);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function updateDisplay(user, subscription) {
+            const statusCard = document.getElementById('statusCard');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusSubtitle = document.getElementById('statusSubtitle');
+            const statusBadge = document.getElementById('statusBadge');
+            
+            const isActive = user.is_subscriber;
+            
+            if (isActive) {
+                statusCard.classList.add('active');
+                statusCard.classList.remove('inactive');
+                statusIcon.textContent = '💎';
+                statusTitle.textContent = 'Active Member';
+                statusSubtitle.textContent = 'You have full access to all cosmic features';
+                statusBadge.textContent = 'Active';
+                statusBadge.classList.add('active');
+                statusBadge.classList.remove('inactive');
+                
+                document.getElementById('benefitsSection').style.display = 'block';
+                document.getElementById('manageSection').style.display = 'block';
+                document.getElementById('resubscribeSection').style.display = 'none';
+                document.getElementById('subscriptionDetails').style.display = 'block';
+                
+                if (subscription) {
+                    document.getElementById('startDate').textContent = 
+                        subscription.current_period_start ? 
+                        new Date(subscription.current_period_start).toLocaleDateString() : '-';
+                    document.getElementById('endDate').textContent = 
+                        subscription.current_period_end ? 
+                        new Date(subscription.current_period_end).toLocaleDateString() : '-';
+                }
+            } else {
+                statusCard.classList.add('inactive');
+                statusCard.classList.remove('active');
+                statusIcon.textContent = '⭐';
+                statusTitle.textContent = 'Free Account';
+                statusSubtitle.textContent = 'Upgrade to unlock all cosmic features';
+                statusBadge.textContent = 'Inactive';
+                statusBadge.classList.add('inactive');
+                statusBadge.classList.remove('active');
+                
+                document.getElementById('benefitsSection').style.display = 'none';
+                document.getElementById('manageSection').style.display = 'none';
+                document.getElementById('resubscribeSection').style.display = 'block';
+                document.getElementById('subscriptionDetails').style.display = 'none';
+            }
+        }
+
+        // Manage billing
+        document.getElementById('manageBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/create-customer-portal', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.url) {
+                        window.location.href = data.url;
+                    }
+                } else {
+                    alert('Unable to open billing portal. Please contact support.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Unable to open billing portal. Please contact support.');
+            }
+        });
+
+        // Cancel subscription
+        document.getElementById('cancelBtn').addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to cancel your membership? You will retain access until the end of your current billing period.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/subscription/cancel', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Your membership has been cancelled. You will retain access until the end of your current billing period.');
+                    loadMembershipStatus();
+                } else {
+                    alert('Unable to cancel membership. Please try the billing portal.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Unable to cancel membership. Please contact support.');
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        });
+
+        // Initialize
+        loadMembershipStatus();
+    </script>
+</body>
+</html>
+

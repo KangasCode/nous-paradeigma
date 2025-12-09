@@ -6,6 +6,210 @@
     <title>Your Cosmic Space - Nous Paradeigma</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Dashboard Navigation */
+        .dashboard-nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .nav-card {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.9) 0%, rgba(20, 20, 40, 0.95) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(138, 116, 249, 0.6);
+            box-shadow: 0 15px 40px rgba(138, 116, 249, 0.2);
+        }
+        
+        .nav-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .nav-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gold);
+        }
+        
+        .nav-card-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        /* User Profile Card */
+        .user-profile-card {
+            background: linear-gradient(135deg, rgba(138, 116, 249, 0.1) 0%, rgba(30, 30, 50, 0.9) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        
+        .user-info-section {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .user-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-zodiac {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+        
+        .user-zodiac-badge {
+            background: rgba(212, 175, 55, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .zodiac-note {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+        
+        /* Quick Generate Section */
+        .quick-generate {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-generate h3 {
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+        
+        .prediction-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .prediction-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(138, 116, 249, 0.5);
+            background: rgba(138, 116, 249, 0.1);
+            color: var(--text-primary);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .prediction-btn:hover {
+            background: rgba(138, 116, 249, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .prediction-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Recent Activity */
+        .recent-activity {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        
+        .recent-activity h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-type {
+            background: rgba(138, 116, 249, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .activity-date {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-left: auto;
+        }
+        
+        /* No Zodiac Warning */
+        .no-zodiac-warning {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(30, 30, 50, 0.9) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .no-zodiac-warning h3 {
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .no-zodiac-warning p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -22,61 +226,83 @@
 
         <!-- Dashboard Content -->
         <main class="dashboard">
-            <!-- Subscription Status -->
-            <section class="dashboard-section">
-                <div class="subscription-status" id="subscriptionStatus">
-                    <div class="status-loading">Loading subscription status...</div>
-                </div>
-            </section>
-
-            <!-- Horoscope Generator -->
-            <section class="dashboard-section" id="horoscopeGenerator" style="display: none;">
-                <h2>Receive Your Personal Guidance</h2>
-                <div class="horoscope-form">
-                    <div class="form-group">
-                        <label for="zodiacSign">Your Celestial Sign</label>
-                        <select id="zodiacSign" class="form-control">
-                            <option value="">Choose your sign...</option>
-                            <option value="aries">♈ Aries (March 21 - April 19)</option>
-                            <option value="taurus">♉ Taurus (April 20 - May 20)</option>
-                            <option value="gemini">♊ Gemini (May 21 - June 20)</option>
-                            <option value="cancer">♋ Cancer (June 21 - July 22)</option>
-                            <option value="leo">♌ Leo (July 23 - August 22)</option>
-                            <option value="virgo">♍ Virgo (August 23 - September 22)</option>
-                            <option value="libra">♎ Libra (September 23 - October 22)</option>
-                            <option value="scorpio">♏ Scorpio (October 23 - November 21)</option>
-                            <option value="sagittarius">♐ Sagittarius (November 22 - December 21)</option>
-                            <option value="capricorn">♑ Capricorn (December 22 - January 19)</option>
-                            <option value="aquarius">♒ Aquarius (January 20 - February 18)</option>
-                            <option value="pisces">♓ Pisces (February 19 - March 20)</option>
-                        </select>
+            <!-- User Profile Card -->
+            <section class="user-profile-card" id="userProfileCard">
+                <div class="user-avatar" id="userAvatar">♎</div>
+                <div class="user-info-section">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-zodiac">
+                        <span id="userZodiacSymbol">♎</span>
+                        <span id="userZodiacName">Loading...</span>
+                        <span class="user-zodiac-badge" id="userZodiacBadge">Your Sign</span>
                     </div>
-                    <div class="form-group">
-                        <label for="predictionType">Guidance Timeline</label>
-                        <select id="predictionType" class="form-control">
-                            <option value="daily">Today's Personal Reading</option>
-                            <option value="weekly">This Week's Cosmic Path</option>
-                            <option value="monthly">This Month's Soul Journey</option>
-                        </select>
+                    <div class="zodiac-note">
+                        Your zodiac sign is automatically calculated from your birth date and cannot be changed.
                     </div>
-                    <button id="generateBtn" class="btn btn-primary btn-large">Receive Your Message ✨</button>
-                    <div id="generateError" class="error-message"></div>
                 </div>
             </section>
 
-            <!-- Current Horoscope Display -->
-            <section class="dashboard-section" id="currentHoroscope" style="display: none;">
-                <h2>Your Cosmic Message</h2>
-                <div class="horoscope-display" id="horoscopeContent">
-                    <!-- Horoscope content will be inserted here -->
-                </div>
+            <!-- No Zodiac Warning (shown if birth data missing) -->
+            <section class="no-zodiac-warning" id="noZodiacWarning" style="display: none;">
+                <h3>⚠️ Complete Your Profile</h3>
+                <p>To receive personalized predictions, please add your birth date in your profile.</p>
+                <a href="/ownpage" class="btn btn-primary">Update Profile</a>
             </section>
 
-            <!-- Previous Horoscopes -->
-            <section class="dashboard-section" id="previousHoroscopes" style="display: none;">
-                <h2>Your Cosmic Journey</h2>
-                <div class="horoscopes-list" id="horoscopesList">
-                    <!-- Previous horoscopes will be listed here -->
+            <!-- Dashboard Navigation -->
+            <section class="dashboard-nav">
+                <a href="/patterns" class="nav-card">
+                    <div class="nav-card-icon">🔮</div>
+                    <div class="nav-card-title">Predictions</div>
+                    <div class="nav-card-desc">View all your daily, weekly, and monthly predictions</div>
+                </a>
+                <a href="/ownpage" class="nav-card">
+                    <div class="nav-card-icon">👤</div>
+                    <div class="nav-card-title">Your Information</div>
+                    <div class="nav-card-desc">Manage your profile and birth data</div>
+                </a>
+                <a href="/read" class="nav-card">
+                    <div class="nav-card-icon">📚</div>
+                    <div class="nav-card-title">Study</div>
+                    <div class="nav-card-desc">Blog and learning materials</div>
+                </a>
+                <a href="/membership" class="nav-card">
+                    <div class="nav-card-icon">💎</div>
+                    <div class="nav-card-title">Membership Status</div>
+                    <div class="nav-card-desc">Manage your subscription</div>
+                </a>
+            </section>
+
+            <!-- Quick Generate Section -->
+            <section class="quick-generate" id="quickGenerate">
+                <h3>✨ Generate New Prediction</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Based on your zodiac sign: <strong id="generateZodiac">Loading...</strong>
+                </p>
+                <div class="prediction-buttons">
+                    <button class="prediction-btn" data-type="daily" id="btnDaily">
+                        🌅 Daily Reading
+                    </button>
+                    <button class="prediction-btn" data-type="weekly" id="btnWeekly">
+                        📅 Weekly Path
+                    </button>
+                    <button class="prediction-btn" data-type="monthly" id="btnMonthly">
+                        🌙 Monthly Journey
+                    </button>
+                </div>
+                <div id="generateError" class="error-message" style="margin-top: 1rem;"></div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="recent-activity" id="recentActivity">
+                <h3>📜 Recent Predictions</h3>
+                <div id="activityList">
+                    <p style="color: var(--text-muted); text-align: center; padding: 1rem;">
+                        Loading recent activity...
+                    </p>
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="/patterns" class="btn btn-ghost">View All Predictions →</a>
                 </div>
             </section>
         </main>
@@ -96,13 +322,170 @@
     </div>
 
     <script>
+        // Zodiac symbols map
+        const ZODIAC_SYMBOLS = {
+            'aries': '♈', 'taurus': '♉', 'gemini': '♊', 'cancer': '♋',
+            'leo': '♌', 'virgo': '♍', 'libra': '♎', 'scorpio': '♏',
+            'sagittarius': '♐', 'capricorn': '♑', 'aquarius': '♒', 'pisces': '♓'
+        };
+
         // Check if user is authenticated
         const token = localStorage.getItem('token');
         if (!token) {
             window.location.href = '/';
         }
+
+        // Store user data globally
+        let userData = null;
+
+        // Load user data on page load
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error('Failed to load user data');
+                }
+                
+                userData = await response.json();
+                updateUserDisplay();
+                loadRecentPredictions();
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        function updateUserDisplay() {
+            if (!userData) return;
+            
+            // Update email in header
+            document.getElementById('userEmail').textContent = userData.email;
+            
+            // Update profile card
+            const name = userData.full_name || userData.first_name || userData.email.split('@')[0];
+            document.getElementById('userName').textContent = `Welcome, ${name}`;
+            
+            // Update zodiac display
+            if (userData.zodiac_sign) {
+                const symbol = ZODIAC_SYMBOLS[userData.zodiac_sign.toLowerCase()] || '✨';
+                document.getElementById('userAvatar').textContent = symbol;
+                document.getElementById('userZodiacSymbol').textContent = symbol;
+                document.getElementById('userZodiacName').textContent = userData.zodiac_sign.charAt(0).toUpperCase() + userData.zodiac_sign.slice(1);
+                document.getElementById('generateZodiac').textContent = `${symbol} ${userData.zodiac_sign.charAt(0).toUpperCase() + userData.zodiac_sign.slice(1)}`;
+                
+                // Hide warning, show generate section
+                document.getElementById('noZodiacWarning').style.display = 'none';
+                document.getElementById('quickGenerate').style.display = 'block';
+            } else {
+                // Show warning if no zodiac sign
+                document.getElementById('noZodiacWarning').style.display = 'block';
+                document.getElementById('quickGenerate').style.display = 'none';
+                document.getElementById('userAvatar').textContent = '?';
+                document.getElementById('userZodiacSymbol').textContent = '';
+                document.getElementById('userZodiacName').textContent = 'Not set';
+            }
+        }
+
+        async function loadRecentPredictions() {
+            try {
+                const response = await fetch('/api/horoscopes', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to load predictions');
+                
+                const predictions = await response.json();
+                displayRecentActivity(predictions.slice(0, 3)); // Show last 3
+            } catch (error) {
+                console.error('Error loading predictions:', error);
+            }
+        }
+
+        function displayRecentActivity(predictions) {
+            const activityList = document.getElementById('activityList');
+            
+            if (!predictions || predictions.length === 0) {
+                activityList.innerHTML = `
+                    <p style="color: var(--text-muted); text-align: center; padding: 1rem;">
+                        No predictions yet. Generate your first one above!
+                    </p>
+                `;
+                return;
+            }
+            
+            activityList.innerHTML = predictions.map(p => `
+                <div class="activity-item">
+                    <span class="activity-type">${p.prediction_type}</span>
+                    <span>${p.zodiac_sign.charAt(0).toUpperCase() + p.zodiac_sign.slice(1)}</span>
+                    <span class="activity-date">${new Date(p.created_at).toLocaleDateString()}</span>
+                </div>
+            `).join('');
+        }
+
+        // Generate prediction handlers
+        document.querySelectorAll('.prediction-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!userData || !userData.zodiac_sign) {
+                    alert('Please add your birth date in your profile first.');
+                    window.location.href = '/ownpage';
+                    return;
+                }
+                
+                const type = btn.dataset.type;
+                const overlay = document.getElementById('loadingOverlay');
+                const errorEl = document.getElementById('generateError');
+                
+                overlay.style.display = 'flex';
+                errorEl.style.display = 'none';
+                
+                try {
+                    const response = await fetch('/api/horoscopes/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            zodiac_sign: userData.zodiac_sign,
+                            prediction_type: type
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.detail || 'Failed to generate prediction');
+                    }
+                    
+                    // Redirect to patterns page to see the new prediction
+                    window.location.href = '/patterns';
+                } catch (error) {
+                    errorEl.textContent = error.message;
+                    errorEl.style.display = 'block';
+                } finally {
+                    overlay.style.display = 'none';
+                }
+            });
+        });
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        });
+
+        // Initialize
+        loadUserData();
     </script>
-    <script src="/static/app.js"></script>
 </body>
 </html>
-

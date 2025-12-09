@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile - Nous Paradeigma</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            margin: 0 auto 1.5rem;
+            border: 3px solid rgba(212, 175, 55, 0.5);
+        }
+        
+        .profile-name {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-email {
+            color: var(--text-muted);
+        }
+        
+        /* Profile Sections */
+        .profile-section {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            color: var(--gold);
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Birth Data Section - Read Only */
+        .birth-data-section {
+            background: linear-gradient(135deg, rgba(138, 116, 249, 0.1) 0%, rgba(30, 30, 50, 0.95) 100%);
+            border: 2px solid rgba(138, 116, 249, 0.4);
+        }
+        
+        .immutable-notice {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .immutable-notice-icon {
+            font-size: 1.5rem;
+        }
+        
+        .immutable-notice-text {
+            font-size: 0.9rem;
+            color: var(--gold);
+        }
+        
+        .immutable-notice-text small {
+            display: block;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        /* Data Display */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .data-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .data-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .data-value {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+        
+        .data-value.zodiac {
+            color: var(--gold);
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .data-value.locked {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .lock-icon {
+            font-size: 0.9rem;
+            opacity: 0.5;
+        }
+        
+        /* Editable Form */
+        .profile-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+        }
+        
+        .form-group input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        /* Usage Info */
+        .usage-info {
+            background: rgba(138, 116, 249, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .usage-info h4 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .usage-info ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .usage-info li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .usage-info li::before {
+            content: '✓';
+            color: var(--gold);
+        }
+        
+        /* Back Navigation */
+        .back-nav {
+            margin-bottom: 2rem;
+        }
+        
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .back-link:hover {
+            color: var(--gold);
+        }
+        
+        /* Success/Error Messages */
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .message.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            color: #4caf50;
+        }
+        
+        .message.error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>✨ Nous Paradeigma</h1>
+            </div>
+            <nav class="nav">
+                <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
+                <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+            </nav>
+        </header>
+
+        <main class="dashboard">
+            <!-- Back Navigation -->
+            <div class="back-nav">
+                <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+            </div>
+
+            <div class="profile-container">
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">✨</div>
+                    <h1 class="profile-name" id="profileName">Loading...</h1>
+                    <p class="profile-email" id="profileEmail">Loading...</p>
+                </div>
+
+                <!-- Messages -->
+                <div class="message success" id="successMessage"></div>
+                <div class="message error" id="errorMessage"></div>
+
+                <!-- Birth Data Section (READ ONLY) -->
+                <section class="profile-section birth-data-section">
+                    <h2 class="section-title">🌟 Your Birth Data & Zodiac Sign</h2>
+                    
+                    <div class="immutable-notice">
+                        <span class="immutable-notice-icon">🔒</span>
+                        <div class="immutable-notice-text">
+                            This information is used to calculate your predictions and cannot be changed.
+                            <small>Your zodiac sign is automatically determined from your birth date.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">Zodiac Sign</div>
+                            <div class="data-value zodiac" id="displayZodiac">
+                                <span id="zodiacSymbol">✨</span>
+                                <span id="zodiacName">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Birth Date</div>
+                            <div class="data-value locked" id="displayBirthDate">
+                                <span>Loading...</span>
+                                <span class="lock-icon">🔒</span>
+                            </div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Birth Time</div>
+                            <div class="data-value locked" id="displayBirthTime">
+                                <span>Loading...</span>
+                                <span class="lock-icon">🔒</span>
+                            </div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Birth City</div>
+                            <div class="data-value locked" id="displayBirthCity">
+                                <span>Loading...</span>
+                                <span class="lock-icon">🔒</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="usage-info">
+                        <h4>How your data is used for predictions:</h4>
+                        <ul>
+                            <li>Your zodiac sign determines the base characteristics of your readings</li>
+                            <li>Birth time allows precise ascendant and house calculations</li>
+                            <li>Birth city provides geographic coordinates for accurate planetary positions</li>
+                            <li>All predictions are personalized using this immutable data</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Editable Profile Section -->
+                <section class="profile-section">
+                    <h2 class="section-title">👤 Personal Information</h2>
+                    
+                    <form id="profileForm" class="profile-form">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="first_name" placeholder="Your first name">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="last_name" placeholder="Your last name">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+358 XX XXX XXXX">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" name="address" placeholder="Your address">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const ZODIAC_SYMBOLS = {
+            'aries': '♈', 'taurus': '♉', 'gemini': '♊', 'cancer': '♋',
+            'leo': '♌', 'virgo': '♍', 'libra': '♎', 'scorpio': '♏',
+            'sagittarius': '♐', 'capricorn': '♑', 'aquarius': '♒', 'pisces': '♓'
+        };
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/';
+        }
+
+        let userData = null;
+
+        async function loadProfile() {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error('Failed to load profile');
+                }
+                
+                userData = await response.json();
+                displayProfile();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('error', 'Failed to load profile. Please try again.');
+            }
+        }
+
+        function displayProfile() {
+            if (!userData) return;
+            
+            // Profile header
+            const name = userData.full_name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Cosmic Traveler';
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profileEmail').textContent = userData.email;
+            
+            // Zodiac display
+            if (userData.zodiac_sign) {
+                const symbol = ZODIAC_SYMBOLS[userData.zodiac_sign.toLowerCase()] || '✨';
+                document.getElementById('profileAvatar').textContent = symbol;
+                document.getElementById('zodiacSymbol').textContent = symbol;
+                document.getElementById('zodiacName').textContent = userData.zodiac_sign.charAt(0).toUpperCase() + userData.zodiac_sign.slice(1);
+            } else {
+                document.getElementById('profileAvatar').textContent = '?';
+                document.getElementById('zodiacName').textContent = 'Not calculated (add birth date during registration)';
+            }
+            
+            // Birth data (read-only)
+            document.getElementById('displayBirthDate').innerHTML = userData.birth_date 
+                ? `<span>${formatDate(userData.birth_date)}</span><span class="lock-icon">🔒</span>`
+                : '<span style="opacity: 0.5">Not set</span>';
+            
+            document.getElementById('displayBirthTime').innerHTML = userData.birth_time 
+                ? `<span>${userData.birth_time}</span><span class="lock-icon">🔒</span>`
+                : '<span style="opacity: 0.5">Not set</span>';
+            
+            document.getElementById('displayBirthCity').innerHTML = userData.birth_city 
+                ? `<span>${userData.birth_city}</span><span class="lock-icon">🔒</span>`
+                : '<span style="opacity: 0.5">Not set</span>';
+            
+            // Editable fields
+            document.getElementById('firstName').value = userData.first_name || '';
+            document.getElementById('lastName').value = userData.last_name || '';
+            document.getElementById('phone').value = userData.phone || '';
+            document.getElementById('address').value = userData.address || '';
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function showMessage(type, text) {
+            const successEl = document.getElementById('successMessage');
+            const errorEl = document.getElementById('errorMessage');
+            
+            successEl.style.display = 'none';
+            errorEl.style.display = 'none';
+            
+            if (type === 'success') {
+                successEl.textContent = text;
+                successEl.style.display = 'block';
+            } else {
+                errorEl.textContent = text;
+                errorEl.style.display = 'block';
+            }
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                successEl.style.display = 'none';
+                errorEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                first_name: document.getElementById('firstName').value || null,
+                last_name: document.getElementById('lastName').value || null,
+                phone: document.getElementById('phone').value || null,
+                address: document.getElementById('address').value || null
+            };
+            
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to update profile');
+                }
+                
+                const updated = await response.json();
+                userData = updated;
+                displayProfile();
+                showMessage('success', 'Profile updated successfully!');
+            } catch (error) {
+                showMessage('error', error.message);
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        });
+
+        // Initialize
+        loadProfile();
+    </script>
+</body>
+</html>
+

@@ -9,19 +9,50 @@ from datetime import datetime
 class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
-    birth_date: Optional[str] = None
-    birth_time: Optional[str] = None
-    birth_city: Optional[str] = None
 
 class UserCreate(UserBase):
+    """
+    Schema for user registration.
+    Birth data is set ONCE during registration and CANNOT be changed later.
+    The zodiac sign is automatically calculated from birth_date.
+    """
     password: str = Field(..., min_length=8)
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    # Birth data - IMMUTABLE after registration
+    birth_date: Optional[str] = None  # YYYY-MM-DD - Cannot be changed
+    birth_time: Optional[str] = None  # HH:MM - Cannot be changed
+    birth_city: Optional[str] = None  # Cannot be changed
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class UserProfileUpdate(BaseModel):
+    """
+    Schema for updating user profile.
+    NOTE: birth_date, birth_time, birth_city, and zodiac_sign are NOT included
+    because they CANNOT be changed after registration.
+    """
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    # full_name can be updated
+    full_name: Optional[str] = None
+
 class UserResponse(UserBase):
     id: int
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    birth_date: Optional[str] = None
+    birth_time: Optional[str] = None
+    birth_city: Optional[str] = None
+    zodiac_sign: Optional[str] = None  # Auto-calculated, never editable
     is_active: bool
     is_subscriber: bool
     created_at: datetime

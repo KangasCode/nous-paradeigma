@@ -78,6 +78,35 @@ def migrate_database():
                 print("Adding birth_city column to users table...")
                 conn.execute(text("ALTER TABLE users ADD COLUMN birth_city VARCHAR"))
                 conn.commit()
+            
+            # Add profile fields
+            if 'first_name' not in columns:
+                print("Adding first_name column to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN first_name VARCHAR"))
+                conn.commit()
+            
+            if 'last_name' not in columns:
+                print("Adding last_name column to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN last_name VARCHAR"))
+                conn.commit()
+            
+            if 'phone' not in columns:
+                print("Adding phone column to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN phone VARCHAR"))
+                conn.commit()
+            
+            if 'address' not in columns:
+                print("Adding address column to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN address VARCHAR"))
+                conn.commit()
+            
+            # Add zodiac_sign (auto-calculated from birth_date, NEVER editable by user)
+            if 'zodiac_sign' not in columns:
+                print("Adding zodiac_sign column to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN zodiac_sign VARCHAR"))
+                conn.commit()
+                # Update existing users with calculated zodiac signs
+                update_existing_users_zodiac_signs()
     
     # Check if horoscopes table exists
     if 'horoscopes' in inspector.get_table_names():
@@ -91,6 +120,35 @@ def migrate_database():
                 conn.commit()
     
     print("Database migration completed.")
+
+def update_existing_users_zodiac_signs():
+    """
+    Update zodiac signs for existing users who have birth_date but no zodiac_sign.
+    This ensures all users have their zodiac sign calculated from their birth data.
+    """
+    from zodiac_utils import calculate_zodiac_sign
+    from models import User
+    
+    db = SessionLocal()
+    try:
+        users_without_zodiac = db.query(User).filter(
+            User.birth_date.isnot(None),
+            User.zodiac_sign.is_(None)
+        ).all()
+        
+        for user in users_without_zodiac:
+            zodiac = calculate_zodiac_sign(user.birth_date)
+            if zodiac:
+                user.zodiac_sign = zodiac
+                print(f"Updated zodiac sign for user {user.email}: {zodiac}")
+        
+        db.commit()
+        print(f"Updated {len(users_without_zodiac)} users with zodiac signs")
+    except Exception as e:
+        print(f"Error updating zodiac signs: {e}")
+        db.rollback()
+    finally:
+        db.close()
 
 def init_test_data_if_needed():
     """
@@ -110,6 +168,7 @@ def init_test_data_if_needed():
     
     from models import User, Horoscope, Subscription
     from auth import get_password_hash
+    from zodiac_utils import calculate_zodiac_sign
     from datetime import datetime, timedelta
     import json
     
@@ -124,15 +183,24 @@ def init_test_data_if_needed():
         
         print(f"🔧 Creating test user: {email}")
         hashed_password = get_password_hash("cosmos123")
+        
+        # Calculate zodiac sign from birth date (02.10.1992 = Libra)
+        birth_date = "1992-10-02"
+        zodiac_sign = calculate_zodiac_sign(birth_date)
+        print(f"📊 Calculated zodiac sign: {zodiac_sign}")
+        
         user = User(
             email=email,
             full_name="Test Cosmic Traveler",
+            first_name="Test",
+            last_name="Traveler",
             hashed_password=hashed_password,
             is_active=True,
             is_subscriber=True,
-            birth_date="1992-10-02",
+            birth_date=birth_date,
             birth_time="08:08",
-            birth_city="Helsinki"
+            birth_city="Helsinki",
+            zodiac_sign=zodiac_sign  # Auto-calculated from birth_date
         )
         db.add(user)
         db.commit()

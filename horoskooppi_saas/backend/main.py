@@ -14,9 +14,10 @@ import json
 from database import get_db, init_db, init_test_data_if_needed
 from models import User, Horoscope, Subscription
 from schemas import (
-    UserCreate, UserLogin, UserResponse, Token,
+    UserCreate, UserLogin, UserResponse, UserProfileUpdate, Token,
     HoroscopeCreate, HoroscopeResponse, SubscriptionResponse
 )
+from zodiac_utils import calculate_zodiac_sign
 from auth import (
     get_password_hash, authenticate_user, create_access_token,
     get_current_active_user, get_current_subscriber, get_user_by_email
@@ -175,13 +176,39 @@ async def waitlist_page(request: Request):
     """Serve the waitlist dashboard"""
     return templates.TemplateResponse("waitlist.html", {"request": request})
 
+@app.get("/patterns", response_class=HTMLResponse)
+async def patterns_page(request: Request):
+    """Serve the predictions/patterns page"""
+    return templates.TemplateResponse("patterns.html", {"request": request})
+
+@app.get("/ownpage", response_class=HTMLResponse)
+async def ownpage(request: Request):
+    """Serve the user profile page"""
+    return templates.TemplateResponse("ownpage.html", {"request": request})
+
+@app.get("/read", response_class=HTMLResponse)
+async def read_page(request: Request):
+    """Serve the study/blog page"""
+    return templates.TemplateResponse("read.html", {"request": request})
+
+@app.get("/membership", response_class=HTMLResponse)
+async def membership_page(request: Request):
+    """Serve the membership status page"""
+    return templates.TemplateResponse("membership.html", {"request": request})
+
 # ============================================================================
 # Authentication Endpoints
 # ============================================================================
 
 @app.post("/api/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    """Register a new user"""
+    """
+    Register a new user.
+    
+    IMPORTANT: Birth data (birth_date, birth_time, birth_city) and zodiac_sign 
+    are set ONCE during registration and CANNOT be changed later.
+    The zodiac_sign is automatically calculated from birth_date.
+    """
     # Check if user already exists
     existing_user = get_user_by_email(db, user_data.email)
     if existing_user:
@@ -190,15 +217,26 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
     
-    # Create new user
+    # Calculate zodiac sign from birth date (IMMUTABLE after registration)
+    zodiac_sign = None
+    if user_data.birth_date:
+        zodiac_sign = calculate_zodiac_sign(user_data.birth_date)
+    
+    # Create new user with all profile fields
     hashed_password = get_password_hash(user_data.password)
     new_user = User(
         email=user_data.email,
         full_name=user_data.full_name,
+        first_name=user_data.first_name,
+        last_name=user_data.last_name,
+        phone=user_data.phone,
+        address=user_data.address,
         hashed_password=hashed_password,
+        # Birth data - IMMUTABLE after registration
         birth_date=user_data.birth_date,
         birth_time=user_data.birth_time,
-        birth_city=user_data.birth_city
+        birth_city=user_data.birth_city,
+        zodiac_sign=zodiac_sign  # Auto-calculated, NEVER editable
     )
     
     db.add(new_user)
@@ -240,6 +278,41 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
 @app.get("/api/auth/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_active_user)):
     """Get current user information"""
+    return current_user
+
+@app.put("/api/auth/profile", response_model=UserResponse)
+async def update_profile(
+    profile_data: UserProfileUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Update user profile information.
+    
+    IMPORTANT: This endpoint can only update editable fields:
+    - first_name, last_name, phone, address, full_name
+    
+    The following fields are IMMUTABLE and CANNOT be changed:
+    - birth_date (set at registration)
+    - birth_time (set at registration)
+    - birth_city (set at registration)
+    - zodiac_sign (auto-calculated from birth_date, never editable)
+    """
+    # Only update allowed fields
+    if profile_data.first_name is not None:
+        current_user.first_name = profile_data.first_name
+    if profile_data.last_name is not None:
+        current_user.last_name = profile_data.last_name
+    if profile_data.phone is not None:
+        current_user.phone = profile_data.phone
+    if profile_data.address is not None:
+        current_user.address = profile_data.address
+    if profile_data.full_name is not None:
+        current_user.full_name = profile_data.full_name
+    
+    db.commit()
+    db.refresh(current_user)
+    
     return current_user
 
 # ============================================================================
@@ -324,17 +397,46 @@ async def generate_horoscope(
     current_user: User = Depends(get_current_subscriber),
     db: Session = Depends(get_db)
 ):
-    """Generate a new horoscope prediction (subscribers only)"""
-    # Generate horoscope using Gemini
+    """
+    Generate a new horoscope prediction (subscribers only).
+    
+    IMPORTANT: 
+    - The zodiac_sign MUST come from the user's profile (calculated from birth_date)
+    - If the user's profile has a zodiac_sign, it overrides any value in the request
+    - Predictions are personalized based on stored profile data (birth_date, birth_time, birth_city)
+    - All predictions are saved to the database and visible on /patterns page
+    """
+    # Use user's profile zodiac sign if available (overrides request)
+    zodiac_sign = current_user.zodiac_sign or horoscope_data.zodiac_sign
+    
+    if not zodiac_sign:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No zodiac sign available. Please add your birth date in your profile."
+        )
+    
+    # Build user profile data for personalized predictions
+    user_profile = {
+        "birth_date": current_user.birth_date,
+        "birth_time": current_user.birth_time,
+        "birth_city": current_user.birth_city,
+        "zodiac_sign": zodiac_sign,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "email": current_user.email
+    }
+    
+    # Generate horoscope using Gemini with user's profile data
     content, raw_data = gemini_client.generate_horoscope(
-        zodiac_sign=horoscope_data.zodiac_sign,
-        prediction_type=horoscope_data.prediction_type
+        zodiac_sign=zodiac_sign,
+        prediction_type=horoscope_data.prediction_type,
+        user_profile=user_profile
     )
     
-    # Save to database
+    # Save to database - always use the user's profile zodiac_sign
     new_horoscope = Horoscope(
         user_id=current_user.id,
-        zodiac_sign=horoscope_data.zodiac_sign,
+        zodiac_sign=zodiac_sign,  # Uses profile zodiac, not request data
         prediction_type=horoscope_data.prediction_type,
         content=content,
         raw_data=json.dumps(raw_data),
@@ -357,6 +459,21 @@ async def get_my_horoscopes(
     horoscopes = db.query(Horoscope).filter(
         Horoscope.user_id == current_user.id
     ).order_by(Horoscope.created_at.desc()).limit(limit).all()
+    
+    return horoscopes
+
+@app.get("/api/horoscopes", response_model=list[HoroscopeResponse])
+async def get_all_horoscopes(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all horoscopes for current user, newest first.
+    This endpoint is used by the /patterns page to display all predictions.
+    """
+    horoscopes = db.query(Horoscope).filter(
+        Horoscope.user_id == current_user.id
+    ).order_by(Horoscope.created_at.desc()).all()
     
     return horoscopes
 
@@ -399,6 +516,26 @@ async def get_subscription_status(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No subscription found"
         )
+
+@app.get("/api/subscription")
+async def get_subscription(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Get current user's subscription (returns None if no subscription)"""
+    subscription = db.query(Subscription).filter(
+        Subscription.user_id == current_user.id
+    ).first()
+    
+    if not subscription:
+        return None
+    
+    return {
+        "id": subscription.id,
+        "status": subscription.status,
+        "current_period_start": subscription.current_period_start,
+        "current_period_end": subscription.current_period_end
+    }
     
     return subscription
 
