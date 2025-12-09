@@ -309,13 +309,6 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             detail="Complete all checkout steps first"
         )
     
-    # Validate birthdate step is completed (REQUIRED for predictions)
-    if not progress.step_birthdate_completed or not progress.birth_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Birth date is required. Please complete the birth date step."
-        )
-    
     # Debug logging for birth data
     print(f"📅 Birth data at payment: date={progress.birth_date}, city={progress.birth_city}, zodiac={progress.zodiac_sign}")
     
@@ -323,13 +316,14 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
     progress.step_payment_initiated = True
     progress.payment_initiated_at = datetime.utcnow()
     
-    # Check if we're in DEMO MODE (no Stripe configured)
-    stripe_key = os.getenv("STRIPE_SECRET_KEY")
-    demo_mode = os.getenv("DEMO_MODE", "false").lower() == "true"
-    
-    if demo_mode or not stripe_key or stripe_key.startswith("sk_test_your") or stripe_key == "your-stripe-secret-key":
-        # DEMO MODE: Complete checkout without payment AND create user
-        print(f"✅ DEMO MODE: Checkout completed for {progress.email} - Plan: {progress.selected_plan}")
+    # ============================================
+    # FREE ACCESS MODE - NO PAYMENT REQUIRED
+    # All orders go through without payment
+    # Remove this block when ready to enable Stripe
+    # ============================================
+    if True:  # Always free for now - remove this when enabling Stripe payments
+        # FREE MODE: Complete checkout without payment AND create user
+        print(f"✅ FREE MODE: Order completed for {progress.email} - Plan: {progress.selected_plan}")
         
         progress.step_payment_completed = True
         progress.payment_completed_at = datetime.utcnow()
