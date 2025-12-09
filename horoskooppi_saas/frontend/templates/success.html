@@ -64,60 +64,106 @@
         <main class="success-page">
             <div class="success-content">
                 <div class="success-icon">✓</div>
-                <h2>Welcome to Your Cosmic Circle</h2>
-                <p class="success-message">
-                    Your personal gateway to the cosmos is now open.
-                    Begin receiving guidance crafted uniquely for your journey.
+                <h2 data-i18n="welcomeTitle">Tervetuloa kosmiseen piiriisi</h2>
+                <p class="success-message" data-i18n="welcomeMessage">
+                    Henkilökohtainen porttisi kosmokseen on nyt auki.
+                    Aloita vastaanottamaan ohjausta, joka on luotu erityisesti sinun matkaasi varten.
                 </p>
                 
                 <!-- Magic Link Email Notice -->
                 <div class="magic-link-notice">
                     <div class="icon">📧</div>
-                    <h3>Check Your Email</h3>
+                    <h3 data-i18n="checkEmail">Tarkista sähköpostisi</h3>
                     <p>
-                        We've sent a magic login link to <span class="email-highlight" id="userEmail">your email</span>.
-                        <br>Click the link in the email to access your cosmic dashboard.
+                        <span data-i18n="sentMagicLink">Olemme lähettäneet kirjautumislinkin osoitteeseen</span> <span class="email-highlight" id="userEmail">sähköpostisi</span>.
+                        <br><span data-i18n="clickLink">Klikkaa linkkiä sähköpostissa päästäksesi kosmiseen hallintapaneeliisi.</span>
                     </p>
                     <p class="resend-link">
-                        Didn't receive it? <a href="/" id="resendLink">Request a new link</a>
+                        <span data-i18n="didntReceive">Etkö saanut sitä?</span> <a href="/" id="resendLink" data-i18n="requestNewLink">Pyydä uusi linkki</a>
                     </p>
                 </div>
                 
                 <div class="success-features">
                     <div class="success-feature">
                         <span class="feature-icon">✨</span>
-                        <span>Personal Daily Messages</span>
+                        <span data-i18n="feature1">Henkilökohtaiset päiväviestit</span>
                     </div>
                     <div class="success-feature">
                         <span class="feature-icon">🌙</span>
-                        <span>Your Weekly Path</span>
+                        <span data-i18n="feature2">Viikottainen polkusi</span>
                     </div>
                     <div class="success-feature">
                         <span class="feature-icon">💫</span>
-                        <span>Monthly Soul Guidance</span>
+                        <span data-i18n="feature3">Kuukausittainen sielunohjaus</span>
                     </div>
                 </div>
                 
-                <p class="success-footer" style="margin-top: 2rem;">
-                    🔮 Your cosmic journey awaits. The stars are aligned in your favor.
+                <p class="success-footer" style="margin-top: 2rem;" data-i18n="journeyAwaits">
+                    🔮 Kosminen matkasi odottaa. Tähdet ovat puolellasi.
                 </p>
             </div>
         </main>
 
         <!-- Footer -->
         <footer class="footer">
-            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+            <p>&copy; 2024 Nous Paradeigma. Kaikki oikeudet pidätetään.</p>
         </footer>
     </div>
     
     <script>
-        // Get email from URL params
+        // ===========================================
+        // TRANSLATIONS
+        // ===========================================
+        const translations = {
+            fi: {
+                'welcomeTitle': 'Tervetuloa kosmiseen piiriisi',
+                'welcomeMessage': 'Henkilökohtainen porttisi kosmokseen on nyt auki. Aloita vastaanottamaan ohjausta, joka on luotu erityisesti sinun matkaasi varten.',
+                'checkEmail': 'Tarkista sähköpostisi',
+                'sentMagicLink': 'Olemme lähettäneet kirjautumislinkin osoitteeseen',
+                'clickLink': 'Klikkaa linkkiä sähköpostissa päästäksesi kosmiseen hallintapaneeliisi.',
+                'didntReceive': 'Etkö saanut sitä?',
+                'requestNewLink': 'Pyydä uusi linkki',
+                'feature1': 'Henkilökohtaiset päiväviestit',
+                'feature2': 'Viikottainen polkusi',
+                'feature3': 'Kuukausittainen sielunohjaus',
+                'journeyAwaits': '🔮 Kosminen matkasi odottaa. Tähdet ovat puolellasi.'
+            },
+            en: {
+                'welcomeTitle': 'Welcome to Your Cosmic Circle',
+                'welcomeMessage': 'Your personal gateway to the cosmos is now open. Begin receiving guidance crafted uniquely for your journey.',
+                'checkEmail': 'Check Your Email',
+                'sentMagicLink': "We've sent a magic login link to",
+                'clickLink': 'Click the link in the email to access your cosmic dashboard.',
+                'didntReceive': "Didn't receive it?",
+                'requestNewLink': 'Request a new link',
+                'feature1': 'Personal Daily Messages',
+                'feature2': 'Your Weekly Path',
+                'feature3': 'Monthly Soul Guidance',
+                'journeyAwaits': '🔮 Your cosmic journey awaits. The stars are aligned in your favor.'
+            }
+        };
+
+        // Get language from URL or localStorage
         const urlParams = new URLSearchParams(window.location.search);
+        const currentLang = localStorage.getItem('language') || 'fi';
+        
+        function t(key) { return translations[currentLang]?.[key] || translations['fi']?.[key] || key; }
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang]?.[key]) el.textContent = translations[currentLang][key];
+            });
+        }
+        
+        // Get email from URL params
         const email = urlParams.get('email');
         
         if (email) {
             document.getElementById('userEmail').textContent = email;
         }
+        
+        // Apply translations
+        applyTranslations();
         
         // Clear any stored checkout session
         localStorage.removeItem('checkoutSessionId');

@@ -256,23 +256,23 @@
                 <h1>✨ Nous Paradeigma</h1>
             </div>
             <nav class="nav">
-                <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
-                <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+                <a href="/dashboard" class="btn btn-ghost" data-i18n="dashboard">Hallintapaneeli</a>
+                <button id="logoutBtn" class="btn btn-ghost" data-i18n="logout">Kirjaudu ulos</button>
             </nav>
         </header>
 
         <main class="dashboard">
             <!-- Back Navigation -->
             <div class="back-nav">
-                <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+                <a href="/dashboard" class="back-link" data-i18n="backToDashboard">← Takaisin hallintapaneeliin</a>
             </div>
 
             <div class="profile-container">
                 <!-- Profile Header -->
                 <div class="profile-header">
                     <div class="profile-avatar" id="profileAvatar">✨</div>
-                    <h1 class="profile-name" id="profileName">Loading...</h1>
-                    <p class="profile-email" id="profileEmail">Loading...</p>
+                    <h1 class="profile-name" id="profileName">Ladataan...</h1>
+                    <p class="profile-email" id="profileEmail">Ladataan...</p>
                 </div>
 
                 <!-- Messages -->
@@ -281,77 +281,77 @@
 
                 <!-- Birth Data Section -->
                 <section class="profile-section birth-data-section">
-                    <h2 class="section-title">🌟 Your Birth Data & Zodiac Sign</h2>
+                    <h2 class="section-title" data-i18n="birthDataTitle">🌟 Syntymätietosi & Horoskooppimerkkisi</h2>
                     
                     <div class="data-grid">
                         <div class="data-item">
-                            <div class="data-label">Zodiac Sign</div>
+                            <div class="data-label" data-i18n="zodiacSign">Horoskooppimerkki</div>
                             <div class="data-value zodiac" id="displayZodiac">
                                 <span id="zodiacSymbol">✨</span>
-                                <span id="zodiacName">Loading...</span>
+                                <span id="zodiacName">Ladataan...</span>
                             </div>
                         </div>
                         <div class="data-item">
-                            <div class="data-label">Birth Date 🔒</div>
+                            <div class="data-label" data-i18n="birthDateLocked">Syntymäpäivä 🔒</div>
                             <div class="data-value locked" id="displayBirthDate">
-                                <span>Loading...</span>
+                                <span>Ladataan...</span>
                             </div>
                         </div>
                         <div class="data-item">
-                            <div class="data-label">Birth City 🔒</div>
+                            <div class="data-label" data-i18n="birthCityLocked">Syntymäkaupunki 🔒</div>
                             <div class="data-value locked" id="displayBirthCity">
-                                <span>Loading...</span>
+                                <span>Ladataan...</span>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Birth Time - EDITABLE -->
                     <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(138, 116, 249, 0.1); border-radius: 12px;">
-                        <h4 style="color: var(--text-primary); margin-bottom: 1rem;">⏰ Birth Time (Optional)</h4>
-                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-                            Adding your exact birth time allows for more precise ascendant and house calculations in your predictions.
+                        <h4 style="color: var(--text-primary); margin-bottom: 1rem;" data-i18n="birthTimeTitle">⏰ Syntymäaika (Valinnainen)</h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;" data-i18n="birthTimeDesc">
+                            Tarkan syntymäajan lisääminen mahdollistaa tarkemmat nousevan merkin ja huoneiden laskelmat ennustuksissasi.
                         </p>
                         <div class="form-group" style="margin-bottom: 1rem;">
-                            <label for="birthTime">Birth Time</label>
+                            <label for="birthTime" data-i18n="birthTime">Syntymäaika</label>
                             <input type="time" id="birthTime" name="birth_time" style="max-width: 200px;">
                         </div>
-                        <button type="button" id="saveBirthTime" class="btn btn-primary">Save Birth Time</button>
-                        <span id="birthTimeSuccess" style="color: #4caf50; margin-left: 1rem; display: none;">✓ Saved!</span>
+                        <button type="button" id="saveBirthTime" class="btn btn-primary" data-i18n="saveBirthTime">Tallenna syntymäaika</button>
+                        <span id="birthTimeSuccess" style="color: #4caf50; margin-left: 1rem; display: none;" data-i18n="saved">✓ Tallennettu!</span>
                     </div>
                     
                     <div class="usage-info">
-                        <h4>How your data is used for predictions:</h4>
+                        <h4 data-i18n="dataUsageTitle">Miten tietojasi käytetään ennustuksiin:</h4>
                         <ul>
-                            <li>Your zodiac sign determines the base characteristics of your readings</li>
-                            <li>Birth time allows precise ascendant and house calculations</li>
-                            <li>Birth city provides geographic coordinates for accurate planetary positions</li>
+                            <li data-i18n="dataUsage1">Horoskooppimerkkisi määrittää ennustuksiesi peruspiirteet</li>
+                            <li data-i18n="dataUsage2">Syntymäaika mahdollistaa tarkat nousevan merkin ja huoneiden laskelmat</li>
+                            <li data-i18n="dataUsage3">Syntymäkaupunki antaa maantieteelliset koordinaatit tarkkoja planeettojen sijainteja varten</li>
                         </ul>
                     </div>
                 </section>
 
                 <!-- Editable Profile Section -->
                 <section class="profile-section">
-                    <h2 class="section-title">👤 Personal Information</h2>
+                    <h2 class="section-title" data-i18n="personalInfo">👤 Henkilötiedot</h2>
                     
                     <form id="profileForm" class="profile-form">
                         <div class="form-group">
-                            <label for="firstName">First Name</label>
-                            <input type="text" id="firstName" name="first_name" placeholder="Your first name">
+                            <label for="firstName" data-i18n="firstName">Etunimi</label>
+                            <input type="text" id="firstName" name="first_name" data-i18n-placeholder="firstNamePlaceholder" placeholder="Etunimesi">
                         </div>
                         <div class="form-group">
-                            <label for="lastName">Last Name</label>
-                            <input type="text" id="lastName" name="last_name" placeholder="Your last name">
+                            <label for="lastName" data-i18n="lastName">Sukunimi</label>
+                            <input type="text" id="lastName" name="last_name" data-i18n-placeholder="lastNamePlaceholder" placeholder="Sukunimesi">
                         </div>
                         <div class="form-group">
-                            <label for="phone">Phone Number</label>
+                            <label for="phone" data-i18n="phone">Puhelinnumero</label>
                             <input type="tel" id="phone" name="phone" placeholder="+358 XX XXX XXXX">
                         </div>
                         <div class="form-group">
-                            <label for="address">Address</label>
-                            <input type="text" id="address" name="address" placeholder="Your address">
+                            <label for="address" data-i18n="address">Osoite</label>
+                            <input type="text" id="address" name="address" data-i18n-placeholder="addressPlaceholder" placeholder="Osoitteesi">
                         </div>
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="submit" class="btn btn-primary" data-i18n="saveChanges">Tallenna muutokset</button>
                         </div>
                     </form>
                 </section>
@@ -359,11 +359,102 @@
         </main>
 
         <footer class="footer">
-            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+            <p>&copy; 2024 Nous Paradeigma. Kaikki oikeudet pidätetään.</p>
         </footer>
     </div>
 
     <script>
+        // ===========================================
+        // TRANSLATIONS
+        // ===========================================
+        const translations = {
+            fi: {
+                'dashboard': 'Hallintapaneeli',
+                'logout': 'Kirjaudu ulos',
+                'backToDashboard': '← Takaisin hallintapaneeliin',
+                'birthDataTitle': '🌟 Syntymätietosi & Horoskooppimerkkisi',
+                'zodiacSign': 'Horoskooppimerkki',
+                'birthDateLocked': 'Syntymäpäivä 🔒',
+                'birthCityLocked': 'Syntymäkaupunki 🔒',
+                'birthTimeTitle': '⏰ Syntymäaika (Valinnainen)',
+                'birthTimeDesc': 'Tarkan syntymäajan lisääminen mahdollistaa tarkemmat nousevan merkin ja huoneiden laskelmat ennustuksissasi.',
+                'birthTime': 'Syntymäaika',
+                'saveBirthTime': 'Tallenna syntymäaika',
+                'saved': '✓ Tallennettu!',
+                'dataUsageTitle': 'Miten tietojasi käytetään ennustuksiin:',
+                'dataUsage1': 'Horoskooppimerkkisi määrittää ennustuksiesi peruspiirteet',
+                'dataUsage2': 'Syntymäaika mahdollistaa tarkat nousevan merkin ja huoneiden laskelmat',
+                'dataUsage3': 'Syntymäkaupunki antaa maantieteelliset koordinaatit tarkkoja planeettojen sijainteja varten',
+                'personalInfo': '👤 Henkilötiedot',
+                'firstName': 'Etunimi',
+                'lastName': 'Sukunimi',
+                'phone': 'Puhelinnumero',
+                'address': 'Osoite',
+                'saveChanges': 'Tallenna muutokset',
+                'firstNamePlaceholder': 'Etunimesi',
+                'lastNamePlaceholder': 'Sukunimesi',
+                'addressPlaceholder': 'Osoitteesi',
+                'profileUpdated': 'Profiili päivitetty onnistuneesti!',
+                'notSet': 'Ei asetettu',
+                // Zodiac names
+                'zodiac.aries': 'Oinas', 'zodiac.taurus': 'Härkä', 'zodiac.gemini': 'Kaksoset',
+                'zodiac.cancer': 'Rapu', 'zodiac.leo': 'Leijona', 'zodiac.virgo': 'Neitsyt',
+                'zodiac.libra': 'Vaaka', 'zodiac.scorpio': 'Skorpioni', 'zodiac.sagittarius': 'Jousimies',
+                'zodiac.capricorn': 'Kauris', 'zodiac.aquarius': 'Vesimies', 'zodiac.pisces': 'Kalat'
+            },
+            en: {
+                'dashboard': 'Dashboard',
+                'logout': 'Logout',
+                'backToDashboard': '← Back to Dashboard',
+                'birthDataTitle': '🌟 Your Birth Data & Zodiac Sign',
+                'zodiacSign': 'Zodiac Sign',
+                'birthDateLocked': 'Birth Date 🔒',
+                'birthCityLocked': 'Birth City 🔒',
+                'birthTimeTitle': '⏰ Birth Time (Optional)',
+                'birthTimeDesc': 'Adding your exact birth time allows for more precise ascendant and house calculations in your predictions.',
+                'birthTime': 'Birth Time',
+                'saveBirthTime': 'Save Birth Time',
+                'saved': '✓ Saved!',
+                'dataUsageTitle': 'How your data is used for predictions:',
+                'dataUsage1': 'Your zodiac sign determines the base characteristics of your readings',
+                'dataUsage2': 'Birth time allows precise ascendant and house calculations',
+                'dataUsage3': 'Birth city provides geographic coordinates for accurate planetary positions',
+                'personalInfo': '👤 Personal Information',
+                'firstName': 'First Name',
+                'lastName': 'Last Name',
+                'phone': 'Phone Number',
+                'address': 'Address',
+                'saveChanges': 'Save Changes',
+                'firstNamePlaceholder': 'Your first name',
+                'lastNamePlaceholder': 'Your last name',
+                'addressPlaceholder': 'Your address',
+                'profileUpdated': 'Profile updated successfully!',
+                'notSet': 'Not set',
+                // Zodiac names
+                'zodiac.aries': 'Aries', 'zodiac.taurus': 'Taurus', 'zodiac.gemini': 'Gemini',
+                'zodiac.cancer': 'Cancer', 'zodiac.leo': 'Leo', 'zodiac.virgo': 'Virgo',
+                'zodiac.libra': 'Libra', 'zodiac.scorpio': 'Scorpio', 'zodiac.sagittarius': 'Sagittarius',
+                'zodiac.capricorn': 'Capricorn', 'zodiac.aquarius': 'Aquarius', 'zodiac.pisces': 'Pisces'
+            }
+        };
+
+        let currentLang = 'fi';
+        function t(key) { return translations[currentLang]?.[key] || translations['en']?.[key] || key; }
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang]?.[key]) el.textContent = translations[currentLang][key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[currentLang]?.[key]) el.placeholder = translations[currentLang][key];
+            });
+        }
+        function getZodiacName(sign) {
+            if (!sign) return t('notSet');
+            return t(`zodiac.${sign.toLowerCase()}`) || sign.charAt(0).toUpperCase() + sign.slice(1);
+        }
+
         const ZODIAC_SYMBOLS = {
             'aries': '♈', 'taurus': '♉', 'gemini': '♊', 'cancer': '♋',
             'leo': '♌', 'virgo': '♍', 'libra': '♎', 'scorpio': '♏',
@@ -417,10 +508,15 @@
                 }
                 
                 userData = await response.json();
+                
+                // Set language and apply translations
+                currentLang = userData.prediction_language || 'fi';
+                applyTranslations();
+                
                 displayProfile();
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('error', 'Failed to load profile. Please try again.');
+                showMessage('error', currentLang === 'fi' ? 'Profiilin lataaminen epäonnistui.' : 'Failed to load profile. Please try again.');
             }
         }
 
@@ -428,7 +524,8 @@
             if (!userData) return;
             
             // Profile header
-            const name = userData.full_name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Cosmic Traveler';
+            const defaultName = currentLang === 'fi' ? 'Kosminen Matkailija' : 'Cosmic Traveler';
+            const name = userData.full_name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || defaultName;
             document.getElementById('profileName').textContent = name;
             document.getElementById('profileEmail').textContent = userData.email;
             
@@ -437,20 +534,20 @@
                 const symbol = ZODIAC_SYMBOLS[userData.zodiac_sign.toLowerCase()] || '✨';
                 document.getElementById('profileAvatar').textContent = symbol;
                 document.getElementById('zodiacSymbol').textContent = symbol;
-                document.getElementById('zodiacName').textContent = userData.zodiac_sign.charAt(0).toUpperCase() + userData.zodiac_sign.slice(1);
+                document.getElementById('zodiacName').textContent = getZodiacName(userData.zodiac_sign);
             } else {
                 document.getElementById('profileAvatar').textContent = '?';
-                document.getElementById('zodiacName').textContent = 'Not calculated (add birth date during registration)';
+                document.getElementById('zodiacName').textContent = t('notSet');
             }
             
             // Birth data (read-only except birth_time)
             document.getElementById('displayBirthDate').innerHTML = userData.birth_date 
                 ? `<span>${formatDate(userData.birth_date)}</span>`
-                : '<span style="opacity: 0.5">Not set</span>';
+                : `<span style="opacity: 0.5">${t('notSet')}</span>`;
             
             document.getElementById('displayBirthCity').innerHTML = userData.birth_city 
                 ? `<span>${userData.birth_city}</span>`
-                : '<span style="opacity: 0.5">Not set</span>';
+                : `<span style="opacity: 0.5">${t('notSet')}</span>`;
             
             // Birth time - editable
             document.getElementById('birthTime').value = userData.birth_time || '';
@@ -465,7 +562,8 @@
         function formatDate(dateStr) {
             if (!dateStr) return '';
             const date = new Date(dateStr);
-            return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const locale = currentLang === 'fi' ? 'fi-FI' : 'en-GB';
+            return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
         }
 
         function showMessage(type, text) {
@@ -517,7 +615,7 @@
                 const updated = await response.json();
                 userData = updated;
                 displayProfile();
-                showMessage('success', 'Profile updated successfully!');
+                showMessage('success', t('profileUpdated'));
             } catch (error) {
                 showMessage('error', error.message);
             }
