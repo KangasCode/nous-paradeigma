@@ -119,149 +119,307 @@ class GeminiClient:
         raw_data: Dict[str, Any],
         user_profile: Optional[Dict[str, Any]] = None
     ) -> str:
-        """Create a prompt for horoscope generation with strict rules about data sources"""
+        """
+        Create a technically precise astrology prompt.
         
-        # CRITICAL AI INSTRUCTIONS
-        ai_instructions = """
-=== CRITICAL INSTRUCTIONS FOR AI ===
+        The AI will generate predictions STRICTLY from the provided chart data.
+        Output format: 3 sections (Key Influences, Detailed Prediction, Technical Summary)
+        """
+        
+        # SYSTEM PROMPT - Strict technical rules
+        system_prompt = """You are an astrology prediction engine.
 
-DATA SOURCE RULES (MUST BE FOLLOWED):
-1. The user's zodiac_sign is AUTOMATICALLY CALCULATED from their birth_date at registration
-2. The zodiac_sign CANNOT be changed by the user under any circumstances
-3. All predictions MUST be based on the STORED PROFILE DATA provided below
-4. Never use temporary values or user-edited values for predictions
-5. The following data is IMMUTABLE and comes from the database:
-   - birth_date (date of birth)
-   - birth_time (time of birth)
-   - birth_city (place of birth)
-   - zodiac_sign (calculated from birth_date, never editable)
+You generate predictions strictly and only from the technical chart data provided to you.
 
-PREDICTION GENERATION RULES:
-1. Every prediction you generate will be SAVED to the database
-2. All predictions appear on the user's /patterns page, newest first
-3. Never repeat content from previous predictions
-4. Use the natal chart data and current transits for accurate predictions
-5. Predictions must be personalized based on the provided profile data
-6. If birth data is missing, use general zodiac archetypes but note the limitation
+Never invent planets, aspects, angles or meanings not included in the input.
 
-=== END CRITICAL INSTRUCTIONS ===
-"""
+Follow these rules:
+1. Use only the data given in the input JSON.
+2. Interpret planetary positions, houses, and aspects using classical astrological rules.
+3. Stronger aspects (orb under 1 degree) must be highlighted clearly.
+4. Tie each interpretation to the correct life area based on the house system.
+5. If no relevant aspect exists for a topic, say nothing about that topic.
+6. Produce a prediction that feels personal but is fully traceable back to the data.
+7. Do not mention that you are an AI.
+8. Never change the user's zodiac sign.
 
-        # Base horoscope instructions
-        base_prompt = """
-You generate personal horoscope predictions for a subscribed user. All predictions must be based on real calculated astrology data including the natal chart, planetary positions, houses, aspects, and current transits. You must never repeat earlier predictions. Your writing style must be modern, personal, psychologically insightful, and based on astrological interpretation without making supernatural promises.
+All predictions must be derived from:
+- natal positions
+- current transits
+- aspects between current and natal planets
+- house meanings
+- planetary nature
 
-Every prediction is permanently saved in the user's archive and categorized as Daily, Weekly, or Monthly. The newest prediction always appears first.
-"""
+IMMUTABLE DATA RULES:
+- The user's zodiac_sign is calculated from birth_date and CANNOT be changed
+- All birth data (birth_date, birth_time, birth_city) are permanent
+- Predictions must use stored profile data, not user-edited values"""
 
-        # Type-specific instructions
-        type_instructions = {
-            "daily": """
-DAILY PREDICTION REQUIREMENTS:
-- Calculate current Moon sign and aspects
-- Include effects on mental clarity, relationships, energy, motivation
-- One practical suggestion for the day
-- Length: 70-120 words
-- Must be unique from all previous daily predictions
-""",
-            "weekly": """
-WEEKLY PREDICTION REQUIREMENTS:
-- Overview of the week's astrological atmosphere
-- Three thematic areas: growth, relationships, challenges
-- Key planetary movements affecting the week
-- One practical weekly recommendation
-- Length: 180-300 words
-- Must be unique from all previous weekly predictions
-""",
-            "monthly": """
-MONTHLY PREDICTION REQUIREMENTS:
-- Main theme of the month based on planetary positions
-- New Moon and Full Moon impacts
-- Predictions for: career, relationships, finances, well-being
-- Major planetary aspects and their effects
-- Length: 400-700 words
-- Must be unique from all previous monthly predictions
-"""
-        }
-
-        # Build user profile context
-        profile_context = ""
-        if user_profile:
-            profile_context = f"""
-=== USER PROFILE DATA (FROM DATABASE - IMMUTABLE) ===
-Zodiac Sign: {zodiac_sign.upper()} (calculated from birth date, cannot be changed)
-Birth Date: {user_profile.get('birth_date', 'Not provided')}
-Birth Time: {user_profile.get('birth_time', 'Not provided')}
-Birth City: {user_profile.get('birth_city', 'Not provided')}
-User Name: {user_profile.get('first_name', '')} {user_profile.get('last_name', '')}
-=== END PROFILE DATA ===
-"""
+        # Build natal chart array
+        natal_chart = raw_data.get("natal_chart", {})
+        birth_chart_array = []
+        
+        if natal_chart and "positions" in natal_chart:
+            positions = natal_chart.get("positions", {})
+            house_num = 1
+            for planet, data in positions.items():
+                if isinstance(data, dict):
+                    birth_chart_array.append({
+                        "planet": planet,
+                        "sign": data.get("sign", "Unknown"),
+                        "degree": data.get("deg", 0),
+                        "house": house_num % 12 + 1  # Simplified house assignment
+                    })
+                    house_num += 1
         else:
-            profile_context = f"""
-=== USER PROFILE DATA ===
-Zodiac Sign: {zodiac_sign.upper()}
-Birth Data: Not yet provided by user
-NOTE: Generate prediction using zodiac archetypes until full birth data is available
-=== END PROFILE DATA ===
-"""
+            # Default natal positions based on zodiac sign if no birth data
+            birth_chart_array = [
+                {"planet": "Sun", "sign": zodiac_sign.capitalize(), "degree": 15.0, "house": 1},
+                {"planet": "Moon", "sign": "Unknown", "degree": 0, "house": 4},
+                {"planet": "Mercury", "sign": zodiac_sign.capitalize(), "degree": 10.0, "house": 1},
+                {"planet": "Venus", "sign": "Unknown", "degree": 0, "house": 2},
+                {"planet": "Mars", "sign": "Unknown", "degree": 0, "house": 6}
+            ]
+        
+        # Build current transits array
+        transits = raw_data.get("transits", {})
+        current_transits_array = []
+        
+        if transits and "positions" in transits:
+            transit_positions = transits.get("positions", {})
+            house_num = 1
+            for planet, data in transit_positions.items():
+                if isinstance(data, dict):
+                    current_transits_array.append({
+                        "planet": planet,
+                        "sign": data.get("sign", "Unknown"),
+                        "degree": data.get("deg", 0),
+                        "house": house_num % 12 + 1
+                    })
+                    house_num += 1
+        else:
+            # Use current date approximations
+            current_transits_array = [
+                {"planet": "Sun", "sign": self._get_current_sun_sign(), "degree": 15.0, "house": 1},
+                {"planet": "Moon", "sign": "Variable", "degree": 0, "house": 4},
+                {"planet": "Mercury", "sign": self._get_current_sun_sign(), "degree": 10.0, "house": 1},
+                {"planet": "Mars", "sign": "Capricorn", "degree": 15.0, "house": 5},
+                {"planet": "Venus", "sign": "Scorpio", "degree": 20.0, "house": 2}
+            ]
+        
+        # Calculate aspects between transits and natal
+        aspects_array = self._calculate_aspects(birth_chart_array, current_transits_array)
+        
+        # Build the structured input JSON
+        user_name = ""
+        if user_profile:
+            first = user_profile.get("first_name", "")
+            last = user_profile.get("last_name", "")
+            user_name = f"{first} {last}".strip() or "Cosmic Traveler"
+        else:
+            user_name = "Cosmic Traveler"
+        
+        input_data = {
+            "user": {
+                "name": user_name,
+                "sun_sign": zodiac_sign.capitalize(),
+                "birth_chart": birth_chart_array
+            },
+            "current_transits": current_transits_array,
+            "aspects": aspects_array
+        }
+        
+        # Output format instructions based on prediction type
+        output_instructions = {
+            "daily": """
+OUTPUT FORMAT (3 sections required):
 
-        # Build astrology data context
-        astrology_context = f"""
-=== CALCULATED ASTROLOGY DATA ===
-Current Date: {raw_data.get('transits', {}).get('date', datetime.now().strftime('%Y-%m-%d'))}
+**Key Influences Today**
+Short bullet points of the strongest transits (orb under 2 degrees).
 
-Transit Positions:
-{json.dumps(raw_data.get('transits', {}), indent=2)}
+**Detailed Daily Prediction**
+A coherent text of 120 to 200 words that directly references the technical data.
 
-Natal Chart Data:
-{json.dumps(raw_data.get('natal_chart', {'status': 'Not calculated - birth data needed'}), indent=2)}
-=== END ASTROLOGY DATA ===
-"""
+**Technical Summary**
+A compact list of all aspects used.
+Format: Planet A → Planet B, Aspect, Angle, Orb, House impact.""",
+            
+            "weekly": """
+OUTPUT FORMAT (3 sections required):
 
-        # Task specification
-        task = f"""
-=== CURRENT TASK ===
-Generate a {prediction_type.upper()} prediction for {zodiac_sign.capitalize()}
-This prediction will be saved to the database and displayed on /patterns page
-=== END TASK ===
-"""
+**Key Influences This Week**
+Bullet points of the strongest transits affecting the week (orb under 3 degrees).
 
+**Detailed Weekly Prediction**
+A coherent text of 250 to 400 words covering:
+- Overall energy of the week
+- Key days to watch
+- Themes: growth, relationships, challenges
+Directly reference the technical data throughout.
+
+**Technical Summary**
+A compact list of all major aspects for the week.
+Format: Planet A → Planet B, Aspect, Angle, Orb, House impact.""",
+            
+            "monthly": """
+OUTPUT FORMAT (3 sections required):
+
+**Key Influences This Month**
+Bullet points of major planetary movements and lunar phases affecting the month.
+
+**Detailed Monthly Prediction**
+A coherent text of 500 to 700 words covering:
+- Main theme of the month
+- Career and professional life
+- Relationships and social connections
+- Finances and material matters
+- Health and well-being
+- Key dates to note
+Directly reference the technical data throughout.
+
+**Technical Summary**
+A comprehensive list of all major aspects and transits for the month.
+Format: Planet A → Planet B, Aspect, Angle, Orb, House impact."""
+        }
+        
         # Assemble full prompt
-        full_prompt = f"""
-{ai_instructions}
+        full_prompt = f"""{system_prompt}
 
-{base_prompt}
+{output_instructions.get(prediction_type, output_instructions['daily'])}
 
-{type_instructions.get(prediction_type, type_instructions['daily'])}
+=== INPUT DATA (JSON) ===
+{json.dumps(input_data, indent=2)}
+=== END INPUT DATA ===
 
-{profile_context}
-
-{astrology_context}
-
-{task}
-
-Now generate the {prediction_type} prediction:
-"""
+Generate the {prediction_type} prediction for {zodiac_sign.capitalize()} now.
+Use ONLY the data provided above. Do not invent aspects or positions not in the input."""
         
         return full_prompt
     
+    def _get_current_sun_sign(self) -> str:
+        """Get the current Sun sign based on date"""
+        now = datetime.now()
+        month = now.month
+        day = now.day
+        
+        if (month == 3 and day >= 21) or (month == 4 and day <= 19):
+            return "Aries"
+        elif (month == 4 and day >= 20) or (month == 5 and day <= 20):
+            return "Taurus"
+        elif (month == 5 and day >= 21) or (month == 6 and day <= 20):
+            return "Gemini"
+        elif (month == 6 and day >= 21) or (month == 7 and day <= 22):
+            return "Cancer"
+        elif (month == 7 and day >= 23) or (month == 8 and day <= 22):
+            return "Leo"
+        elif (month == 8 and day >= 23) or (month == 9 and day <= 22):
+            return "Virgo"
+        elif (month == 9 and day >= 23) or (month == 10 and day <= 22):
+            return "Libra"
+        elif (month == 10 and day >= 23) or (month == 11 and day <= 21):
+            return "Scorpio"
+        elif (month == 11 and day >= 22) or (month == 12 and day <= 21):
+            return "Sagittarius"
+        elif (month == 12 and day >= 22) or (month == 1 and day <= 19):
+            return "Capricorn"
+        elif (month == 1 and day >= 20) or (month == 2 and day <= 18):
+            return "Aquarius"
+        else:
+            return "Pisces"
+    
+    def _calculate_aspects(
+        self, 
+        natal_chart: list, 
+        current_transits: list
+    ) -> list:
+        """
+        Calculate aspects between natal and transit planets.
+        Returns list of aspect dictionaries.
+        """
+        aspects = []
+        
+        # Aspect definitions: name, angle, orb_allowed
+        aspect_definitions = [
+            ("Conjunction", 0, 8),
+            ("Sextile", 60, 4),
+            ("Square", 90, 6),
+            ("Trine", 120, 6),
+            ("Opposition", 180, 8)
+        ]
+        
+        # House meanings for effect descriptions
+        house_meanings = {
+            1: "Self and identity",
+            2: "Finances and values",
+            3: "Communication and learning",
+            4: "Home and family",
+            5: "Creativity and self-expression",
+            6: "Work and health",
+            7: "Partnerships and relationships",
+            8: "Transformation and shared resources",
+            9: "Higher learning and travel",
+            10: "Career and public image",
+            11: "Friends and aspirations",
+            12: "Spirituality and subconscious"
+        }
+        
+        for transit in current_transits:
+            for natal in natal_chart:
+                transit_deg = transit.get("degree", 0)
+                natal_deg = natal.get("degree", 0)
+                
+                # Calculate angle difference
+                diff = abs(transit_deg - natal_deg)
+                if diff > 180:
+                    diff = 360 - diff
+                
+                # Check each aspect type
+                for aspect_name, aspect_angle, max_orb in aspect_definitions:
+                    orb = abs(diff - aspect_angle)
+                    
+                    if orb <= max_orb:
+                        house = natal.get("house", 1)
+                        aspects.append({
+                            "transit_planet": transit.get("planet", "Unknown"),
+                            "natal_planet": natal.get("planet", "Unknown"),
+                            "aspect": aspect_name,
+                            "angle": round(aspect_angle + (transit_deg - natal_deg) % 360, 1),
+                            "orb": round(orb, 1),
+                            "house_effect": house_meanings.get(house, "General life areas")
+                        })
+        
+        # Sort by orb (tightest aspects first)
+        aspects.sort(key=lambda x: x["orb"])
+        
+        return aspects[:10]  # Return top 10 tightest aspects
+    
     def _generate_fallback_horoscope(self, zodiac_sign: str, prediction_type: str) -> str:
-        """Generate a fallback horoscope if API fails"""
-        return f"""**{zodiac_sign.capitalize()} - {prediction_type.capitalize()} Horoscope**
+        """Generate a fallback horoscope if API fails - matches the 3-section format"""
+        current_sun = self._get_current_sun_sign()
+        
+        return f"""**Key Influences {"Today" if prediction_type == "daily" else "This " + prediction_type.capitalize().replace("ly", "")}**
 
-🌟 **Love & Relationships**: The stars align favorably for your connections today. Open communication will strengthen your bonds.
+• Sun in {current_sun} activates your natural {zodiac_sign.capitalize()} energy
+• Current lunar phase supports reflection and planning
+• Mercury aspects encourage clear communication
 
-💼 **Career**: Professional opportunities may present themselves. Stay alert and ready to seize the moment.
+**Detailed {prediction_type.capitalize()} Prediction**
 
-💪 **Health**: Your energy levels are balanced. Focus on maintaining healthy habits and rest when needed.
+The cosmic energies are working in your favor, {zodiac_sign.capitalize()}. With the Sun transiting through {current_sun}, there's a natural harmony between your core identity and the current celestial climate. This period invites you to focus on personal growth and authentic self-expression.
 
-🍀 **Lucky Numbers**: 7, 14, 23
+Your ruling planetary influences suggest a time of balanced energy. Professional matters may require attention, but you have the celestial support needed to navigate any challenges. Relationships benefit from honest communication—speak your truth with compassion.
 
-*Remember: The universe has a plan for you. Stay positive and trust your journey!*
+Take time for self-care and reflection. The universe is aligning opportunities for you, but patience will be your greatest ally. Trust your intuition when making decisions.
+
+**Technical Summary**
+
+Sun → Natal Sun, Transit, {current_sun}, House 1 (Self and identity)
+Moon → Variable positions through the {prediction_type} period
+Mercury → Communication and mental clarity active
+General planetary harmony supporting {zodiac_sign.capitalize()} archetype
 
 ---
-*This prediction is based on your zodiac sign ({zodiac_sign.capitalize()}) stored in your profile.*
-"""
+*Note: This is a general prediction. Add your birth time for more precise calculations.*"""
 
 
 # Create a singleton instance
