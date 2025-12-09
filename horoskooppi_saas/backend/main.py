@@ -631,7 +631,8 @@ async def generate_horoscope(
         "zodiac_sign": zodiac_sign,
         "first_name": current_user.first_name,
         "last_name": current_user.last_name,
-        "email": current_user.email
+        "email": current_user.email,
+        "prediction_language": getattr(current_user, 'prediction_language', 'en') or 'en'
     }
     
     # Generate horoscope using Gemini with user's profile data

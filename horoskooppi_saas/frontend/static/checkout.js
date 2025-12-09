@@ -133,9 +133,9 @@ function showStep(stepName) {
     updateProgressIndicator(stepName);
 }
 
-// Update progress indicator (now with 6 steps)
+// Update progress indicator (5 steps - capacity removed)
 function updateProgressIndicator(currentStep) {
-    const steps = ['email', 'phone', 'address', 'birthdate', 'capacity', 'payment'];
+    const steps = ['email', 'phone', 'address', 'birthdate', 'payment'];
     const currentIndex = steps.indexOf(currentStep);
     
     steps.forEach((step, index) => {
@@ -345,9 +345,8 @@ document.getElementById('birthdateForm').addEventListener('submit', async (e) =>
         document.getElementById('summary-zodiac').textContent = zodiacSign ? (ZODIAC_DATA[zodiacSign]?.symbol + ' ' + zodiacSign.charAt(0).toUpperCase() + zodiacSign.slice(1)) : '-';
         document.getElementById('summary-birthdate').textContent = formatDate(birthdate);
         
-        // Go to capacity check
-        showStep('capacity');
-        startCapacityCheck();
+        // Go directly to payment (capacity check removed)
+        showStep('payment');
     } catch (error) {
         errorElement.textContent = error.message;
         errorElement.style.display = 'block';
@@ -362,90 +361,6 @@ function formatDate(dateStr) {
     const date = new Date(dateStr);
     return date.toLocaleDateString('fi-FI', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
-
-// Capacity Check Animation
-async function startCapacityCheck() {
-    // Show checking animation
-    document.getElementById('capacityChecking').style.display = 'block';
-    document.getElementById('capacityWaitlist').style.display = 'none';
-    
-    // Check capacity status from server
-    let isFull = true;
-    try {
-        const response = await fetch(`${API_BASE}/checkout/capacity-status`);
-        if (response.ok) {
-            const data = await response.json();
-            isFull = data.is_full;
-        }
-    } catch (error) {
-        console.error('Error checking capacity:', error);
-        // Default to showing waitlist on error
-    }
-    
-    // After 2.5 seconds, either show waitlist or continue to payment
-    setTimeout(() => {
-        document.getElementById('capacityChecking').style.display = 'none';
-        
-        if (isFull) {
-            // Show waitlist
-            document.getElementById('capacityWaitlist').style.display = 'block';
-        } else {
-            // Allow through to payment
-            markStepComplete('capacity');
-            showStep('payment');
-        }
-    }, 2500);
-}
-
-// Waitlist form submission
-document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const email = document.getElementById('waitlistEmail').value;
-    const errorElement = document.getElementById('waitlistError');
-    const successElement = document.getElementById('waitlistSuccess');
-    
-    errorElement.style.display = 'none';
-    successElement.style.display = 'none';
-    
-    showLoading(true);
-    
-    try {
-        const response = await fetch(`${API_BASE}/checkout/waitlist`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                session_id: checkoutSessionId,
-                email: email
-            })
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Failed to join waiting list');
-        }
-        
-        // Update success message with current language
-        const lang = getCurrentLanguage();
-        const translations = window.checkoutTranslations || {};
-        const langTranslations = translations[lang] || translations['fi'] || {};
-        if (langTranslations['capacity.success']) {
-            successElement.textContent = langTranslations['capacity.success'];
-        }
-        
-        // Show success message
-        successElement.style.display = 'block';
-        document.getElementById('waitlistEmail').value = '';
-        
-        // Scroll to success message
-        successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } catch (error) {
-        errorElement.textContent = error.message;
-        errorElement.style.display = 'block';
-    } finally {
-        showLoading(false);
-    }
-});
 
 // Proceed to payment
 document.getElementById('proceedToPayment').addEventListener('click', async () => {

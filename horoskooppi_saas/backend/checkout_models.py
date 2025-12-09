@@ -28,6 +28,9 @@ class CheckoutProgress(Base):
     birth_city = Column(String, nullable=True)
     zodiac_sign = Column(String, nullable=True)  # Auto-calculated
     
+    # Language for predictions (derived from country)
+    prediction_language = Column(String, default="en")  # fi, en, sv, etc.
+    
     # Tracking which steps completed
     step_email_completed = Column(Boolean, default=False)
     step_phone_completed = Column(Boolean, default=False)

@@ -134,10 +134,46 @@ async def save_phone_step(data: CheckoutPhoneStep, db: Session = Depends(get_db)
         step_address_completed=False
     )
 
+def get_language_from_country(country: str) -> str:
+    """
+    Derive prediction language from country name.
+    Returns language code (fi, en, sv, etc.)
+    """
+    country_lower = country.lower().strip() if country else ""
+    
+    # Finnish
+    if country_lower in ["finland", "suomi", "fi"]:
+        return "fi"
+    # Swedish
+    elif country_lower in ["sweden", "sverige", "ruotsi", "se"]:
+        return "sv"
+    # Norwegian
+    elif country_lower in ["norway", "norge", "norja", "no"]:
+        return "no"
+    # Danish
+    elif country_lower in ["denmark", "danmark", "tanska", "dk"]:
+        return "da"
+    # German
+    elif country_lower in ["germany", "deutschland", "saksa", "de"]:
+        return "de"
+    # French
+    elif country_lower in ["france", "ranska", "fr"]:
+        return "fr"
+    # Spanish
+    elif country_lower in ["spain", "españa", "espanja", "es"]:
+        return "es"
+    # Italian
+    elif country_lower in ["italy", "italia", "it"]:
+        return "it"
+    # Default to English
+    else:
+        return "en"
+
 @router.post("/step/address", response_model=CheckoutProgressResponse)
 async def save_address_step(data: CheckoutAddressStep, db: Session = Depends(get_db)):
     """
-    Save address and mark address step as completed
+    Save address and mark address step as completed.
+    Also derives prediction language from country.
     """
     progress = db.query(CheckoutProgress).filter(
         CheckoutProgress.session_id == data.session_id
@@ -157,6 +193,10 @@ async def save_address_step(data: CheckoutAddressStep, db: Session = Depends(get
     progress.step_address_completed = True
     progress.address_completed_at = datetime.utcnow()
     
+    # Derive prediction language from country
+    progress.prediction_language = get_language_from_country(data.country)
+    print(f"📍 Country: {data.country} → Language: {progress.prediction_language}")
+    
     db.commit()
     db.refresh(progress)
     
@@ -166,7 +206,7 @@ async def save_address_step(data: CheckoutAddressStep, db: Session = Depends(get
     except Exception as e:
         print(f"⚠️ CSV save error (non-critical): {e}")
     
-    # Next step is birthdate (NEW!)
+    # Next step is birthdate
     return CheckoutProgressResponse(
         session_id=progress.session_id,
         current_step="birthdate",
@@ -221,10 +261,10 @@ async def save_birthdate_step(data: CheckoutBirthdateStep, db: Session = Depends
     except Exception as e:
         print(f"⚠️ CSV save error (non-critical): {e}")
     
-    # Next step is capacity check
+    # Go directly to payment (capacity check removed)
     return CheckoutProgressResponse(
         session_id=progress.session_id,
-        current_step="capacity",
+        current_step="payment",
         selected_plan=progress.selected_plan,
         email=progress.email,
         phone=progress.phone,
@@ -240,14 +280,12 @@ async def save_birthdate_step(data: CheckoutBirthdateStep, db: Session = Depends
 async def check_capacity_status():
     """
     Check if we're accepting new members or if capacity is full
-    Set CAPACITY_FULL=true in environment to show waitlist
-    Set CAPACITY_FULL=false (or unset) to allow checkouts
+    DISABLED: Always return not full to allow all checkouts through
     """
-    capacity_full = os.getenv("CAPACITY_FULL", "true").lower() == "true"
-    
+    # DISABLED - always allow checkouts through
     return {
-        "is_full": capacity_full,
-        "message": "We're currently at full capacity" if capacity_full else "Spots available"
+        "is_full": False,
+        "message": "Spots available"
     }
 
 @router.post("/create-payment")
@@ -281,17 +319,73 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
     demo_mode = os.getenv("DEMO_MODE", "false").lower() == "true"
     
     if demo_mode or not stripe_key or stripe_key.startswith("sk_test_your") or stripe_key == "your-stripe-secret-key":
-        # DEMO MODE: Complete checkout without payment
+        # DEMO MODE: Complete checkout without payment AND create user
         print(f"✅ DEMO MODE: Checkout completed for {progress.email} - Plan: {progress.selected_plan}")
         
         progress.step_payment_completed = True
         progress.payment_completed_at = datetime.utcnow()
         progress.converted = True
+        
+        # Create user in demo mode
+        from models import User, Subscription
+        from auth import get_password_hash
+        from datetime import timedelta
+        
+        # Check if user already exists
+        existing_user = db.query(User).filter(User.email == progress.email).first()
+        
+        if not existing_user:
+            # Generate a default password (user should reset)
+            default_password = "cosmos123"  # Demo password
+            hashed_password = get_password_hash(default_password)
+            
+            # Create new user with all checkout data
+            new_user = User(
+                email=progress.email,
+                hashed_password=hashed_password,
+                full_name=None,
+                first_name=None,
+                last_name=None,
+                phone=progress.phone,
+                address=progress.address_line1,
+                birth_date=progress.birth_date,
+                birth_time=progress.birth_time,
+                birth_city=progress.birth_city,
+                zodiac_sign=progress.zodiac_sign,
+                prediction_language=progress.prediction_language or 'en',
+                is_active=True,
+                is_subscriber=True
+            )
+            db.add(new_user)
+            db.commit()
+            db.refresh(new_user)
+            
+            # Create subscription record
+            subscription = Subscription(
+                user_id=new_user.id,
+                stripe_customer_id=f"demo_{session_id}",
+                stripe_subscription_id=f"demo_sub_{session_id}",
+                status="active",
+                current_period_start=datetime.utcnow(),
+                current_period_end=datetime.utcnow() + timedelta(days=365)  # 1 year for demo
+            )
+            db.add(subscription)
+            db.commit()
+            
+            print(f"✅ DEMO: Created user {progress.email} with language: {progress.prediction_language}")
+        else:
+            # Update existing user to be subscriber
+            existing_user.is_subscriber = True
+            if progress.prediction_language:
+                existing_user.prediction_language = progress.prediction_language
+            db.commit()
+            print(f"✅ DEMO: Updated existing user {progress.email}")
+        
         db.commit()
         
         base_url = os.getenv("BASE_URL", "http://localhost:8000")
         return {
-            "checkout_url": f"{base_url}/success?demo=true",
+            "checkout_url": f"{base_url}/success?demo=true&email={progress.email}",
             "session_id": session_id,
             "demo_mode": True
         }

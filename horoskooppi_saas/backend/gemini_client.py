@@ -126,8 +126,30 @@ class GeminiClient:
         Output format: 3 sections (Key Influences, Detailed Prediction, Technical Summary)
         """
         
+        # Get prediction language from user profile
+        prediction_language = "en"
+        if user_profile:
+            prediction_language = user_profile.get("prediction_language", "en")
+        
+        # Language instructions
+        language_instructions = {
+            "fi": "IMPORTANT: Write ALL predictions in Finnish (Suomi). Use natural Finnish language.",
+            "sv": "IMPORTANT: Write ALL predictions in Swedish (Svenska). Use natural Swedish language.",
+            "no": "IMPORTANT: Write ALL predictions in Norwegian (Norsk). Use natural Norwegian language.",
+            "da": "IMPORTANT: Write ALL predictions in Danish (Dansk). Use natural Danish language.",
+            "de": "IMPORTANT: Write ALL predictions in German (Deutsch). Use natural German language.",
+            "fr": "IMPORTANT: Write ALL predictions in French (Français). Use natural French language.",
+            "es": "IMPORTANT: Write ALL predictions in Spanish (Español). Use natural Spanish language.",
+            "it": "IMPORTANT: Write ALL predictions in Italian (Italiano). Use natural Italian language.",
+            "en": "Write predictions in English."
+        }
+        
+        lang_instruction = language_instructions.get(prediction_language, language_instructions["en"])
+        
         # SYSTEM PROMPT - Strict technical rules
-        system_prompt = """You are an astrology prediction engine.
+        system_prompt = f"""You are an astrology prediction engine.
+
+{lang_instruction}
 
 You generate predictions strictly and only from the technical chart data provided to you.
 

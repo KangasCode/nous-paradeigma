@@ -27,6 +27,9 @@ class User(Base):
     birth_city = Column(String, nullable=True)  # CANNOT BE CHANGED
     zodiac_sign = Column(String, nullable=True)  # Auto-calculated from birth_date - NEVER EDITABLE
     
+    # Prediction language (derived from country at checkout)
+    prediction_language = Column(String, default="en")  # fi, en, sv, etc.
+    
     is_active = Column(Boolean, default=True)
     is_subscriber = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)

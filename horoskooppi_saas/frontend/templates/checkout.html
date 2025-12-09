@@ -110,7 +110,7 @@
 
         <!-- Checkout Flow -->
         <main class="checkout-flow">
-            <!-- Progress Indicator (6 steps now) -->
+            <!-- Progress Indicator (5 steps - capacity removed) -->
             <div class="checkout-progress">
                 <div class="progress-step active" id="progress-email">
                     <div class="progress-circle">1</div>
@@ -132,13 +132,8 @@
                     <span class="progress-label" data-i18n="progress.birthdate">Birth Date</span>
                 </div>
                 <div class="progress-line"></div>
-                <div class="progress-step" id="progress-capacity">
-                    <div class="progress-circle">5</div>
-                    <span class="progress-label" data-i18n="progress.verification">Verification</span>
-                </div>
-                <div class="progress-line"></div>
                 <div class="progress-step" id="progress-payment">
-                    <div class="progress-circle">6</div>
+                    <div class="progress-circle">5</div>
                     <span class="progress-label" data-i18n="progress.payment">Payment</span>
                 </div>
             </div>
@@ -258,48 +253,7 @@
                     </form>
                 </div>
 
-                <!-- Step 5: Capacity Check -->
-                <div class="checkout-step" id="step-capacity">
-                    <!-- Checking Animation -->
-                    <div class="capacity-checking" id="capacityChecking">
-                        <div class="capacity-spinner-container">
-                            <div class="capacity-spinner"></div>
-                            <div class="capacity-pulse"></div>
-                        </div>
-                        <h2 class="checkout-title" data-i18n="capacity.checking">Verifying Membership Availability</h2>
-                        <p class="checkout-subtitle" data-i18n="capacity.checkingSubtitle">Checking current capacity...</p>
-                        <div class="capacity-dots">
-                            <span></span><span></span><span></span>
-                        </div>
-                    </div>
-
-                    <!-- Waitlist Form (Hidden initially) -->
-                    <div class="capacity-waitlist" id="capacityWaitlist" style="display: none;">
-                        <div class="capacity-icon">🌟</div>
-                        <h2 class="checkout-title" data-i18n="capacity.fullTitle">We're At Full Capacity</h2>
-                        <p class="checkout-subtitle" data-i18n="capacity.fullSubtitle">
-                            Our exclusive membership is currently full to ensure we can provide the highest quality cosmic guidance to each member.
-                        </p>
-                        <div class="waitlist-highlight">
-                            <p><strong data-i18n="capacity.waitlistTitle">Join our priority waiting list</strong></p>
-                            <p data-i18n="capacity.waitlistSubtitle">Be the first to know when a spot opens up</p>
-                        </div>
-                        <form id="waitlistForm" class="checkout-form">
-                            <div class="form-group">
-                                <label for="waitlistEmail" data-i18n="capacity.emailLabel">Your Email</label>
-                                <input type="email" id="waitlistEmail" required data-i18n-placeholder="email.placeholder" placeholder="you@example.com">
-                            </div>
-                            <div id="waitlistError" class="error-message"></div>
-                            <div id="waitlistSuccess" class="success-message" style="display: none;" data-i18n="capacity.success">
-                                ✓ You've been added to the waiting list! We'll notify you as soon as a spot opens.
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.joinWaitlist">Join Waiting List</button>
-                            <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('birthdate')" data-i18n="button.back">Back</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Step 6: Payment Ready -->
+                <!-- Step 5: Payment Ready -->
                 <div class="checkout-step" id="step-payment">
                     <div class="payment-ready">
                         <div class="success-icon-small">✓</div>

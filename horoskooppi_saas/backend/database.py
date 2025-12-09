@@ -107,6 +107,12 @@ def migrate_database():
                 conn.commit()
                 # Update existing users with calculated zodiac signs
                 update_existing_users_zodiac_signs()
+            
+            # Add prediction_language (derived from country at checkout)
+            if 'prediction_language' not in columns:
+                print("Adding prediction_language column to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN prediction_language VARCHAR DEFAULT 'en'"))
+                conn.commit()
     
     # Check if horoscopes table exists
     if 'horoscopes' in inspector.get_table_names():
@@ -152,6 +158,11 @@ def migrate_database():
             if 'birthdate_completed_at' not in columns:
                 print("Adding birthdate_completed_at column to checkout_progress table...")
                 conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN birthdate_completed_at DATETIME"))
+                conn.commit()
+            
+            if 'prediction_language' not in columns:
+                print("Adding prediction_language column to checkout_progress table...")
+                conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN prediction_language VARCHAR DEFAULT 'en'"))
                 conn.commit()
     
     print("Database migration completed.")
