@@ -361,30 +361,38 @@ function formatDate(dateStr) {
     return date.toLocaleDateString('fi-FI', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-// Proceed to payment
+// Proceed to payment (FREE MODE - no actual payment)
 document.getElementById('proceedToPayment').addEventListener('click', async () => {
     showLoading(true);
     
     try {
+        console.log('Creating order with session:', checkoutSessionId);
+        
         const response = await fetch(`${API_BASE}/checkout/create-payment?session_id=${checkoutSessionId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
         
+        const data = await response.json();
+        
         if (!response.ok) {
-            throw new Error('Failed to create payment session');
+            // Show actual error from backend
+            const errorMsg = data.detail || 'Unknown error';
+            console.error('Backend error:', errorMsg);
+            alert(`Error: ${errorMsg}`);
+            return;
         }
         
-        const data = await response.json();
+        console.log('Order completed:', data);
         
         // Clear checkout session from localStorage
         localStorage.removeItem('checkoutSessionId');
         
-        // Redirect to Stripe
+        // Redirect to success page
         window.location.href = data.checkout_url;
     } catch (error) {
-        console.error('Error creating payment:', error);
-        alert('Failed to proceed to payment. Please try again.');
+        console.error('Error creating order:', error);
+        alert('Network error. Please check your connection and try again.');
     } finally {
         showLoading(false);
     }
