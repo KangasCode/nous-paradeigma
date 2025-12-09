@@ -279,17 +279,9 @@
                 <div class="message success" id="successMessage"></div>
                 <div class="message error" id="errorMessage"></div>
 
-                <!-- Birth Data Section (READ ONLY) -->
+                <!-- Birth Data Section -->
                 <section class="profile-section birth-data-section">
                     <h2 class="section-title">🌟 Your Birth Data & Zodiac Sign</h2>
-                    
-                    <div class="immutable-notice">
-                        <span class="immutable-notice-icon">🔒</span>
-                        <div class="immutable-notice-text">
-                            This information is used to calculate your predictions and cannot be changed.
-                            <small>Your zodiac sign is automatically determined from your birth date.</small>
-                        </div>
-                    </div>
                     
                     <div class="data-grid">
                         <div class="data-item">
@@ -300,26 +292,31 @@
                             </div>
                         </div>
                         <div class="data-item">
-                            <div class="data-label">Birth Date</div>
+                            <div class="data-label">Birth Date 🔒</div>
                             <div class="data-value locked" id="displayBirthDate">
                                 <span>Loading...</span>
-                                <span class="lock-icon">🔒</span>
                             </div>
                         </div>
                         <div class="data-item">
-                            <div class="data-label">Birth Time</div>
-                            <div class="data-value locked" id="displayBirthTime">
-                                <span>Loading...</span>
-                                <span class="lock-icon">🔒</span>
-                            </div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">Birth City</div>
+                            <div class="data-label">Birth City 🔒</div>
                             <div class="data-value locked" id="displayBirthCity">
                                 <span>Loading...</span>
-                                <span class="lock-icon">🔒</span>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Birth Time - EDITABLE -->
+                    <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(138, 116, 249, 0.1); border-radius: 12px;">
+                        <h4 style="color: var(--text-primary); margin-bottom: 1rem;">⏰ Birth Time (Optional)</h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                            Adding your exact birth time allows for more precise ascendant and house calculations in your predictions.
+                        </p>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="birthTime">Birth Time</label>
+                            <input type="time" id="birthTime" name="birth_time" style="max-width: 200px;">
+                        </div>
+                        <button type="button" id="saveBirthTime" class="btn btn-primary">Save Birth Time</button>
+                        <span id="birthTimeSuccess" style="color: #4caf50; margin-left: 1rem; display: none;">✓ Saved!</span>
                     </div>
                     
                     <div class="usage-info">
@@ -328,7 +325,6 @@
                             <li>Your zodiac sign determines the base characteristics of your readings</li>
                             <li>Birth time allows precise ascendant and house calculations</li>
                             <li>Birth city provides geographic coordinates for accurate planetary positions</li>
-                            <li>All predictions are personalized using this immutable data</li>
                         </ul>
                     </div>
                 </section>
@@ -423,18 +419,17 @@
                 document.getElementById('zodiacName').textContent = 'Not calculated (add birth date during registration)';
             }
             
-            // Birth data (read-only)
+            // Birth data (read-only except birth_time)
             document.getElementById('displayBirthDate').innerHTML = userData.birth_date 
-                ? `<span>${formatDate(userData.birth_date)}</span><span class="lock-icon">🔒</span>`
-                : '<span style="opacity: 0.5">Not set</span>';
-            
-            document.getElementById('displayBirthTime').innerHTML = userData.birth_time 
-                ? `<span>${userData.birth_time}</span><span class="lock-icon">🔒</span>`
+                ? `<span>${formatDate(userData.birth_date)}</span>`
                 : '<span style="opacity: 0.5">Not set</span>';
             
             document.getElementById('displayBirthCity').innerHTML = userData.birth_city 
-                ? `<span>${userData.birth_city}</span><span class="lock-icon">🔒</span>`
+                ? `<span>${userData.birth_city}</span>`
                 : '<span style="opacity: 0.5">Not set</span>';
+            
+            // Birth time - editable
+            document.getElementById('birthTime').value = userData.birth_time || '';
             
             // Editable fields
             document.getElementById('firstName').value = userData.first_name || '';
@@ -501,6 +496,36 @@
                 userData = updated;
                 displayProfile();
                 showMessage('success', 'Profile updated successfully!');
+            } catch (error) {
+                showMessage('error', error.message);
+            }
+        });
+
+        // Save birth time
+        document.getElementById('saveBirthTime').addEventListener('click', async () => {
+            const birthTime = document.getElementById('birthTime').value || null;
+            const successEl = document.getElementById('birthTimeSuccess');
+            
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ birth_time: birthTime })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to save birth time');
+                }
+                
+                const updated = await response.json();
+                userData = updated;
+                
+                // Show success indicator
+                successEl.style.display = 'inline';
+                setTimeout(() => { successEl.style.display = 'none'; }, 3000);
             } catch (error) {
                 showMessage('error', error.message);
             }

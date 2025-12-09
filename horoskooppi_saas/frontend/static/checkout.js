@@ -291,7 +291,6 @@ document.getElementById('birthdateForm').addEventListener('submit', async (e) =>
     
     const birthdate = document.getElementById('birthdate').value;
     const birthdateConfirm = document.getElementById('birthdateConfirm').value;
-    const birthtime = document.getElementById('birthtime').value || null;
     const birthcity = document.getElementById('birthcity').value;
     
     // Validation: Check that dates match
@@ -320,7 +319,7 @@ document.getElementById('birthdateForm').addEventListener('submit', async (e) =>
             body: JSON.stringify({
                 session_id: checkoutSessionId,
                 birth_date: birthdate,
-                birth_time: birthtime,
+                birth_time: null,  // Can be added later in profile
                 birth_city: birthcity,
                 zodiac_sign: zodiacSign
             })
@@ -335,7 +334,6 @@ document.getElementById('birthdateForm').addEventListener('submit', async (e) =>
         
         // Store data
         checkoutData.birthdate = birthdate;
-        checkoutData.birthtime = birthtime;
         checkoutData.birthcity = birthcity;
         checkoutData.zodiac_sign = zodiacSign;
         

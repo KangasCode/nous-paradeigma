@@ -33,15 +33,17 @@ class UserLogin(BaseModel):
 class UserProfileUpdate(BaseModel):
     """
     Schema for updating user profile.
-    NOTE: birth_date, birth_time, birth_city, and zodiac_sign are NOT included
+    NOTE: birth_date, birth_city, and zodiac_sign are NOT included
     because they CANNOT be changed after registration.
+    Birth time CAN be added/updated by the user.
     """
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
-    # full_name can be updated
     full_name: Optional[str] = None
+    # Birth time can be added/updated (for more precise predictions)
+    birth_time: Optional[str] = None
 
 class UserResponse(UserBase):
     id: int

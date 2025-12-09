@@ -309,6 +309,9 @@ async def update_profile(
         current_user.address = profile_data.address
     if profile_data.full_name is not None:
         current_user.full_name = profile_data.full_name
+    # Birth time can be added/updated for more precise predictions
+    if profile_data.birth_time is not None:
+        current_user.birth_time = profile_data.birth_time
     
     db.commit()
     db.refresh(current_user)
