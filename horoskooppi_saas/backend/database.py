@@ -100,11 +100,13 @@ def init_test_data_if_needed():
     create_test_user = os.getenv("CREATE_TEST_USER", "false").lower() == "true"
     demo_mode = os.getenv("DEMO_MODE", "false").lower() == "true"
     
+    print(f"🔍 Checking test user: CREATE_TEST_USER={create_test_user}, DEMO_MODE={demo_mode}")
+    
     if not create_test_user and not demo_mode:
-        print("Skipping test user creation (CREATE_TEST_USER and DEMO_MODE are false)")
+        print("⏭️ Skipping test user creation (CREATE_TEST_USER and DEMO_MODE are false)")
         return
     
-    print(f"Test user creation triggered (CREATE_TEST_USER={create_test_user}, DEMO_MODE={demo_mode})")
+    print(f"🚀 Test user creation triggered!")
     
     from models import User, Horoscope, Subscription
     from auth import get_password_hash
@@ -196,5 +198,8 @@ Use your Mars in Cancer energy to nurture your home base before setting out on y
         print(f"✅ Test user {email} created successfully")
     except Exception as e:
         print(f"⚠️ Error creating test user: {e}")
+        import traceback
+        traceback.print_exc()
+        db.rollback()
     finally:
         db.close()
