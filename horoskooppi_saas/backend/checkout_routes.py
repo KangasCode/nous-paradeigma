@@ -85,6 +85,13 @@ async def save_email_step(data: CheckoutEmailStep, db: Session = Depends(get_db)
     except Exception as e:
         print(f"⚠️ CSV save error (non-critical): {e}")
     
+    # Sync to CHECKOUT_VISITED audience (they started but haven't completed)
+    try:
+        from email_service import sync_checkout_visited
+        sync_checkout_visited(progress.email)
+    except Exception as e:
+        print(f"⚠️ Resend checkout sync error (non-critical): {e}")
+    
     return CheckoutProgressResponse(
         session_id=progress.session_id,
         current_step="phone",
@@ -403,7 +410,14 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             # Send welcome email with magic link
             user_name = user_for_email.first_name or user_for_email.full_name or None
             email_service.send_welcome_email(user_for_email.email, token, user_name)
-            print(f"✅ DEMO: Welcome magic link sent to {progress.email}")
+            print(f"✅ FREE MODE: Welcome magic link sent to {progress.email}")
+            
+            # Sync to ACTIVE_SUBSCRIBERS audience (removes from CHECKOUT_VISITED)
+            try:
+                from email_service import sync_active_subscriber
+                sync_active_subscriber(user_for_email.email, user_name)
+            except Exception as e:
+                print(f"⚠️ Resend active sync error (non-critical): {e}")
         
         base_url = os.getenv("BASE_URL", "http://localhost:8000")
         return {

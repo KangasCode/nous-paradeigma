@@ -78,6 +78,15 @@ class StripeWebhookHandler:
         # Update user subscriber status
         user.is_subscriber = True
         db.commit()
+        
+        # Sync to ACTIVE_SUBSCRIBERS audience (removes from CHECKOUT_VISITED)
+        try:
+            from email_service import sync_active_subscriber
+            user_name = user.first_name or user.full_name or None
+            sync_active_subscriber(user.email, user_name)
+            print(f"✅ Stripe: Synced {user.email} to active subscribers")
+        except Exception as e:
+            print(f"⚠️ Resend sync error in checkout_completed (non-critical): {e}")
     
     @staticmethod
     def handle_subscription_updated(event_data: dict, db: Session):
@@ -109,6 +118,21 @@ class StripeWebhookHandler:
             user.is_subscriber = (status == "active")
         
         db.commit()
+        
+        # Sync to appropriate Resend audience based on status
+        if user:
+            try:
+                user_name = user.first_name or user.full_name or None
+                if status == "active":
+                    from email_service import sync_active_subscriber
+                    sync_active_subscriber(user.email, user_name)
+                    print(f"✅ Stripe: Synced {user.email} to active subscribers (status: {status})")
+                elif status in ["canceled", "past_due", "unpaid"]:
+                    from email_service import sync_canceled_subscriber
+                    sync_canceled_subscriber(user.email, user_name)
+                    print(f"✅ Stripe: Synced {user.email} to canceled subscribers (status: {status})")
+            except Exception as e:
+                print(f"⚠️ Resend sync error in subscription_updated (non-critical): {e}")
     
     @staticmethod
     def handle_subscription_deleted(event_data: dict, db: Session):
@@ -135,6 +159,16 @@ class StripeWebhookHandler:
             user.is_subscriber = False
         
         db.commit()
+        
+        # Sync to CANCELED_SUBSCRIBERS audience
+        if user:
+            try:
+                from email_service import sync_canceled_subscriber
+                user_name = user.first_name or user.full_name or None
+                sync_canceled_subscriber(user.email, user_name)
+                print(f"✅ Stripe: Synced {user.email} to canceled subscribers (deleted)")
+            except Exception as e:
+                print(f"⚠️ Resend sync error in subscription_deleted (non-critical): {e}")
     
     @staticmethod
     def process_webhook_event(event: dict, db: Session):

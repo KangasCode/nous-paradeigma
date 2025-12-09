@@ -301,6 +301,184 @@ This login link will expire in 10 minutes. You can always request a new one from
             return False
 
 
+# =============================================================================
+# RESEND AUDIENCE SEGMENTATION
+# Sync users to different Resend audiences based on their state
+# =============================================================================
+
+# Audience IDs from environment variables
+AUDIENCE_CHECKOUT_VISITED = os.getenv("RESEND_AUDIENCE_ID_CHECKOUT_VISITED")
+AUDIENCE_ACTIVE_SUBSCRIBERS = os.getenv("RESEND_AUDIENCE_ID_ACTIVE_SUBSCRIBERS")
+AUDIENCE_CANCELED_SUBSCRIBERS = os.getenv("RESEND_AUDIENCE_ID_CANCELED_SUBSCRIBERS")
+
+
+def sync_user_to_resend(email: str, audience_id: str, first_name: Optional[str] = None) -> bool:
+    """
+    Upsert a user (email + name) into a Resend audience.
+    
+    Args:
+        email: User's email address
+        audience_id: Resend audience ID to add user to
+        first_name: Optional first name for personalization
+    
+    Returns:
+        True if sync successful, False otherwise
+    
+    Note: Fails silently - never breaks checkout or Stripe flow
+    """
+    api_key = os.getenv("RESEND_API_KEY")
+    
+    if not api_key or not audience_id:
+        print(f"⚠️ Resend audience sync skipped - missing API key or audience ID")
+        return False
+    
+    try:
+        # Resend Contacts API endpoint
+        url = f"https://api.resend.com/audiences/{audience_id}/contacts"
+        
+        payload = {
+            "email": email.lower(),
+            "unsubscribed": False
+        }
+        
+        if first_name:
+            payload["first_name"] = first_name
+        
+        response = requests.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json=payload,
+            timeout=10
+        )
+        
+        if response.status_code in [200, 201]:
+            print(f"✅ Synced {email} to Resend audience {audience_id[:8]}...")
+            return True
+        else:
+            print(f"⚠️ Resend sync failed: {response.status_code} - {response.text}")
+            return False
+            
+    except Exception as e:
+        print(f"⚠️ Resend sync error (silent): {e}")
+        return False
+
+
+def remove_user_from_resend(email: str, audience_id: str) -> bool:
+    """
+    Remove a user from a Resend audience.
+    
+    Args:
+        email: User's email address
+        audience_id: Resend audience ID to remove user from
+    
+    Returns:
+        True if removal successful, False otherwise
+    
+    Note: Fails silently - never breaks checkout or Stripe flow
+    """
+    api_key = os.getenv("RESEND_API_KEY")
+    
+    if not api_key or not audience_id:
+        print(f"⚠️ Resend audience removal skipped - missing API key or audience ID")
+        return False
+    
+    try:
+        # First, get the contact ID by email
+        # Resend requires contact ID to delete, so we need to find it first
+        list_url = f"https://api.resend.com/audiences/{audience_id}/contacts"
+        
+        list_response = requests.get(
+            list_url,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            timeout=10
+        )
+        
+        if list_response.status_code != 200:
+            print(f"⚠️ Failed to list contacts for removal: {list_response.status_code}")
+            return False
+        
+        contacts = list_response.json().get("data", [])
+        contact_id = None
+        
+        for contact in contacts:
+            if contact.get("email", "").lower() == email.lower():
+                contact_id = contact.get("id")
+                break
+        
+        if not contact_id:
+            # Contact not found - that's fine, nothing to remove
+            print(f"ℹ️ Contact {email} not found in audience {audience_id[:8]}... (nothing to remove)")
+            return True
+        
+        # Delete the contact
+        delete_url = f"https://api.resend.com/audiences/{audience_id}/contacts/{contact_id}"
+        
+        delete_response = requests.delete(
+            delete_url,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            timeout=10
+        )
+        
+        if delete_response.status_code in [200, 204]:
+            print(f"✅ Removed {email} from Resend audience {audience_id[:8]}...")
+            return True
+        else:
+            print(f"⚠️ Resend removal failed: {delete_response.status_code} - {delete_response.text}")
+            return False
+            
+    except Exception as e:
+        print(f"⚠️ Resend removal error (silent): {e}")
+        return False
+
+
+def sync_checkout_visited(email: str, first_name: Optional[str] = None):
+    """
+    Sync user to CHECKOUT_VISITED segment.
+    Called when user enters email in checkout but hasn't completed purchase.
+    """
+    if AUDIENCE_CHECKOUT_VISITED:
+        sync_user_to_resend(email, AUDIENCE_CHECKOUT_VISITED, first_name)
+
+
+def sync_active_subscriber(email: str, first_name: Optional[str] = None):
+    """
+    Sync user to ACTIVE_SUBSCRIBERS segment.
+    Also removes from CHECKOUT_VISITED (they converted) and CANCELED (they resubscribed).
+    """
+    if AUDIENCE_ACTIVE_SUBSCRIBERS:
+        sync_user_to_resend(email, AUDIENCE_ACTIVE_SUBSCRIBERS, first_name)
+    
+    # Remove from checkout visited - they converted
+    if AUDIENCE_CHECKOUT_VISITED:
+        remove_user_from_resend(email, AUDIENCE_CHECKOUT_VISITED)
+    
+    # Remove from canceled - they're active again
+    if AUDIENCE_CANCELED_SUBSCRIBERS:
+        remove_user_from_resend(email, AUDIENCE_CANCELED_SUBSCRIBERS)
+
+
+def sync_canceled_subscriber(email: str, first_name: Optional[str] = None):
+    """
+    Sync user to CANCELED_SUBSCRIBERS segment.
+    Also removes from ACTIVE_SUBSCRIBERS (mutually exclusive).
+    """
+    if AUDIENCE_CANCELED_SUBSCRIBERS:
+        sync_user_to_resend(email, AUDIENCE_CANCELED_SUBSCRIBERS, first_name)
+    
+    # Remove from active - they're no longer active
+    if AUDIENCE_ACTIVE_SUBSCRIBERS:
+        remove_user_from_resend(email, AUDIENCE_ACTIVE_SUBSCRIBERS)
+
+
 # Singleton instance
 email_service = EmailService()
 
