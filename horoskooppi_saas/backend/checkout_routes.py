@@ -12,7 +12,7 @@ from database import get_db
 from checkout_models import CheckoutProgress, Waitlist
 from checkout_schemas import (
     CheckoutSessionCreate, CheckoutEmailStep, CheckoutPhoneStep,
-    CheckoutAddressStep, CheckoutProgressResponse, CheckoutAnalytics,
+    CheckoutAddressStep, CheckoutBirthdateStep, CheckoutProgressResponse, CheckoutAnalytics,
     WaitlistSubmit, WaitlistResponse
 )
 from stripe_webhooks import create_checkout_session
@@ -166,16 +166,74 @@ async def save_address_step(data: CheckoutAddressStep, db: Session = Depends(get
     except Exception as e:
         print(f"⚠️ CSV save error (non-critical): {e}")
     
-    # Next step is always capacity check (which may allow through or show waitlist)
+    # Next step is birthdate (NEW!)
+    return CheckoutProgressResponse(
+        session_id=progress.session_id,
+        current_step="birthdate",
+        selected_plan=progress.selected_plan,
+        email=progress.email,
+        phone=progress.phone,
+        step_email_completed=True,
+        step_phone_completed=True,
+        step_address_completed=True,
+        step_birthdate_completed=False
+    )
+
+@router.post("/step/birthdate", response_model=CheckoutProgressResponse)
+async def save_birthdate_step(data: CheckoutBirthdateStep, db: Session = Depends(get_db)):
+    """
+    Save birth date information.
+    
+    IMPORTANT: This data is set ONCE and CANNOT be changed later.
+    The zodiac sign is automatically calculated from birth_date.
+    All predictions will be based on this immutable data.
+    """
+    progress = db.query(CheckoutProgress).filter(
+        CheckoutProgress.session_id == data.session_id
+    ).first()
+    
+    if not progress:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Checkout session not found"
+        )
+    
+    # Calculate zodiac sign if not provided
+    zodiac_sign = data.zodiac_sign
+    if not zodiac_sign and data.birth_date:
+        from zodiac_utils import calculate_zodiac_sign
+        zodiac_sign = calculate_zodiac_sign(data.birth_date)
+    
+    # Save birth data (IMMUTABLE after this point)
+    progress.birth_date = data.birth_date
+    progress.birth_time = data.birth_time
+    progress.birth_city = data.birth_city
+    progress.zodiac_sign = zodiac_sign
+    progress.step_birthdate_completed = True
+    progress.birthdate_completed_at = datetime.utcnow()
+    
+    db.commit()
+    db.refresh(progress)
+    
+    # Save to CSV
+    try:
+        save_to_csv(progress)
+    except Exception as e:
+        print(f"⚠️ CSV save error (non-critical): {e}")
+    
+    # Next step is capacity check
     return CheckoutProgressResponse(
         session_id=progress.session_id,
         current_step="capacity",
         selected_plan=progress.selected_plan,
         email=progress.email,
         phone=progress.phone,
+        birth_date=progress.birth_date,
+        zodiac_sign=progress.zodiac_sign,
         step_email_completed=True,
         step_phone_completed=True,
-        step_address_completed=True
+        step_address_completed=True,
+        step_birthdate_completed=True
     )
 
 @router.get("/capacity-status")

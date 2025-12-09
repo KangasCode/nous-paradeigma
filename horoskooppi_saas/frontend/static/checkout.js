@@ -3,6 +3,17 @@ const API_BASE = '/api';
 let checkoutSessionId = null;
 let selectedPlan = null;
 
+// Collected data during checkout
+let checkoutData = {
+    email: null,
+    phone: null,
+    address: null,
+    birthdate: null,
+    birthtime: null,
+    birthcity: null,
+    zodiac_sign: null
+};
+
 // Get current language
 function getCurrentLanguage() {
     return localStorage.getItem('language') || 'fi';
@@ -80,9 +91,11 @@ function resumeFromProgress(progress) {
     // Pre-fill forms
     if (progress.email) {
         document.getElementById('email').value = progress.email;
+        checkoutData.email = progress.email;
     }
     if (progress.phone) {
         document.getElementById('phone').value = progress.phone;
+        checkoutData.phone = progress.phone;
     }
     
     // Show current step
@@ -97,6 +110,9 @@ function resumeFromProgress(progress) {
     }
     if (progress.step_address_completed) {
         markStepComplete('address');
+    }
+    if (progress.step_birthdate_completed) {
+        markStepComplete('birthdate');
     }
 }
 
@@ -117,13 +133,15 @@ function showStep(stepName) {
     updateProgressIndicator(stepName);
 }
 
-// Update progress indicator
+// Update progress indicator (now with 6 steps)
 function updateProgressIndicator(currentStep) {
-    const steps = ['email', 'phone', 'address', 'capacity', 'payment'];
+    const steps = ['email', 'phone', 'address', 'birthdate', 'capacity', 'payment'];
     const currentIndex = steps.indexOf(currentStep);
     
     steps.forEach((step, index) => {
         const progressStep = document.getElementById(`progress-${step}`);
+        if (!progressStep) return;
+        
         if (index < currentIndex) {
             progressStep.classList.add('completed');
             progressStep.classList.remove('active');
@@ -174,6 +192,7 @@ document.getElementById('emailForm').addEventListener('submit', async (e) => {
             throw new Error(error.detail || 'Failed to save email');
         }
         
+        checkoutData.email = email;
         markStepComplete('email');
         showStep('phone');
     } catch (error) {
@@ -209,6 +228,7 @@ document.getElementById('phoneForm').addEventListener('submit', async (e) => {
             throw new Error(error.detail || 'Failed to save phone');
         }
         
+        checkoutData.phone = phone;
         markStepComplete('phone');
         showStep('address');
     } catch (error) {
@@ -219,7 +239,7 @@ document.getElementById('phoneForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Address form submission
+// Address form submission - now goes to birthdate step
 document.getElementById('addressForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -249,15 +269,85 @@ document.getElementById('addressForm').addEventListener('submit', async (e) => {
             throw new Error(error.detail || 'Failed to save address');
         }
         
-        const progress = await response.json();
-        
+        checkoutData.address = addressData;
         markStepComplete('address');
         
-        // Update summary for later
-        document.getElementById('summary-plan').textContent = progress.selected_plan.toUpperCase();
-        document.getElementById('summary-email').textContent = progress.email;
+        // Go to birthdate step (NEW!)
+        showStep('birthdate');
+    } catch (error) {
+        errorElement.textContent = error.message;
+        errorElement.style.display = 'block';
+    } finally {
+        showLoading(false);
+    }
+});
+
+// Birthdate form submission (NEW!)
+document.getElementById('birthdateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const errorElement = document.getElementById('birthdateError');
+    errorElement.style.display = 'none';
+    
+    const birthdate = document.getElementById('birthdate').value;
+    const birthdateConfirm = document.getElementById('birthdateConfirm').value;
+    const birthtime = document.getElementById('birthtime').value || null;
+    const birthcity = document.getElementById('birthcity').value;
+    
+    // Validation: Check that dates match
+    if (birthdate !== birthdateConfirm) {
+        errorElement.textContent = t('birthdate.error.mismatch');
+        errorElement.style.display = 'block';
+        return;
+    }
+    
+    // Validation: Required fields
+    if (!birthdate || !birthcity) {
+        errorElement.textContent = t('birthdate.error.required');
+        errorElement.style.display = 'block';
+        return;
+    }
+    
+    // Calculate zodiac sign
+    const zodiacSign = calculateZodiac(birthdate);
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch(`${API_BASE}/checkout/step/birthdate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: checkoutSessionId,
+                birth_date: birthdate,
+                birth_time: birthtime,
+                birth_city: birthcity,
+                zodiac_sign: zodiacSign
+            })
+        });
         
-        // Go to capacity check instead of payment
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to save birth date');
+        }
+        
+        const progress = await response.json();
+        
+        // Store data
+        checkoutData.birthdate = birthdate;
+        checkoutData.birthtime = birthtime;
+        checkoutData.birthcity = birthcity;
+        checkoutData.zodiac_sign = zodiacSign;
+        
+        markStepComplete('birthdate');
+        
+        // Update summary
+        document.getElementById('summary-plan').textContent = progress.selected_plan ? progress.selected_plan.toUpperCase() : selectedPlan.toUpperCase();
+        document.getElementById('summary-email').textContent = checkoutData.email || progress.email;
+        document.getElementById('summary-zodiac').textContent = zodiacSign ? (ZODIAC_DATA[zodiacSign]?.symbol + ' ' + zodiacSign.charAt(0).toUpperCase() + zodiacSign.slice(1)) : '-';
+        document.getElementById('summary-birthdate').textContent = formatDate(birthdate);
+        
+        // Go to capacity check
         showStep('capacity');
         startCapacityCheck();
     } catch (error) {
@@ -267,6 +357,13 @@ document.getElementById('addressForm').addEventListener('submit', async (e) => {
         showLoading(false);
     }
 });
+
+// Format date for display
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('fi-FI', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
 
 // Capacity Check Animation
 async function startCapacityCheck() {
@@ -389,4 +486,3 @@ function showLoading(show) {
 
 // Initialize on page load
 initializeCheckout();
-

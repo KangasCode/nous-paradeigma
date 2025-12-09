@@ -119,6 +119,41 @@ def migrate_database():
                 conn.execute(text("ALTER TABLE horoscopes ADD COLUMN raw_data TEXT"))
                 conn.commit()
     
+    # Check if checkout_progress table exists (for birth date fields)
+    if 'checkout_progress' in inspector.get_table_names():
+        columns = [col['name'] for col in inspector.get_columns('checkout_progress')]
+        
+        with engine.connect() as conn:
+            if 'birth_date' not in columns:
+                print("Adding birth_date column to checkout_progress table...")
+                conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN birth_date VARCHAR"))
+                conn.commit()
+            
+            if 'birth_time' not in columns:
+                print("Adding birth_time column to checkout_progress table...")
+                conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN birth_time VARCHAR"))
+                conn.commit()
+            
+            if 'birth_city' not in columns:
+                print("Adding birth_city column to checkout_progress table...")
+                conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN birth_city VARCHAR"))
+                conn.commit()
+            
+            if 'zodiac_sign' not in columns:
+                print("Adding zodiac_sign column to checkout_progress table...")
+                conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN zodiac_sign VARCHAR"))
+                conn.commit()
+            
+            if 'step_birthdate_completed' not in columns:
+                print("Adding step_birthdate_completed column to checkout_progress table...")
+                conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN step_birthdate_completed BOOLEAN DEFAULT 0"))
+                conn.commit()
+            
+            if 'birthdate_completed_at' not in columns:
+                print("Adding birthdate_completed_at column to checkout_progress table...")
+                conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN birthdate_completed_at DATETIME"))
+                conn.commit()
+    
     print("Database migration completed.")
 
 def update_existing_users_zodiac_signs():

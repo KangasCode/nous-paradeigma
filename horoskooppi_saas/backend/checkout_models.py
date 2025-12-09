@@ -22,10 +22,17 @@ class CheckoutProgress(Base):
     postal_code = Column(String)
     country = Column(String)
     
+    # Birth data (collected at checkout, set ONCE, NEVER editable)
+    birth_date = Column(String, nullable=True)  # YYYY-MM-DD
+    birth_time = Column(String, nullable=True)  # HH:MM
+    birth_city = Column(String, nullable=True)
+    zodiac_sign = Column(String, nullable=True)  # Auto-calculated
+    
     # Tracking which steps completed
     step_email_completed = Column(Boolean, default=False)
     step_phone_completed = Column(Boolean, default=False)
     step_address_completed = Column(Boolean, default=False)
+    step_birthdate_completed = Column(Boolean, default=False)
     step_payment_initiated = Column(Boolean, default=False)
     step_payment_completed = Column(Boolean, default=False)
     
@@ -34,6 +41,7 @@ class CheckoutProgress(Base):
     email_completed_at = Column(DateTime)
     phone_completed_at = Column(DateTime)
     address_completed_at = Column(DateTime)
+    birthdate_completed_at = Column(DateTime)
     payment_initiated_at = Column(DateTime)
     payment_completed_at = Column(DateTime)
     

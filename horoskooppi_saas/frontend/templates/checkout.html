@@ -4,9 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Nous Paradeigma</title>
-    <!-- Version: 02f33a9 -->
+    <!-- Version: birthdate-confirmation -->
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/styles.css?v=3">
+    <link rel="stylesheet" href="/static/styles.css?v=4">
+    <style>
+        /* Birth Date Step Styles */
+        .birthdate-info {
+            background: rgba(138, 116, 249, 0.1);
+            border: 1px solid rgba(138, 116, 249, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .birthdate-info-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .birthdate-info-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .birthdate-info-warning {
+            color: var(--gold);
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        
+        .form-row-time {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .confirmation-match {
+            color: #4caf50;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .confirmation-match.show {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .confirmation-mismatch {
+            color: #f44336;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .confirmation-mismatch.show {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .zodiac-preview {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(138, 116, 249, 0.1) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            display: none;
+        }
+        
+        .zodiac-preview.show {
+            display: block;
+        }
+        
+        .zodiac-preview-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .zodiac-preview-name {
+            color: var(--gold);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .zodiac-preview-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -19,7 +110,7 @@
 
         <!-- Checkout Flow -->
         <main class="checkout-flow">
-            <!-- Progress Indicator -->
+            <!-- Progress Indicator (6 steps now) -->
             <div class="checkout-progress">
                 <div class="progress-step active" id="progress-email">
                     <div class="progress-circle">1</div>
@@ -36,13 +127,18 @@
                     <span class="progress-label" data-i18n="progress.address">Address</span>
                 </div>
                 <div class="progress-line"></div>
-                <div class="progress-step" id="progress-capacity">
+                <div class="progress-step" id="progress-birthdate">
                     <div class="progress-circle">4</div>
+                    <span class="progress-label" data-i18n="progress.birthdate">Birth Date</span>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" id="progress-capacity">
+                    <div class="progress-circle">5</div>
                     <span class="progress-label" data-i18n="progress.verification">Verification</span>
                 </div>
                 <div class="progress-line"></div>
                 <div class="progress-step" id="progress-payment">
-                    <div class="progress-circle">5</div>
+                    <div class="progress-circle">6</div>
                     <span class="progress-label" data-i18n="progress.payment">Payment</span>
                 </div>
             </div>
@@ -110,7 +206,66 @@
                     </form>
                 </div>
 
-                <!-- Step 4: Capacity Check -->
+                <!-- Step 4: Birth Date (NEW!) -->
+                <div class="checkout-step" id="step-birthdate">
+                    <h2 class="checkout-title" data-i18n="birthdate.title">Your Birth Information</h2>
+                    <p class="checkout-subtitle" data-i18n="birthdate.subtitle">Essential for calculating your personal horoscope</p>
+                    
+                    <div class="birthdate-info">
+                        <div class="birthdate-info-icon">🔒</div>
+                        <p class="birthdate-info-text" data-i18n="birthdate.info">
+                            Your birth date determines your zodiac sign and is used for all predictions. 
+                            This information cannot be changed after registration.
+                        </p>
+                        <p class="birthdate-info-warning" data-i18n="birthdate.warning">
+                            Please enter your birth date carefully and confirm it.
+                        </p>
+                    </div>
+                    
+                    <form id="birthdateForm" class="checkout-form">
+                        <div class="form-group">
+                            <label for="birthdate" data-i18n="birthdate.label">Birth Date</label>
+                            <input type="date" id="birthdate" required max="">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="birthdateConfirm" data-i18n="birthdate.confirmLabel">Confirm Birth Date</label>
+                            <input type="date" id="birthdateConfirm" required max="">
+                            <div class="confirmation-match" id="birthdateMatch">
+                                ✓ <span data-i18n="birthdate.match">Dates match</span>
+                            </div>
+                            <div class="confirmation-mismatch" id="birthdateMismatch">
+                                ✗ <span data-i18n="birthdate.mismatch">Dates do not match</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row-time">
+                            <div class="form-group">
+                                <label for="birthtime" data-i18n="birthdate.timeLabel">Birth Time (optional)</label>
+                                <input type="time" id="birthtime" data-i18n-placeholder="birthdate.timePlaceholder">
+                            </div>
+                            <div class="form-group">
+                                <label for="birthcity" data-i18n="birthdate.cityLabel">Birth City</label>
+                                <input type="text" id="birthcity" required data-i18n-placeholder="birthdate.cityPlaceholder" placeholder="Helsinki">
+                            </div>
+                        </div>
+                        
+                        <!-- Zodiac Preview -->
+                        <div class="zodiac-preview" id="zodiacPreview">
+                            <div class="zodiac-preview-icon" id="zodiacIcon">♎</div>
+                            <div class="zodiac-preview-name" id="zodiacName">Libra</div>
+                            <div class="zodiac-preview-text" data-i18n="birthdate.zodiacText">
+                                This will be your zodiac sign for all predictions
+                            </div>
+                        </div>
+                        
+                        <div id="birthdateError" class="error-message"></div>
+                        <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.continue">Continue</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')" data-i18n="button.back">Back</button>
+                    </form>
+                </div>
+
+                <!-- Step 5: Capacity Check -->
                 <div class="checkout-step" id="step-capacity">
                     <!-- Checking Animation -->
                     <div class="capacity-checking" id="capacityChecking">
@@ -146,12 +301,12 @@
                                 ✓ You've been added to the waiting list! We'll notify you as soon as a spot opens.
                             </div>
                             <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.joinWaitlist">Join Waiting List</button>
-                            <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')" data-i18n="button.back">Back</button>
+                            <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('birthdate')" data-i18n="button.back">Back</button>
                         </form>
                     </div>
                 </div>
 
-                <!-- Step 5: Payment Ready -->
+                <!-- Step 6: Payment Ready -->
                 <div class="checkout-step" id="step-payment">
                     <div class="payment-ready">
                         <div class="success-icon-small">✓</div>
@@ -168,10 +323,18 @@
                                 <span class="summary-label" data-i18n="payment.email">Email:</span>
                                 <span class="summary-value" id="summary-email">-</span>
                             </div>
+                            <div class="summary-item">
+                                <span class="summary-label" data-i18n="payment.zodiac">Zodiac Sign:</span>
+                                <span class="summary-value" id="summary-zodiac">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label" data-i18n="payment.birthdate">Birth Date:</span>
+                                <span class="summary-value" id="summary-birthdate">-</span>
+                            </div>
                         </div>
                         
                         <button id="proceedToPayment" class="btn btn-primary btn-large btn-full" data-i18n="payment.proceed">Proceed to Secure Payment</button>
-                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')" data-i18n="button.back">Back</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('birthdate')" data-i18n="button.back">Back</button>
                     </div>
                 </div>
             </div>
@@ -192,12 +355,93 @@
     </div>
 
     <script>
+        // Zodiac calculation (must match backend)
+        const ZODIAC_DATA = {
+            capricorn: { symbol: '♑', dates: [[12, 22], [1, 19]] },
+            aquarius: { symbol: '♒', dates: [[1, 20], [2, 18]] },
+            pisces: { symbol: '♓', dates: [[2, 19], [3, 20]] },
+            aries: { symbol: '♈', dates: [[3, 21], [4, 19]] },
+            taurus: { symbol: '♉', dates: [[4, 20], [5, 20]] },
+            gemini: { symbol: '♊', dates: [[5, 21], [6, 20]] },
+            cancer: { symbol: '♋', dates: [[6, 21], [7, 22]] },
+            leo: { symbol: '♌', dates: [[7, 23], [8, 22]] },
+            virgo: { symbol: '♍', dates: [[8, 23], [9, 22]] },
+            libra: { symbol: '♎', dates: [[9, 23], [10, 22]] },
+            scorpio: { symbol: '♏', dates: [[10, 23], [11, 21]] },
+            sagittarius: { symbol: '♐', dates: [[11, 22], [12, 21]] }
+        };
+
+        function calculateZodiac(dateStr) {
+            if (!dateStr) return null;
+            const date = new Date(dateStr);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            
+            // Check Capricorn first (spans year boundary)
+            if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) {
+                return 'capricorn';
+            }
+            
+            // Check other signs
+            for (const [sign, data] of Object.entries(ZODIAC_DATA)) {
+                if (sign === 'capricorn') continue;
+                const [[startMonth, startDay], [endMonth, endDay]] = data.dates;
+                if ((month === startMonth && day >= startDay) || (month === endMonth && day <= endDay)) {
+                    return sign;
+                }
+            }
+            return null;
+        }
+
+        function updateZodiacPreview() {
+            const birthdate = document.getElementById('birthdate').value;
+            const preview = document.getElementById('zodiacPreview');
+            
+            if (!birthdate) {
+                preview.classList.remove('show');
+                return;
+            }
+            
+            const sign = calculateZodiac(birthdate);
+            if (sign && ZODIAC_DATA[sign]) {
+                document.getElementById('zodiacIcon').textContent = ZODIAC_DATA[sign].symbol;
+                document.getElementById('zodiacName').textContent = sign.charAt(0).toUpperCase() + sign.slice(1);
+                preview.classList.add('show');
+            } else {
+                preview.classList.remove('show');
+            }
+        }
+
+        function checkBirthdateMatch() {
+            const date1 = document.getElementById('birthdate').value;
+            const date2 = document.getElementById('birthdateConfirm').value;
+            const matchEl = document.getElementById('birthdateMatch');
+            const mismatchEl = document.getElementById('birthdateMismatch');
+            
+            if (!date1 || !date2) {
+                matchEl.classList.remove('show');
+                mismatchEl.classList.remove('show');
+                return false;
+            }
+            
+            if (date1 === date2) {
+                matchEl.classList.add('show');
+                mismatchEl.classList.remove('show');
+                return true;
+            } else {
+                matchEl.classList.remove('show');
+                mismatchEl.classList.add('show');
+                return false;
+            }
+        }
+
         // Checkout translations (exposed globally)
         window.checkoutTranslations = {
             en: {
                 'progress.email': 'Email',
                 'progress.phone': 'Phone',
                 'progress.address': 'Address',
+                'progress.birthdate': 'Birth Date',
                 'progress.verification': 'Verification',
                 'progress.payment': 'Payment',
                 'email.title': 'Your Email',
@@ -220,6 +464,21 @@
                 'address.placeholderCity': 'San Francisco',
                 'address.placeholderPostal': '94102',
                 'address.placeholderCountry': 'United States',
+                'birthdate.title': 'Your Birth Information',
+                'birthdate.subtitle': 'Essential for calculating your personal horoscope',
+                'birthdate.info': 'Your birth date determines your zodiac sign and is used for all predictions. This information cannot be changed after registration.',
+                'birthdate.warning': 'Please enter your birth date carefully and confirm it.',
+                'birthdate.label': 'Birth Date',
+                'birthdate.confirmLabel': 'Confirm Birth Date',
+                'birthdate.match': 'Dates match',
+                'birthdate.mismatch': 'Dates do not match',
+                'birthdate.timeLabel': 'Birth Time (optional)',
+                'birthdate.timePlaceholder': 'HH:MM',
+                'birthdate.cityLabel': 'Birth City',
+                'birthdate.cityPlaceholder': 'New York',
+                'birthdate.zodiacText': 'This will be your zodiac sign for all predictions',
+                'birthdate.error.mismatch': 'Birth dates do not match. Please verify.',
+                'birthdate.error.required': 'Please fill in all required fields.',
                 'capacity.checking': 'Verifying Membership Availability',
                 'capacity.checkingSubtitle': 'Checking current capacity...',
                 'capacity.fullTitle': 'We\'re At Full Capacity',
@@ -233,6 +492,8 @@
                 'payment.summary': 'Order Summary',
                 'payment.plan': 'Plan:',
                 'payment.email': 'Email:',
+                'payment.zodiac': 'Zodiac Sign:',
+                'payment.birthdate': 'Birth Date:',
                 'payment.proceed': 'Proceed to Secure Payment',
                 'button.continue': 'Continue',
                 'button.back': 'Back',
@@ -243,6 +504,7 @@
                 'progress.email': 'Sähköposti',
                 'progress.phone': 'Puhelin',
                 'progress.address': 'Osoite',
+                'progress.birthdate': 'Syntymäpäivä',
                 'progress.verification': 'Vahvistus',
                 'progress.payment': 'Maksu',
                 'email.title': 'Sähköpostiosoitteesi',
@@ -265,6 +527,21 @@
                 'address.placeholderCity': 'Helsinki',
                 'address.placeholderPostal': '00100',
                 'address.placeholderCountry': 'Suomi',
+                'birthdate.title': 'Syntymätietosi',
+                'birthdate.subtitle': 'Välttämätön henkilökohtaisen horoskooppisi laskemiseen',
+                'birthdate.info': 'Syntymäpäiväsi määrittää horoskooppimerkkisi ja sitä käytetään kaikkiin ennustuksiin. Tätä tietoa ei voi muuttaa rekisteröinnin jälkeen.',
+                'birthdate.warning': 'Syötä syntymäpäiväsi huolellisesti ja vahvista se.',
+                'birthdate.label': 'Syntymäpäivä',
+                'birthdate.confirmLabel': 'Vahvista syntymäpäivä',
+                'birthdate.match': 'Päivämäärät täsmäävät',
+                'birthdate.mismatch': 'Päivämäärät eivät täsmää',
+                'birthdate.timeLabel': 'Syntymäaika (valinnainen)',
+                'birthdate.timePlaceholder': 'TT:MM',
+                'birthdate.cityLabel': 'Syntymäkaupunki',
+                'birthdate.cityPlaceholder': 'Helsinki',
+                'birthdate.zodiacText': 'Tämä on horoskooppimerkkisi kaikissa ennustuksissa',
+                'birthdate.error.mismatch': 'Syntymäpäivät eivät täsmää. Tarkista.',
+                'birthdate.error.required': 'Täytä kaikki pakolliset kentät.',
                 'capacity.checking': 'Jäsenyyden Saatavuuden Vahvistaminen',
                 'capacity.checkingSubtitle': 'Tarkistetaan nykyistä kapasiteettia...',
                 'capacity.fullTitle': 'Emme voi ottaa uusia jäseniä tällä hetkellä.',
@@ -278,6 +555,8 @@
                 'payment.summary': 'Tilauksen Yhteenveto',
                 'payment.plan': 'Suunnitelma:',
                 'payment.email': 'Sähköposti:',
+                'payment.zodiac': 'Horoskooppimerkki:',
+                'payment.birthdate': 'Syntymäpäivä:',
                 'payment.proceed': 'Jatka Turvalliseen Maksuun',
                 'button.continue': 'Jatka',
                 'button.back': 'Takaisin',
@@ -318,13 +597,28 @@
             }
         }
 
-        // Initialize language on page load
+        // Set max date for birthdate inputs (today)
         document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('birthdate').setAttribute('max', today);
+            document.getElementById('birthdateConfirm').setAttribute('max', today);
+            
+            // Set min date (reasonable: 1900)
+            document.getElementById('birthdate').setAttribute('min', '1900-01-01');
+            document.getElementById('birthdateConfirm').setAttribute('min', '1900-01-01');
+            
             const currentLang = localStorage.getItem('language') || 'fi';
             setCheckoutLanguage(currentLang);
         });
+
+        // Event listeners for birthdate fields
+        document.getElementById('birthdate').addEventListener('change', () => {
+            updateZodiacPreview();
+            checkBirthdateMatch();
+        });
+
+        document.getElementById('birthdateConfirm').addEventListener('change', checkBirthdateMatch);
     </script>
-    <script src="/static/checkout.js?v=3"></script>
+    <script src="/static/checkout.js?v=4"></script>
 </body>
 </html>
-
