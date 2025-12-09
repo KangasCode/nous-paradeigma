@@ -249,7 +249,6 @@ document.getElementById('addressForm').addEventListener('submit', async (e) => {
     const addressData = {
         session_id: checkoutSessionId,
         address_line1: document.getElementById('address1').value,
-        address_line2: document.getElementById('address2').value || null,
         city: document.getElementById('city').value,
         postal_code: document.getElementById('postal').value,
         country: document.getElementById('country').value

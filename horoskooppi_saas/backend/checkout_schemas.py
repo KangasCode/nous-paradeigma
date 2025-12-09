@@ -19,7 +19,6 @@ class CheckoutPhoneStep(BaseModel):
 class CheckoutAddressStep(BaseModel):
     session_id: str
     address_line1: str = Field(..., min_length=3)
-    address_line2: Optional[str] = None
     city: str = Field(..., min_length=2)
     postal_code: str = Field(..., min_length=3)
     country: str = Field(..., min_length=2)

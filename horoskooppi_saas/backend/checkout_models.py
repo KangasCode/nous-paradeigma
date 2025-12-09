@@ -17,7 +17,6 @@ class CheckoutProgress(Base):
     email = Column(String, index=True)
     phone = Column(String)
     address_line1 = Column(String)
-    address_line2 = Column(String)
     city = Column(String)
     postal_code = Column(String)
     country = Column(String)

@@ -46,11 +46,7 @@ def save_to_csv(checkout_progress):
     ensure_csv_exists()
     
     # Format address
-    address = ""
-    if checkout_progress.address_line1:
-        address = checkout_progress.address_line1
-        if checkout_progress.address_line2:
-            address += f", {checkout_progress.address_line2}"
+    address = checkout_progress.address_line1 or ""
     
     # Format timestamp
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

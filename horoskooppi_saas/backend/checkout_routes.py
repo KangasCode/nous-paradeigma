@@ -186,7 +186,6 @@ async def save_address_step(data: CheckoutAddressStep, db: Session = Depends(get
         )
     
     progress.address_line1 = data.address_line1
-    progress.address_line2 = data.address_line2
     progress.city = data.city
     progress.postal_code = data.postal_code
     progress.country = data.country
