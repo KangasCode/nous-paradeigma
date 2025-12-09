@@ -24,5 +24,7 @@ services:
         value: true
       - key: CAPACITY_FULL
         value: true
+      - key: CREATE_TEST_USER
+        value: true
 
 

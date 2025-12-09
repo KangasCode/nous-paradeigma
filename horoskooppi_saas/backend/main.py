@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import os
 import json
 
-from database import get_db, init_db
+from database import get_db, init_db, init_test_data_if_needed
 from models import User, Horoscope, Subscription
 from schemas import (
     UserCreate, UserLogin, UserResponse, Token,
@@ -84,6 +84,8 @@ async def startup_event():
     """Initialize database on startup"""
     init_db()
     print("Database initialized successfully")
+    # Create test user if CREATE_TEST_USER env var is set
+    init_test_data_if_needed()
 
 # Root endpoint - serve index page (HEAD requests handled automatically by FastAPI)
 @app.get("/", response_class=HTMLResponse)

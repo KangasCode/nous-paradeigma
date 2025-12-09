@@ -43,3 +43,105 @@ def init_db():
     import models
     # import checkout_models # Might cause circular import if not careful, but generally ok here
     Base.metadata.create_all(bind=engine)
+
+def init_test_data_if_needed():
+    """
+    Initialize test user if it doesn't exist (for both local and production)
+    Only creates if CREATE_TEST_USER env var is set to 'true'
+    """
+    create_test_user = os.getenv("CREATE_TEST_USER", "false").lower() == "true"
+    if not create_test_user:
+        return
+    
+    from models import User, Horoscope, Subscription
+    from auth import get_password_hash
+    from datetime import datetime, timedelta
+    import json
+    
+    db = SessionLocal()
+    try:
+        email = "test@nousparadeigma.com"
+        existing_user = db.query(User).filter(User.email == email).first()
+        
+        if existing_user:
+            print(f"✅ Test user {email} already exists")
+            return
+        
+        print(f"🔧 Creating test user: {email}")
+        hashed_password = get_password_hash("cosmos123")
+        user = User(
+            email=email,
+            full_name="Test Cosmic Traveler",
+            hashed_password=hashed_password,
+            is_active=True,
+            is_subscriber=True,
+            birth_date="1992-10-02",
+            birth_time="08:08",
+            birth_city="Helsinki"
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        
+        # Create subscription
+        sub = Subscription(
+            user_id=user.id,
+            stripe_customer_id="cus_test123",
+            stripe_subscription_id="sub_test123",
+            status="active",
+            current_period_start=datetime.utcnow(),
+            current_period_end=datetime.utcnow() + timedelta(days=30)
+        )
+        db.add(sub)
+        db.commit()
+        
+        # Create example horoscope
+        raw_data = {
+            "date": "1992-10-02 08:08",
+            "location": "Helsinki",
+            "positions": {
+                "Sun": {"sign": "Libra", "deg": 9.2},
+                "Moon": {"sign": "Sagittarius", "deg": 14.5},
+                "Mercury": {"sign": "Scorpio", "deg": 2.1},
+                "Venus": {"sign": "Scorpio", "deg": 5.8},
+                "Mars": {"sign": "Cancer", "deg": 18.3},
+                "Jupiter": {"sign": "Libra", "deg": 28.4},
+                "Saturn": {"sign": "Aquarius", "deg": 12.1},
+                "Uranus": {"sign": "Capricorn", "deg": 14.7},
+                "Neptune": {"sign": "Capricorn", "deg": 16.2},
+                "Pluto": {"sign": "Scorpio", "deg": 21.9},
+                "Ascendant": {"sign": "Libra", "deg": 15.4}
+            }
+        }
+        
+        content = """**Daily Insight for Libra**
+
+Your Sun in Libra at 9° seeks harmony today, but with the Moon in adventurous Sagittarius, your soul yearns for expansion and truth. The cosmic balance is shifting.
+
+**Mental Clarity & Focus:**
+Mercury in Scorpio deepens your perception. You are seeing beneath the surface. Trust your intuition, especially in conversations that feel heavy or loaded.
+
+**Relationships:**
+Venus in Scorpio suggests intensity. Shallow connections won't satisfy you right now. You might find yourself drawn to mysteries or secrets within your partnership.
+
+**Practical Suggestion:**
+Use your Mars in Cancer energy to nurture your home base before setting out on your next adventure. A clean space will clear your mind.
+
+**Lucky Numbers:** 9, 14, 2"""
+        
+        horoscope = Horoscope(
+            user_id=user.id,
+            zodiac_sign="libra",
+            prediction_type="daily",
+            content=content.strip(),
+            raw_data=json.dumps(raw_data),
+            prediction_date=datetime.utcnow()
+        )
+        db.add(horoscope)
+        db.commit()
+        
+        print(f"✅ Test user {email} created successfully")
+    except Exception as e:
+        print(f"⚠️ Error creating test user: {e}")
+    finally:
+        db.close()
