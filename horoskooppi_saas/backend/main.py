@@ -530,13 +530,15 @@ async def update_profile(
     Update user profile information.
     
     IMPORTANT: This endpoint can only update editable fields:
-    - first_name, last_name, phone, address, full_name
+    - first_name, last_name, phone, address, full_name, prediction_language
     
     The following fields are IMMUTABLE and CANNOT be changed:
     - birth_date (set at registration)
-    - birth_time (set at registration)
     - birth_city (set at registration)
     - zodiac_sign (auto-calculated from birth_date, never editable)
+    
+    Birth time can be added/updated for more precise predictions.
+    Prediction language determines the language for all horoscope predictions.
     """
     # Only update allowed fields
     if profile_data.first_name is not None:
@@ -552,6 +554,15 @@ async def update_profile(
     # Birth time can be added/updated for more precise predictions
     if profile_data.birth_time is not None:
         current_user.birth_time = profile_data.birth_time
+    # Prediction language - determines language for all horoscopes
+    if profile_data.prediction_language is not None:
+        # Validate language code (common languages)
+        valid_languages = ['fi', 'en', 'sv', 'no', 'da', 'de', 'fr', 'es', 'it']
+        if profile_data.prediction_language in valid_languages:
+            current_user.prediction_language = profile_data.prediction_language
+        else:
+            # Default to 'fi' if invalid
+            current_user.prediction_language = 'fi'
     
     db.commit()
     db.refresh(current_user)
@@ -797,7 +808,7 @@ async def generate_horoscope(
         "first_name": current_user.first_name,
         "last_name": current_user.last_name,
         "email": current_user.email,
-        "prediction_language": getattr(current_user, 'prediction_language', 'en') or 'en'
+        "prediction_language": getattr(current_user, 'prediction_language', 'fi') or 'fi'
     }
     
     # Generate horoscope using Gemini with user's profile data

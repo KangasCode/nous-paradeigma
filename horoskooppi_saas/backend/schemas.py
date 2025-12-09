@@ -49,6 +49,8 @@ class UserProfileUpdate(BaseModel):
     full_name: Optional[str] = None
     # Birth time can be added/updated (for more precise predictions)
     birth_time: Optional[str] = None
+    # Prediction language - determines language for all horoscopes
+    prediction_language: Optional[str] = None  # 'fi', 'en', 'sv', etc.
 
 class UserResponse(UserBase):
     id: int
@@ -60,6 +62,7 @@ class UserResponse(UserBase):
     birth_time: Optional[str] = None
     birth_city: Optional[str] = None
     zodiac_sign: Optional[str] = None  # Auto-calculated, never editable
+    prediction_language: Optional[str] = None  # Language for predictions ('fi', 'en', 'sv', etc.)
     is_active: bool
     is_subscriber: bool
     created_at: datetime

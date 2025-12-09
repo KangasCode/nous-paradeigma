@@ -360,7 +360,7 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
                 birth_time=progress.birth_time,
                 birth_city=progress.birth_city,
                 zodiac_sign=progress.zodiac_sign,
-                prediction_language=progress.prediction_language or 'en',
+                prediction_language=progress.prediction_language or 'fi',
                 is_active=True,
                 is_subscriber=True
             )

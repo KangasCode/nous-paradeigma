@@ -350,6 +350,23 @@
                             <label for="address" data-i18n="address">Osoite</label>
                             <input type="text" id="address" name="address" data-i18n-placeholder="addressPlaceholder" placeholder="Osoitteesi">
                         </div>
+                        <div class="form-group">
+                            <label for="predictionLanguage" data-i18n="predictionLanguage">Ennustusten kieli</label>
+                            <select id="predictionLanguage" name="prediction_language" class="form-control">
+                                <option value="fi" data-i18n="lang.fi">Suomi</option>
+                                <option value="en" data-i18n="lang.en">English</option>
+                                <option value="sv" data-i18n="lang.sv">Svenska</option>
+                                <option value="no" data-i18n="lang.no">Norsk</option>
+                                <option value="da" data-i18n="lang.da">Dansk</option>
+                                <option value="de" data-i18n="lang.de">Deutsch</option>
+                                <option value="fr" data-i18n="lang.fr">Français</option>
+                                <option value="es" data-i18n="lang.es">Español</option>
+                                <option value="it" data-i18n="lang.it">Italiano</option>
+                            </select>
+                            <small style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 0.5rem;" data-i18n="predictionLanguageDesc">
+                                Tämä kieli määrittää, millä kielellä kaikki ennustukset luodaan.
+                            </small>
+                        </div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary" data-i18n="saveChanges">Tallenna muutokset</button>
                         </div>
@@ -394,6 +411,17 @@
                 'firstNamePlaceholder': 'Etunimesi',
                 'lastNamePlaceholder': 'Sukunimesi',
                 'addressPlaceholder': 'Osoitteesi',
+                'predictionLanguage': 'Ennustusten kieli',
+                'predictionLanguageDesc': 'Tämä kieli määrittää, millä kielellä kaikki ennustukset luodaan.',
+                'lang.fi': 'Suomi',
+                'lang.en': 'English',
+                'lang.sv': 'Svenska',
+                'lang.no': 'Norsk',
+                'lang.da': 'Dansk',
+                'lang.de': 'Deutsch',
+                'lang.fr': 'Français',
+                'lang.es': 'Español',
+                'lang.it': 'Italiano',
                 'profileUpdated': 'Profiili päivitetty onnistuneesti!',
                 'notSet': 'Ei asetettu',
                 // Zodiac names
@@ -428,6 +456,17 @@
                 'firstNamePlaceholder': 'Your first name',
                 'lastNamePlaceholder': 'Your last name',
                 'addressPlaceholder': 'Your address',
+                'predictionLanguage': 'Prediction Language',
+                'predictionLanguageDesc': 'This language determines the language for all horoscope predictions.',
+                'lang.fi': 'Suomi',
+                'lang.en': 'English',
+                'lang.sv': 'Svenska',
+                'lang.no': 'Norsk',
+                'lang.da': 'Dansk',
+                'lang.de': 'Deutsch',
+                'lang.fr': 'Français',
+                'lang.es': 'Español',
+                'lang.it': 'Italiano',
                 'profileUpdated': 'Profile updated successfully!',
                 'notSet': 'Not set',
                 // Zodiac names
@@ -443,7 +482,14 @@
         function applyTranslations() {
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[currentLang]?.[key]) el.textContent = translations[currentLang][key];
+                if (translations[currentLang]?.[key]) {
+                    // Handle select options differently
+                    if (el.tagName === 'OPTION') {
+                        el.textContent = translations[currentLang][key];
+                    } else {
+                        el.textContent = translations[currentLang][key];
+                    }
+                }
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
@@ -557,6 +603,10 @@
             document.getElementById('lastName').value = userData.last_name || '';
             document.getElementById('phone').value = userData.phone || '';
             document.getElementById('address').value = userData.address || '';
+            
+            // Prediction language - set default to 'fi' if not set
+            const predictionLang = userData.prediction_language || 'fi';
+            document.getElementById('predictionLanguage').value = predictionLang;
         }
 
         function formatDate(dateStr) {
@@ -596,7 +646,8 @@
                 first_name: document.getElementById('firstName').value || null,
                 last_name: document.getElementById('lastName').value || null,
                 phone: document.getElementById('phone').value || null,
-                address: document.getElementById('address').value || null
+                address: document.getElementById('address').value || null,
+                prediction_language: document.getElementById('predictionLanguage').value || 'fi'
             };
             
             try {
