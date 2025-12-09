@@ -122,70 +122,63 @@ if (window.location.pathname === '/') {
         }
     });
 
-    // Login form submission
+    // Login form submission (Magic Link)
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
             const errorElement = document.getElementById('loginError');
+            const successElement = document.getElementById('loginSuccess');
+            const submitBtn = document.getElementById('loginSubmitBtn');
+            
             errorElement.style.display = 'none';
+            successElement.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
 
             try {
-                const response = await fetch(`${API_BASE}/auth/login`, {
+                const response = await fetch(`${API_BASE}/auth/magic-link`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email })
                 });
 
-                if (!response.ok) {
-                    let errorMessage = 'Login failed';
-                    // Clone response to allow multiple reads
-                    const clonedResponse = response.clone();
-                    // Check content type before trying to parse
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        try {
-                            const error = await clonedResponse.json();
-                            errorMessage = error.detail || errorMessage;
-                        } catch (e) {
-                            console.error('Error parsing JSON error:', e);
-                            errorMessage = `Server error: ${response.status}`;
-                        }
-                    } else {
-                        // Not JSON, try to get text
-                        try {
-                            const text = await clonedResponse.text();
-                            errorMessage = text.substring(0, 200) || `Server error: ${response.status}`;
-                        } catch (e) {
-                            console.error('Error reading error text:', e);
-                            errorMessage = `Server error: ${response.status}`;
-                        }
-                    }
-                    console.error('Login failed:', errorMessage, 'Status:', response.status);
-                    throw new Error(errorMessage);
-                }
-
-                const data = await response.json();
-                localStorage.setItem('token', data.access_token);
-                window.location.href = '/dashboard';
+                // Always show success message (for security - don't reveal if email exists)
+                successElement.style.display = 'block';
+                document.getElementById('loginEmail').value = '';
+                
             } catch (error) {
-                handleApiError(error, 'loginError');
+                // Still show success for security
+                successElement.style.display = 'block';
+                console.error('Magic link request error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Magic Link';
             }
         });
     }
 
-    // Register form submission
+    // Register form - now redirects to checkout
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            // Registration happens via checkout - redirect there
+            window.location.href = '/checkout?plan=cosmic';
+        });
+    }
+
+    // Legacy register form handler (disabled - keeping for reference)
+    const legacyRegisterForm = null;
+    if (legacyRegisterForm) {
+        legacyRegisterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
             const full_name = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
+            const password = '';
             const errorElement = document.getElementById('registerError');
             errorElement.style.display = 'none';
 
@@ -193,7 +186,7 @@ if (window.location.pathname === '/') {
                 const response = await fetch(`${API_BASE}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ full_name, email, password })
+                    body: JSON.stringify({ full_name, email })
                 });
 
                 if (!response.ok) {

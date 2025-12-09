@@ -165,6 +165,26 @@ def migrate_database():
                 conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN prediction_language VARCHAR DEFAULT 'en'"))
                 conn.commit()
     
+    # Create magic_link_tokens table if it doesn't exist
+    if 'magic_link_tokens' not in inspector.get_table_names():
+        print("Creating magic_link_tokens table...")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS magic_link_tokens (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    token VARCHAR UNIQUE NOT NULL,
+                    user_id INTEGER NOT NULL,
+                    expires_at DATETIME NOT NULL,
+                    used BOOLEAN DEFAULT 0,
+                    used_at DATETIME,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_token ON magic_link_tokens(token)"))
+            conn.commit()
+            print("✅ magic_link_tokens table created")
+    
     print("Database migration completed.")
 
 def update_existing_users_zodiac_signs():

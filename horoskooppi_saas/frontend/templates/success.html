@@ -6,6 +6,50 @@
     <title>Welcome to Your Cosmic Circle - Nous Paradeigma</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .magic-link-notice {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(138, 116, 249, 0.15) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .magic-link-notice .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .magic-link-notice h3 {
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        
+        .magic-link-notice p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+        
+        .email-highlight {
+            color: var(--primary-purple);
+            font-weight: 600;
+        }
+        
+        .resend-link {
+            margin-top: 1rem;
+        }
+        
+        .resend-link a {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .resend-link a:hover {
+            color: var(--gold);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -25,6 +69,20 @@
                     Your personal gateway to the cosmos is now open.
                     Begin receiving guidance crafted uniquely for your journey.
                 </p>
+                
+                <!-- Magic Link Email Notice -->
+                <div class="magic-link-notice">
+                    <div class="icon">📧</div>
+                    <h3>Check Your Email</h3>
+                    <p>
+                        We've sent a magic login link to <span class="email-highlight" id="userEmail">your email</span>.
+                        <br>Click the link in the email to access your cosmic dashboard.
+                    </p>
+                    <p class="resend-link">
+                        Didn't receive it? <a href="/" id="resendLink">Request a new link</a>
+                    </p>
+                </div>
+                
                 <div class="success-features">
                     <div class="success-feature">
                         <span class="feature-icon">✨</span>
@@ -39,9 +97,9 @@
                         <span>Monthly Soul Guidance</span>
                     </div>
                 </div>
-                <a href="/dashboard" class="btn btn-primary btn-large">Enter Your Space</a>
-                <p class="success-footer">
-                    Your cosmic key has been sent to your sacred inbox.
+                
+                <p class="success-footer" style="margin-top: 2rem;">
+                    🔮 Your cosmic journey awaits. The stars are aligned in your favor.
                 </p>
             </div>
         </main>
@@ -51,6 +109,19 @@
             <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
         </footer>
     </div>
+    
+    <script>
+        // Get email from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        
+        if (email) {
+            document.getElementById('userEmail').textContent = email;
+        }
+        
+        // Clear any stored checkout session
+        localStorage.removeItem('checkoutSessionId');
+    </script>
 </body>
 </html>
 

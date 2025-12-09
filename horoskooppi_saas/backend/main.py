@@ -11,19 +11,22 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import os
 import json
+import secrets
 
 from database import get_db, init_db, init_test_data_if_needed
-from models import User, Horoscope, Subscription
+from models import User, Horoscope, Subscription, MagicLinkToken
 from schemas import (
-    UserCreate, UserLogin, UserResponse, UserProfileUpdate, Token,
-    HoroscopeCreate, HoroscopeResponse, SubscriptionResponse
+    UserCreate, UserResponse, UserProfileUpdate, Token,
+    HoroscopeCreate, HoroscopeResponse, SubscriptionResponse,
+    MagicLinkRequest, MagicLinkResponse
 )
 from zodiac_utils import calculate_zodiac_sign
 from auth import (
-    get_password_hash, authenticate_user, create_access_token,
+    create_access_token,
     get_current_active_user, get_current_subscriber, get_user_by_email
 )
 from gemini_client import gemini_client
+from email_service import email_service
 from stripe_webhooks import (
     StripeWebhookHandler, create_checkout_session, create_customer_portal_session
 )
@@ -302,13 +305,13 @@ async def membership_page(request: Request):
     return templates.TemplateResponse("membership.html", {"request": request})
 
 # ============================================================================
-# Authentication Endpoints
+# Authentication Endpoints (Magic Link Only - No Passwords)
 # ============================================================================
 
 @app.post("/api/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """
-    Register a new user.
+    Register a new user (Magic Link system - no password required).
     
     IMPORTANT: Birth data (birth_date, birth_time, birth_city) and zodiac_sign 
     are set ONCE during registration and CANNOT be changed later.
@@ -327,8 +330,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     if user_data.birth_date:
         zodiac_sign = calculate_zodiac_sign(user_data.birth_date)
     
-    # Create new user with all profile fields
-    hashed_password = get_password_hash(user_data.password)
+    # Create new user WITHOUT password (Magic Link only)
     new_user = User(
         email=user_data.email,
         full_name=user_data.full_name,
@@ -336,12 +338,13 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         last_name=user_data.last_name,
         phone=user_data.phone,
         address=user_data.address,
-        hashed_password=hashed_password,
+        hashed_password=None,  # No password - Magic Link only
         # Birth data - IMMUTABLE after registration
         birth_date=user_data.birth_date,
         birth_time=user_data.birth_time,
         birth_city=user_data.birth_city,
-        zodiac_sign=zodiac_sign  # Auto-calculated, NEVER editable
+        zodiac_sign=zodiac_sign,  # Auto-calculated, NEVER editable
+        prediction_language=getattr(user_data, 'prediction_language', 'en') or 'en'
     )
     
     db.add(new_user)
@@ -350,35 +353,147 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     
     return new_user
 
-@app.post("/api/auth/login", response_model=Token)
-async def login(user_data: UserLogin, db: Session = Depends(get_db)):
-    """Login and get access token"""
-    try:
-        print(f"Login attempt for email: {user_data.email}")
-        user = authenticate_user(db, user_data.email, user_data.password)
-        if not user:
-            print(f"Authentication failed for: {user_data.email}")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect email or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+@app.post("/api/auth/magic-link", response_model=MagicLinkResponse)
+async def request_magic_link(data: MagicLinkRequest, db: Session = Depends(get_db)):
+    """
+    Request a magic link to be sent to email.
+    
+    SECURITY:
+    - Always returns the same message regardless of whether email exists
+    - Only sends email if user exists in database
+    - Token expires after 10 minutes
+    - Token is single-use
+    """
+    # Always return same message for security (don't reveal if email exists)
+    response = MagicLinkResponse()
+    
+    # Check if user exists
+    user = get_user_by_email(db, data.email)
+    
+    if user:
+        # Generate secure token
+        token = secrets.token_urlsafe(32)
+        expires_at = datetime.utcnow() + timedelta(minutes=10)
         
-        print(f"Authentication successful for: {user_data.email}")
-        # Create access token
-        access_token = create_access_token(data={"sub": user.email})
-        
-        return {"access_token": access_token, "token_type": "bearer"}
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Login error: {e}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error: {str(e)}"
+        # Create magic link token record
+        magic_token = MagicLinkToken(
+            token=token,
+            user_id=user.id,
+            expires_at=expires_at,
+            used=False
         )
+        db.add(magic_token)
+        db.commit()
+        
+        # Send magic link email
+        user_name = user.first_name or user.full_name or None
+        email_service.send_magic_link(user.email, token, user_name)
+        
+        print(f"✅ Magic link generated for {user.email}")
+    else:
+        # Don't reveal that email doesn't exist
+        print(f"⚠️ Magic link requested for non-existent email: {data.email}")
+    
+    return response
+
+@app.get("/magic-login", response_class=HTMLResponse)
+async def magic_login_page(request: Request, token: str = None, db: Session = Depends(get_db)):
+    """
+    Validate magic link token and log in user.
+    
+    If valid: Set JWT cookie and redirect to dashboard
+    If invalid: Show error page with option to request new link
+    """
+    if not token:
+        return templates.TemplateResponse("magic-link-error.html", {
+            "request": request,
+            "error": "No token provided"
+        })
+    
+    # Find token in database
+    magic_token = db.query(MagicLinkToken).filter(
+        MagicLinkToken.token == token
+    ).first()
+    
+    # Check if token exists
+    if not magic_token:
+        return templates.TemplateResponse("magic-link-error.html", {
+            "request": request,
+            "error": "Invalid or expired link"
+        })
+    
+    # Check if token is already used
+    if magic_token.used:
+        return templates.TemplateResponse("magic-link-error.html", {
+            "request": request,
+            "error": "This link has already been used"
+        })
+    
+    # Check if token is expired
+    if datetime.utcnow() > magic_token.expires_at:
+        return templates.TemplateResponse("magic-link-error.html", {
+            "request": request,
+            "error": "This link has expired"
+        })
+    
+    # Token is valid! Mark as used
+    magic_token.used = True
+    magic_token.used_at = datetime.utcnow()
+    db.commit()
+    
+    # Get user
+    user = db.query(User).filter(User.id == magic_token.user_id).first()
+    
+    if not user:
+        return templates.TemplateResponse("magic-link-error.html", {
+            "request": request,
+            "error": "User not found"
+        })
+    
+    # Create JWT access token
+    access_token = create_access_token(data={"sub": user.email})
+    
+    # Create response with redirect to dashboard
+    response = RedirectResponse(url="/dashboard", status_code=302)
+    
+    # Set JWT in HttpOnly secure cookie
+    is_https = request.url.scheme == "https" or os.getenv("RENDER", "") == "true"
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=is_https,
+        samesite="lax",
+        max_age=60 * 60 * 24 * 7  # 7 days
+    )
+    
+    # Also set a flag for frontend to know user is logged in
+    response.set_cookie(
+        key="logged_in",
+        value="true",
+        httponly=False,  # Frontend can read this
+        secure=is_https,
+        samesite="lax",
+        max_age=60 * 60 * 24 * 7
+    )
+    
+    print(f"✅ Magic link login successful for {user.email}")
+    
+    return response
+
+@app.get("/logout")
+async def logout(request: Request):
+    """
+    Logout user by clearing auth cookies.
+    Redirects to home page.
+    """
+    response = RedirectResponse(url="/", status_code=302)
+    
+    # Clear auth cookies
+    response.delete_cookie(key="access_token")
+    response.delete_cookie(key="logged_in")
+    
+    return response
 
 @app.get("/api/auth/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_active_user)):

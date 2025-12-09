@@ -12,11 +12,10 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """
-    Schema for user registration.
+    Schema for user registration (Magic Link - no password required).
     Birth data is set ONCE during registration and CANNOT be changed later.
     The zodiac sign is automatically calculated from birth_date.
     """
-    password: str = Field(..., min_length=8)
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone: Optional[str] = None
@@ -25,10 +24,16 @@ class UserCreate(UserBase):
     birth_date: Optional[str] = None  # YYYY-MM-DD - Cannot be changed
     birth_time: Optional[str] = None  # HH:MM - Cannot be changed
     birth_city: Optional[str] = None  # Cannot be changed
+    prediction_language: Optional[str] = "en"  # Derived from country
 
-class UserLogin(BaseModel):
+class MagicLinkRequest(BaseModel):
+    """Request a magic link to be sent to email."""
     email: EmailStr
-    password: str
+
+class MagicLinkResponse(BaseModel):
+    """Response after requesting magic link - always the same for security."""
+    message: str = "If the email exists, a login link has been sent."
+    success: bool = True
 
 class UserProfileUpdate(BaseModel):
     """

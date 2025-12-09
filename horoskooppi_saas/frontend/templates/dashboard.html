@@ -433,9 +433,20 @@
             'sagittarius': '♐', 'capricorn': '♑', 'aquarius': '♒', 'pisces': '♓'
         };
 
-        // Check if user is authenticated
+        // Check if user is authenticated (cookie or localStorage)
+        // Cookie-based auth (Magic Link) takes precedence
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+        
+        const loggedInCookie = getCookie('logged_in');
         const token = localStorage.getItem('token');
-        if (!token) {
+        
+        // If neither cookie nor token, redirect to login
+        if (!loggedInCookie && !token) {
             window.location.href = '/';
         }
 
@@ -445,18 +456,29 @@
         // Rate limit status storage
         let rateLimitStatus = {};
 
+        // Get auth headers (for API calls)
+        function getAuthHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            // If we have a localStorage token, include it (backwards compatibility)
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            // Cookie-based auth is handled automatically by browser
+            return headers;
+        }
+
         // Load user data on page load
         async function loadUserData() {
             try {
                 const response = await fetch('/api/auth/me', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: getAuthHeaders(),
+                    credentials: 'include'  // Include cookies
                 });
                 
                 if (!response.ok) {
                     if (response.status === 401) {
                         localStorage.removeItem('token');
+                        // Clear logged_in cookie by redirecting
                         window.location.href = '/';
                         return;
                     }
@@ -476,9 +498,8 @@
         async function loadRateLimitStatus() {
             try {
                 const response = await fetch('/api/horoscopes/status/all', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: getAuthHeaders(),
+                    credentials: 'include'
                 });
                 
                 if (!response.ok) throw new Error('Failed to load rate limit status');
@@ -578,9 +599,8 @@
         async function loadRecentPredictions() {
             try {
                 const response = await fetch('/api/horoscopes', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: getAuthHeaders(),
+                    credentials: 'include'
                 });
                 
                 if (!response.ok) throw new Error('Failed to load predictions');
@@ -642,10 +662,8 @@
                 try {
                     const response = await fetch('/api/horoscopes/generate', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
+                        headers: getAuthHeaders(),
+                        credentials: 'include',
                         body: JSON.stringify({
                             zodiac_sign: userData.zodiac_sign,
                             prediction_type: type
@@ -710,10 +728,11 @@
             });
         });
 
-        // Logout handler
+        // Logout handler - clears both localStorage and redirects to logout endpoint
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('token');
-            window.location.href = '/';
+            // Redirect to logout endpoint which clears cookies
+            window.location.href = '/logout';
         });
 
         // Initialize

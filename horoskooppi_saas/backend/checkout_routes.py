@@ -326,23 +326,21 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
         progress.payment_completed_at = datetime.utcnow()
         progress.converted = True
         
-        # Create user in demo mode
-        from models import User, Subscription
-        from auth import get_password_hash
+        # Create user in demo mode (Magic Link only - no password)
+        from models import User, Subscription, MagicLinkToken
         from datetime import timedelta
+        from email_service import email_service
+        import secrets as sec
         
         # Check if user already exists
         existing_user = db.query(User).filter(User.email == progress.email).first()
+        user_for_email = None
         
         if not existing_user:
-            # Generate a default password (user should reset)
-            default_password = "cosmos123"  # Demo password
-            hashed_password = get_password_hash(default_password)
-            
-            # Create new user with all checkout data
+            # Create new user with all checkout data (NO PASSWORD - Magic Link only)
             new_user = User(
                 email=progress.email,
-                hashed_password=hashed_password,
+                hashed_password=None,  # No password - Magic Link only
                 full_name=None,
                 first_name=None,
                 last_name=None,
@@ -359,6 +357,7 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             db.add(new_user)
             db.commit()
             db.refresh(new_user)
+            user_for_email = new_user
             
             # Create subscription record
             subscription = Subscription(
@@ -379,9 +378,29 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             if progress.prediction_language:
                 existing_user.prediction_language = progress.prediction_language
             db.commit()
+            user_for_email = existing_user
             print(f"✅ DEMO: Updated existing user {progress.email}")
         
         db.commit()
+        
+        # Generate and send Magic Link welcome email
+        if user_for_email:
+            token = sec.token_urlsafe(32)
+            expires_at = datetime.utcnow() + timedelta(minutes=10)
+            
+            magic_token = MagicLinkToken(
+                token=token,
+                user_id=user_for_email.id,
+                expires_at=expires_at,
+                used=False
+            )
+            db.add(magic_token)
+            db.commit()
+            
+            # Send welcome email with magic link
+            user_name = user_for_email.first_name or user_for_email.full_name or None
+            email_service.send_welcome_email(user_for_email.email, token, user_name)
+            print(f"✅ DEMO: Welcome magic link sent to {progress.email}")
         
         base_url = os.getenv("BASE_URL", "http://localhost:8000")
         return {

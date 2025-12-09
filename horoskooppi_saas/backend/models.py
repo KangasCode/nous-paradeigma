@@ -7,12 +7,12 @@ from datetime import datetime
 from database import Base
 
 class User(Base):
-    """User model for authentication"""
+    """User model for authentication (Magic Link only - no password)"""
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=True)  # Deprecated - kept for backwards compatibility
     
     # Profile Data
     full_name = Column(String)
@@ -70,3 +70,24 @@ class Horoscope(Base):
     
     # Relationships
     user = relationship("User", back_populates="horoscopes")
+
+
+class MagicLinkToken(Base):
+    """
+    Magic link tokens for passwordless authentication.
+    - Single use only
+    - Expires after 10 minutes
+    - Tied to a specific user
+    """
+    __tablename__ = "magic_link_tokens"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String, unique=True, index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, default=False)
+    used_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User")

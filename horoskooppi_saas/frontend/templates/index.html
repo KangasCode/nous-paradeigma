@@ -331,49 +331,45 @@
         </footer>
     </div>
 
-    <!-- Login Modal -->
+    <!-- Login Modal (Magic Link) -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Welcome Back</h2>
+            <h2>✨ Welcome Back</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; text-align: center;">
+                Enter your email and we'll send you a magic login link.
+            </p>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" required>
+                    <input type="email" id="loginEmail" required placeholder="you@example.com">
                 </div>
                 <div id="loginError" class="error-message"></div>
-                <button type="submit" class="btn btn-primary btn-full">Login</button>
+                <div id="loginSuccess" class="success-message" style="display: none; background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3); color: #4caf50; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    ✓ If your email exists, we've sent you a magic login link. Check your inbox!
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn">Send Magic Link</button>
             </form>
-            <p class="modal-footer">Don't have an account? <a href="#" id="switchToRegister">Register here</a></p>
+            <p class="modal-footer" style="text-align: center; margin-top: 1.5rem;">
+                New here? <a href="/checkout?plan=cosmic">Get Started</a>
+            </p>
         </div>
     </div>
 
-    <!-- Register Modal -->
-    <div id="registerModal" class="modal">
+    <!-- Register Modal (Removed - Registration happens via checkout) -->
+    <div id="registerModal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Create Your Account</h2>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="registerName">Full Name</label>
-                    <input type="text" id="registerName" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerEmail">Email</label>
-                    <input type="email" id="registerEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPassword">Password</label>
-                    <input type="password" id="registerPassword" required minlength="8">
-                </div>
-                <div id="registerError" class="error-message"></div>
-                <button type="submit" class="btn btn-primary btn-full">Create Account</button>
-            </form>
-            <p class="modal-footer">Already have an account? <a href="#" id="switchToLogin">Login here</a></p>
+            <h2>Join Nous Paradeigma</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; text-align: center;">
+                Ready to begin your cosmic journey?
+            </p>
+            <a href="/checkout?plan=cosmic" class="btn btn-primary btn-full" style="text-decoration: none; display: block; text-align: center;">
+                Start Your Journey
+            </a>
+            <p class="modal-footer" style="text-align: center; margin-top: 1.5rem;">
+                Already have an account? <a href="#" id="switchToLogin">Login here</a>
+            </p>
         </div>
     </div>
 
