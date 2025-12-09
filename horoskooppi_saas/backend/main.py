@@ -1,11 +1,12 @@
 """
 FastAPI main application
 """
-from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import os
@@ -44,6 +45,60 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ============================================================================
+# TEMPORARY SITE PASSWORD PROTECTION
+# Set SITE_ACCESS_PASSWORD env var to enable password protection
+# Remove this section when site goes public
+# ============================================================================
+
+SITE_ACCESS_PASSWORD = os.getenv("SITE_ACCESS_PASSWORD", "")
+
+class SiteAccessMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware to protect entire site with a simple password.
+    Only active when SITE_ACCESS_PASSWORD environment variable is set.
+    Does NOT interfere with existing JWT authentication for users.
+    """
+    
+    # Paths that should always be accessible (without site password)
+    EXCLUDED_PATHS = [
+        "/access",           # The password form itself
+        "/static",           # Static files (CSS, JS, images)
+        "/health",           # Health check for deployment
+        "/favicon.ico",      # Favicon
+    ]
+    
+    async def dispatch(self, request: Request, call_next):
+        # If no site password is set, skip this middleware entirely
+        if not SITE_ACCESS_PASSWORD:
+            return await call_next(request)
+        
+        path = request.url.path
+        
+        # Allow excluded paths without password
+        for excluded in self.EXCLUDED_PATHS:
+            if path.startswith(excluded):
+                return await call_next(request)
+        
+        # Check for site access cookie
+        site_access_granted = request.cookies.get("site_access_granted")
+        
+        if site_access_granted == "true":
+            # Cookie is valid, allow the request
+            return await call_next(request)
+        
+        # No valid cookie, redirect to access page
+        return RedirectResponse(url="/access", status_code=302)
+
+# Add site access middleware (only does anything if SITE_ACCESS_PASSWORD is set)
+app.add_middleware(SiteAccessMiddleware)
+
+# Log site access protection status
+if SITE_ACCESS_PASSWORD:
+    print("🔒 Site access password protection is ENABLED")
+else:
+    print("🔓 Site access password protection is DISABLED (no SITE_ACCESS_PASSWORD set)")
+
 # Include routers
 app.include_router(checkout_router)
 
@@ -78,6 +133,56 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 from jinja2 import Environment, FileSystemLoader
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), auto_reload=True)
 templates = Jinja2Templates(env=jinja_env)
+
+# ============================================================================
+# SITE ACCESS ROUTES (for temporary password protection)
+# ============================================================================
+
+@app.get("/access", response_class=HTMLResponse)
+async def access_page(request: Request, error: str = None):
+    """Serve the site access password form"""
+    # If no password is set, redirect to home
+    if not SITE_ACCESS_PASSWORD:
+        return RedirectResponse(url="/", status_code=302)
+    
+    # If already authenticated, redirect to home
+    if request.cookies.get("site_access_granted") == "true":
+        return RedirectResponse(url="/", status_code=302)
+    
+    return templates.TemplateResponse("access.html", {
+        "request": request,
+        "error": error
+    })
+
+@app.post("/access")
+async def access_submit(request: Request, password: str = Form(...)):
+    """Handle site access password submission"""
+    # If no password is set, redirect to home
+    if not SITE_ACCESS_PASSWORD:
+        return RedirectResponse(url="/", status_code=302)
+    
+    if password == SITE_ACCESS_PASSWORD:
+        # Correct password - set cookie and redirect to home
+        response = RedirectResponse(url="/", status_code=302)
+        
+        # Determine if we should use secure cookie (HTTPS)
+        is_https = request.url.scheme == "https" or os.getenv("RENDER", "") == "true"
+        
+        response.set_cookie(
+            key="site_access_granted",
+            value="true",
+            httponly=True,
+            secure=is_https,
+            samesite="lax",
+            max_age=60 * 60 * 24 * 30  # 30 days
+        )
+        return response
+    else:
+        # Wrong password - show error
+        return templates.TemplateResponse("access.html", {
+            "request": request,
+            "error": "Incorrect password. Please try again."
+        }, status_code=401)
 
 # Initialize database on startup
 @app.on_event("startup")
