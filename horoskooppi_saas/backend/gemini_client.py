@@ -50,7 +50,13 @@ class GeminiClient:
         
         try:
             genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-pro')
+            # Use gemini-1.5-pro or fallback to gemini-1.5-flash
+            # gemini-pro is deprecated in v1beta API
+            try:
+                self.model = genai.GenerativeModel('gemini-1.5-pro')
+            except Exception:
+                # Fallback to flash if pro is not available
+                self.model = genai.GenerativeModel('gemini-1.5-flash')
             self._initialized = True
             self._api_key_available = True
         except Exception as e:
