@@ -20,7 +20,11 @@ def create_test_data():
         email = "test@nousparadeigma.com"
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
-            print(f"⚠️ User {email} already exists. Deleting...")
+            print(f"⚠️ User {email} already exists. Deleting related data...")
+            # Delete related horoscopes first
+            from models import Horoscope, Subscription
+            db.query(Horoscope).filter(Horoscope.user_id == existing_user.id).delete()
+            db.query(Subscription).filter(Subscription.user_id == existing_user.id).delete()
             db.delete(existing_user)
             db.commit()
 
