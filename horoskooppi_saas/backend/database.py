@@ -43,6 +43,54 @@ def init_db():
     import models
     # import checkout_models # Might cause circular import if not careful, but generally ok here
     Base.metadata.create_all(bind=engine)
+    
+    # Run migrations to add any missing columns
+    migrate_database()
+
+def migrate_database():
+    """
+    Add missing columns to existing tables (SQLite doesn't support ALTER TABLE ADD COLUMN well,
+    so we check and add manually)
+    """
+    from sqlalchemy import text, inspect
+    
+    inspector = inspect(engine)
+    
+    # Check if users table exists
+    if 'users' in inspector.get_table_names():
+        columns = [col['name'] for col in inspector.get_columns('users')]
+        
+        with engine.connect() as conn:
+            # Add birth_date if missing
+            if 'birth_date' not in columns:
+                print("Adding birth_date column to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN birth_date VARCHAR"))
+                conn.commit()
+            
+            # Add birth_time if missing
+            if 'birth_time' not in columns:
+                print("Adding birth_time column to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN birth_time VARCHAR"))
+                conn.commit()
+            
+            # Add birth_city if missing
+            if 'birth_city' not in columns:
+                print("Adding birth_city column to users table...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN birth_city VARCHAR"))
+                conn.commit()
+    
+    # Check if horoscopes table exists
+    if 'horoscopes' in inspector.get_table_names():
+        columns = [col['name'] for col in inspector.get_columns('horoscopes')]
+        
+        with engine.connect() as conn:
+            # Add raw_data if missing
+            if 'raw_data' not in columns:
+                print("Adding raw_data column to horoscopes table...")
+                conn.execute(text("ALTER TABLE horoscopes ADD COLUMN raw_data TEXT"))
+                conn.commit()
+    
+    print("Database migration completed.")
 
 def init_test_data_if_needed():
     """
