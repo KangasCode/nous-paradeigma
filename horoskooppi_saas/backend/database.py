@@ -95,11 +95,16 @@ def migrate_database():
 def init_test_data_if_needed():
     """
     Initialize test user if it doesn't exist (for both local and production)
-    Only creates if CREATE_TEST_USER env var is set to 'true'
+    Creates if CREATE_TEST_USER or DEMO_MODE env var is set to 'true'
     """
     create_test_user = os.getenv("CREATE_TEST_USER", "false").lower() == "true"
-    if not create_test_user:
+    demo_mode = os.getenv("DEMO_MODE", "false").lower() == "true"
+    
+    if not create_test_user and not demo_mode:
+        print("Skipping test user creation (CREATE_TEST_USER and DEMO_MODE are false)")
         return
+    
+    print(f"Test user creation triggered (CREATE_TEST_USER={create_test_user}, DEMO_MODE={demo_mode})")
     
     from models import User, Horoscope, Subscription
     from auth import get_password_hash
