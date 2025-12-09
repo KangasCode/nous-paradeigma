@@ -208,6 +208,11 @@
             color: #4caf50;
         }
         
+        .rate-status.available.first {
+            color: var(--gold);
+            font-weight: 600;
+        }
+        
         .rate-status.unavailable {
             color: var(--gold);
         }
@@ -393,8 +398,13 @@
                 const status = rateLimitStatus[type];
                 
                 if (!status || status.can_generate) {
-                    statusEl.textContent = '✓ Available';
-                    statusEl.className = 'rate-status available';
+                    if (status && status.is_first) {
+                        statusEl.textContent = '✨ First ready!';
+                        statusEl.className = 'rate-status available first';
+                    } else {
+                        statusEl.textContent = '✓ Available';
+                        statusEl.className = 'rate-status available';
+                    }
                     btn.classList.remove('disabled');
                 } else {
                     const nextTime = new Date(status.next_available_at);

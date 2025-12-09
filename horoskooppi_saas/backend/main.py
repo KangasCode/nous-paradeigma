@@ -509,7 +509,18 @@ RATE_LIMIT_INTERVALS = {
 def check_rate_limit(db: Session, user_id: int, prediction_type: str) -> dict:
     """
     Check if user can generate a new horoscope of the given type.
-    Returns dict with can_generate, next_available_at, and latest horoscope info.
+    
+    IMPORTANT: First prediction of each type is ALWAYS allowed!
+    After the first prediction, rate limits apply:
+    - Daily: 24 hours between predictions
+    - Weekly: 7 days between predictions
+    - Monthly: 30 days between predictions
+    
+    Returns dict with:
+    - can_generate: boolean
+    - is_first: boolean (true if this would be their first of this type)
+    - next_available_at: ISO timestamp or null
+    - last_generated_at: ISO timestamp or null
     """
     interval = RATE_LIMIT_INTERVALS.get(prediction_type, timedelta(hours=24))
     
@@ -521,21 +532,40 @@ def check_rate_limit(db: Session, user_id: int, prediction_type: str) -> dict:
     
     now = datetime.utcnow()
     
-    if latest:
-        next_allowed = latest.created_at + interval
-        if now < next_allowed:
-            return {
-                "can_generate": False,
-                "next_available_at": next_allowed.isoformat(),
-                "last_generated_at": latest.created_at.isoformat(),
-                "latest_horoscope_id": latest.id
-            }
+    # FIRST PREDICTION IS ALWAYS FREE!
+    # If user has never generated this type, allow immediately
+    if not latest:
+        return {
+            "can_generate": True,
+            "is_first": True,
+            "next_available_at": None,
+            "last_generated_at": None,
+            "latest_horoscope_id": None,
+            "message": f"Generate your first {prediction_type} prediction!"
+        }
     
+    # User has generated before - check rate limit
+    next_allowed = latest.created_at + interval
+    
+    if now < next_allowed:
+        # Still within rate limit period
+        return {
+            "can_generate": False,
+            "is_first": False,
+            "next_available_at": next_allowed.isoformat(),
+            "last_generated_at": latest.created_at.isoformat(),
+            "latest_horoscope_id": latest.id,
+            "message": f"Next {prediction_type} available after rate limit"
+        }
+    
+    # Rate limit has passed
     return {
         "can_generate": True,
+        "is_first": False,
         "next_available_at": None,
-        "last_generated_at": latest.created_at.isoformat() if latest else None,
-        "latest_horoscope_id": latest.id if latest else None
+        "last_generated_at": latest.created_at.isoformat(),
+        "latest_horoscope_id": latest.id,
+        "message": f"Ready for new {prediction_type} prediction"
     }
 
 @app.get("/api/horoscopes/status")

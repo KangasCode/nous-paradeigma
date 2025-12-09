@@ -224,6 +224,18 @@
             background: rgba(76, 175, 80, 0.1);
         }
         
+        .rate-limit-status.available.first {
+            color: var(--gold);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(138, 116, 249, 0.2) 100%);
+            font-weight: 600;
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
+        }
+        
         .rate-limit-status.unavailable {
             color: var(--gold);
             background: rgba(212, 175, 55, 0.1);
@@ -485,16 +497,22 @@
                 const statusEl = document.getElementById(`status${type.charAt(0).toUpperCase() + type.slice(1)}`);
                 
                 if (!rateLimitStatus[type]) {
-                    statusEl.textContent = 'Available';
-                    statusEl.className = 'rate-limit-status available';
+                    statusEl.textContent = '✨ First prediction ready!';
+                    statusEl.className = 'rate-limit-status available first';
                     return;
                 }
                 
                 const status = rateLimitStatus[type];
                 
                 if (status.can_generate) {
-                    statusEl.textContent = '✓ Available now';
-                    statusEl.className = 'rate-limit-status available';
+                    if (status.is_first) {
+                        // First prediction - highlight it!
+                        statusEl.textContent = '✨ First prediction ready!';
+                        statusEl.className = 'rate-limit-status available first';
+                    } else {
+                        statusEl.textContent = '✓ Available now';
+                        statusEl.className = 'rate-limit-status available';
+                    }
                     btn.classList.remove('disabled');
                 } else {
                     const nextTime = new Date(status.next_available_at);
