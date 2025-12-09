@@ -209,6 +209,80 @@
             color: var(--text-secondary);
             margin-bottom: 1.5rem;
         }
+        
+        /* Rate Limit Status */
+        .rate-limit-status {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .rate-limit-status.available {
+            color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        .rate-limit-status.unavailable {
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .prediction-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .prediction-btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        /* Horoscope appear animation */
+        .horoscope-appear {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Generated content display */
+        .generated-content {
+            background: linear-gradient(135deg, rgba(138, 116, 249, 0.1) 0%, rgba(30, 30, 50, 0.95) 100%);
+            border: 1px solid rgba(138, 116, 249, 0.4);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+        
+        .generated-content.show {
+            display: block;
+        }
+        
+        .generated-content h4 {
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .generated-text {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        
+        .generated-text strong {
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
@@ -280,17 +354,35 @@
                     Based on your zodiac sign: <strong id="generateZodiac">Loading...</strong>
                 </p>
                 <div class="prediction-buttons">
-                    <button class="prediction-btn" data-type="daily" id="btnDaily">
-                        🌅 Daily Reading
-                    </button>
-                    <button class="prediction-btn" data-type="weekly" id="btnWeekly">
-                        📅 Weekly Path
-                    </button>
-                    <button class="prediction-btn" data-type="monthly" id="btnMonthly">
-                        🌙 Monthly Journey
-                    </button>
+                    <div class="prediction-btn-wrapper">
+                        <button class="prediction-btn" data-type="daily" id="btnDaily">
+                            🌅 Daily Reading
+                        </button>
+                        <div class="rate-limit-status" id="statusDaily">Checking...</div>
+                    </div>
+                    <div class="prediction-btn-wrapper">
+                        <button class="prediction-btn" data-type="weekly" id="btnWeekly">
+                            📅 Weekly Path
+                        </button>
+                        <div class="rate-limit-status" id="statusWeekly">Checking...</div>
+                    </div>
+                    <div class="prediction-btn-wrapper">
+                        <button class="prediction-btn" data-type="monthly" id="btnMonthly">
+                            🌙 Monthly Journey
+                        </button>
+                        <div class="rate-limit-status" id="statusMonthly">Checking...</div>
+                    </div>
                 </div>
                 <div id="generateError" class="error-message" style="margin-top: 1rem;"></div>
+                
+                <!-- Generated Content Display -->
+                <div class="generated-content" id="generatedContent">
+                    <h4 id="generatedTitle">Your Prediction</h4>
+                    <div class="generated-text" id="generatedText"></div>
+                    <div style="margin-top: 1.5rem; text-align: center;">
+                        <a href="/patterns" class="btn btn-ghost">View in Predictions →</a>
+                    </div>
+                </div>
             </section>
 
             <!-- Recent Activity -->
@@ -338,6 +430,9 @@
         // Store user data globally
         let userData = null;
 
+        // Rate limit status storage
+        let rateLimitStatus = {};
+
         // Load user data on page load
         async function loadUserData() {
             try {
@@ -359,8 +454,75 @@
                 userData = await response.json();
                 updateUserDisplay();
                 loadRecentPredictions();
+                loadRateLimitStatus(); // Load rate limits after user data
             } catch (error) {
                 console.error('Error loading user data:', error);
+            }
+        }
+
+        // Load rate limit status for all prediction types
+        async function loadRateLimitStatus() {
+            try {
+                const response = await fetch('/api/horoscopes/status/all', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to load rate limit status');
+                
+                rateLimitStatus = await response.json();
+                updateRateLimitDisplay();
+            } catch (error) {
+                console.error('Error loading rate limits:', error);
+            }
+        }
+
+        // Update the UI to show rate limit status
+        function updateRateLimitDisplay() {
+            ['daily', 'weekly', 'monthly'].forEach(type => {
+                const btn = document.getElementById(`btn${type.charAt(0).toUpperCase() + type.slice(1)}`);
+                const statusEl = document.getElementById(`status${type.charAt(0).toUpperCase() + type.slice(1)}`);
+                
+                if (!rateLimitStatus[type]) {
+                    statusEl.textContent = 'Available';
+                    statusEl.className = 'rate-limit-status available';
+                    return;
+                }
+                
+                const status = rateLimitStatus[type];
+                
+                if (status.can_generate) {
+                    statusEl.textContent = '✓ Available now';
+                    statusEl.className = 'rate-limit-status available';
+                    btn.classList.remove('disabled');
+                } else {
+                    const nextTime = new Date(status.next_available_at);
+                    const timeStr = formatTimeUntil(nextTime);
+                    statusEl.textContent = `⏳ Available ${timeStr}`;
+                    statusEl.className = 'rate-limit-status unavailable';
+                    btn.classList.add('disabled');
+                }
+            });
+        }
+
+        // Format time until next available
+        function formatTimeUntil(date) {
+            const now = new Date();
+            const diff = date - now;
+            
+            if (diff <= 0) return 'now';
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (hours >= 24) {
+                const days = Math.floor(hours / 24);
+                return `in ${days} day${days > 1 ? 's' : ''}`;
+            } else if (hours > 0) {
+                return `in ${hours}h ${minutes}m`;
+            } else {
+                return `in ${minutes}m`;
             }
         }
 
@@ -443,11 +605,21 @@
                 }
                 
                 const type = btn.dataset.type;
+                
+                // Check if rate limited
+                if (rateLimitStatus[type] && !rateLimitStatus[type].can_generate) {
+                    const nextTime = new Date(rateLimitStatus[type].next_available_at);
+                    alert(`You can generate a new ${type} prediction ${formatTimeUntil(nextTime)}.`);
+                    return;
+                }
+                
                 const overlay = document.getElementById('loadingOverlay');
                 const errorEl = document.getElementById('generateError');
+                const contentEl = document.getElementById('generatedContent');
                 
                 overlay.style.display = 'flex';
                 errorEl.style.display = 'none';
+                contentEl.classList.remove('show');
                 
                 try {
                     const response = await fetch('/api/horoscopes/generate', {
@@ -462,13 +634,55 @@
                         })
                     });
                     
+                    const data = await response.json();
+                    
                     if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.detail || 'Failed to generate prediction');
+                        throw new Error(data.detail || 'Failed to generate prediction');
                     }
                     
-                    // Redirect to patterns page to see the new prediction
-                    window.location.href = '/patterns';
+                    // Check if rate limited response
+                    if (data.can_generate === false) {
+                        const nextTime = new Date(data.next_available_at);
+                        errorEl.textContent = `⏳ ${data.message || `Next available ${formatTimeUntil(nextTime)}`}`;
+                        errorEl.style.display = 'block';
+                        // Update rate limit status
+                        loadRateLimitStatus();
+                        return;
+                    }
+                    
+                    // Show generated content with animation
+                    if (data.content) {
+                        const titleMap = {
+                            'daily': '🌅 Your Daily Reading',
+                            'weekly': '📅 Your Weekly Path',
+                            'monthly': '🌙 Your Monthly Journey'
+                        };
+                        
+                        document.getElementById('generatedTitle').textContent = titleMap[type] || 'Your Prediction';
+                        
+                        // Format content with basic markdown
+                        let formattedContent = data.content
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\n\n/g, '</p><p>')
+                            .replace(/\n/g, '<br>');
+                        formattedContent = `<p>${formattedContent}</p>`;
+                        
+                        document.getElementById('generatedText').innerHTML = formattedContent;
+                        
+                        // Show with animation
+                        contentEl.classList.add('show');
+                        contentEl.classList.add('horoscope-appear');
+                        
+                        // Update rate limit status
+                        loadRateLimitStatus();
+                        
+                        // Reload recent predictions
+                        loadRecentPredictions();
+                        
+                        // Scroll to content
+                        contentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    
                 } catch (error) {
                     errorEl.textContent = error.message;
                     errorEl.style.display = 'block';

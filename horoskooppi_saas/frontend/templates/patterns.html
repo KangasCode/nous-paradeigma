@@ -191,6 +191,46 @@
             flex-wrap: wrap;
         }
         
+        .generate-btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .rate-status {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .rate-status.available {
+            color: #4caf50;
+        }
+        
+        .rate-status.unavailable {
+            color: var(--gold);
+        }
+        
+        .btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Horoscope appear animation */
+        .horoscope-appear {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -256,9 +296,18 @@
                     Your Zodiac: <strong id="userZodiac">Loading...</strong>
                 </p>
                 <div class="generate-buttons">
-                    <button class="btn btn-primary" data-type="daily">🌅 Daily</button>
-                    <button class="btn btn-primary" data-type="weekly">📅 Weekly</button>
-                    <button class="btn btn-primary" data-type="monthly">🌙 Monthly</button>
+                    <div class="generate-btn-wrapper">
+                        <button class="btn btn-primary" data-type="daily" id="genBtnDaily">🌅 Daily</button>
+                        <span class="rate-status" id="rateDaily">Checking...</span>
+                    </div>
+                    <div class="generate-btn-wrapper">
+                        <button class="btn btn-primary" data-type="weekly" id="genBtnWeekly">📅 Weekly</button>
+                        <span class="rate-status" id="rateWeekly">Checking...</span>
+                    </div>
+                    <div class="generate-btn-wrapper">
+                        <button class="btn btn-primary" data-type="monthly" id="genBtnMonthly">🌙 Monthly</button>
+                        <span class="rate-status" id="rateMonthly">Checking...</span>
+                    </div>
                 </div>
                 <div id="generateError" class="error-message" style="margin-top: 1rem;"></div>
             </section>
@@ -316,6 +365,64 @@
         let userData = null;
         let allPredictions = [];
         let currentFilter = 'all';
+        let rateLimitStatus = {};
+
+        // Load rate limit status
+        async function loadRateLimitStatus() {
+            try {
+                const response = await fetch('/api/horoscopes/status/all', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) return;
+                
+                rateLimitStatus = await response.json();
+                updateRateLimitUI();
+            } catch (error) {
+                console.error('Error loading rate limits:', error);
+            }
+        }
+
+        function updateRateLimitUI() {
+            ['daily', 'weekly', 'monthly'].forEach(type => {
+                const btn = document.getElementById(`genBtn${type.charAt(0).toUpperCase() + type.slice(1)}`);
+                const statusEl = document.getElementById(`rate${type.charAt(0).toUpperCase() + type.slice(1)}`);
+                
+                if (!btn || !statusEl) return;
+                
+                const status = rateLimitStatus[type];
+                
+                if (!status || status.can_generate) {
+                    statusEl.textContent = '✓ Available';
+                    statusEl.className = 'rate-status available';
+                    btn.classList.remove('disabled');
+                } else {
+                    const nextTime = new Date(status.next_available_at);
+                    statusEl.textContent = `⏳ ${formatTimeUntil(nextTime)}`;
+                    statusEl.className = 'rate-status unavailable';
+                    btn.classList.add('disabled');
+                }
+            });
+        }
+
+        function formatTimeUntil(date) {
+            const now = new Date();
+            const diff = date - now;
+            
+            if (diff <= 0) return 'Available now';
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (hours >= 24) {
+                const days = Math.floor(hours / 24);
+                return `in ${days}d`;
+            } else if (hours > 0) {
+                return `in ${hours}h`;
+            } else {
+                return `in ${minutes}m`;
+            }
+        }
 
         // Load user data
         async function loadUserData() {
@@ -477,9 +584,19 @@
                     }
                     
                     const type = btn.dataset.type;
+                    
+                    // Check rate limit
+                    if (rateLimitStatus[type] && !rateLimitStatus[type].can_generate) {
+                        const nextTime = new Date(rateLimitStatus[type].next_available_at);
+                        alert(`You can generate a new ${type} prediction ${formatTimeUntil(nextTime)}.`);
+                        return;
+                    }
+                    
                     const overlay = document.getElementById('loadingOverlay');
+                    const errorEl = document.getElementById('generateError');
                     
                     overlay.style.display = 'flex';
+                    errorEl.style.display = 'none';
                     
                     try {
                         const response = await fetch('/api/horoscopes/generate', {
@@ -494,17 +611,35 @@
                             })
                         });
                         
+                        const data = await response.json();
+                        
                         if (!response.ok) {
-                            const error = await response.json();
-                            throw new Error(error.detail || 'Failed to generate');
+                            throw new Error(data.detail || 'Failed to generate');
                         }
                         
-                        // Reload predictions to show the new one
+                        // Check rate limit response
+                        if (data.can_generate === false) {
+                            errorEl.textContent = data.message || 'Rate limited. Please try again later.';
+                            errorEl.style.display = 'block';
+                            loadRateLimitStatus();
+                            return;
+                        }
+                        
+                        // Reload predictions to show the new one with animation
                         await loadPredictions();
+                        loadRateLimitStatus();
+                        
+                        // Add animation to the newest prediction
+                        const grid = document.getElementById('predictionsGrid');
+                        if (grid.firstElementChild) {
+                            grid.firstElementChild.classList.add('horoscope-appear');
+                        }
+                        
                         // Scroll to top to see new prediction
                         window.scrollTo(0, 0);
                     } catch (error) {
-                        alert(error.message);
+                        errorEl.textContent = error.message;
+                        errorEl.style.display = 'block';
                     } finally {
                         overlay.style.display = 'none';
                     }
@@ -521,6 +656,7 @@
         // Initialize
         loadUserData();
         loadPredictions();
+        loadRateLimitStatus();
     </script>
 </body>
 </html>

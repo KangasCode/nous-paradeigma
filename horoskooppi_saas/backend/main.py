@@ -391,10 +391,91 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     return {"status": "success"}
 
 # ============================================================================
-# Horoscope Endpoints
+# Horoscope Endpoints with Rate Limiting
 # ============================================================================
 
-@app.post("/api/horoscopes/generate", response_model=HoroscopeResponse)
+# Rate limit intervals for each prediction type
+RATE_LIMIT_INTERVALS = {
+    "daily": timedelta(hours=24),
+    "weekly": timedelta(days=7),
+    "monthly": timedelta(days=30)
+}
+
+def check_rate_limit(db: Session, user_id: int, prediction_type: str) -> dict:
+    """
+    Check if user can generate a new horoscope of the given type.
+    Returns dict with can_generate, next_available_at, and latest horoscope info.
+    """
+    interval = RATE_LIMIT_INTERVALS.get(prediction_type, timedelta(hours=24))
+    
+    # Get the latest horoscope of this type for this user
+    latest = db.query(Horoscope).filter(
+        Horoscope.user_id == user_id,
+        Horoscope.prediction_type == prediction_type
+    ).order_by(Horoscope.created_at.desc()).first()
+    
+    now = datetime.utcnow()
+    
+    if latest:
+        next_allowed = latest.created_at + interval
+        if now < next_allowed:
+            return {
+                "can_generate": False,
+                "next_available_at": next_allowed.isoformat(),
+                "last_generated_at": latest.created_at.isoformat(),
+                "latest_horoscope_id": latest.id
+            }
+    
+    return {
+        "can_generate": True,
+        "next_available_at": None,
+        "last_generated_at": latest.created_at.isoformat() if latest else None,
+        "latest_horoscope_id": latest.id if latest else None
+    }
+
+@app.get("/api/horoscopes/status")
+async def get_horoscope_status(
+    prediction_type: str = "daily",
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Check if user can generate a new horoscope of the specified type.
+    Returns rate limit status and next available time.
+    """
+    if prediction_type not in RATE_LIMIT_INTERVALS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid prediction_type. Must be one of: {list(RATE_LIMIT_INTERVALS.keys())}"
+        )
+    
+    status_info = check_rate_limit(db, current_user.id, prediction_type)
+    
+    # Add interval info
+    interval = RATE_LIMIT_INTERVALS[prediction_type]
+    status_info["interval_hours"] = interval.total_seconds() / 3600
+    status_info["prediction_type"] = prediction_type
+    
+    return status_info
+
+@app.get("/api/horoscopes/status/all")
+async def get_all_horoscope_status(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get rate limit status for all prediction types at once.
+    """
+    result = {}
+    for prediction_type in RATE_LIMIT_INTERVALS.keys():
+        status_info = check_rate_limit(db, current_user.id, prediction_type)
+        interval = RATE_LIMIT_INTERVALS[prediction_type]
+        status_info["interval_hours"] = interval.total_seconds() / 3600
+        result[prediction_type] = status_info
+    
+    return result
+
+@app.post("/api/horoscopes/generate")
 async def generate_horoscope(
     horoscope_data: HoroscopeCreate,
     current_user: User = Depends(get_current_subscriber),
@@ -403,12 +484,31 @@ async def generate_horoscope(
     """
     Generate a new horoscope prediction (subscribers only).
     
-    IMPORTANT: 
-    - The zodiac_sign MUST come from the user's profile (calculated from birth_date)
-    - If the user's profile has a zodiac_sign, it overrides any value in the request
-    - Predictions are personalized based on stored profile data (birth_date, birth_time, birth_city)
-    - All predictions are saved to the database and visible on /patterns page
+    Rate limits:
+    - daily: once every 24 hours
+    - weekly: once every 7 days
+    - monthly: once every 30 days
+    
+    Returns:
+    - can_generate: boolean
+    - next_available_at: ISO timestamp if rate limited
+    - content: AI generated text if allowed
+    - horoscope: full horoscope object if allowed
     """
+    prediction_type = horoscope_data.prediction_type
+    
+    # Check rate limit
+    rate_status = check_rate_limit(db, current_user.id, prediction_type)
+    
+    if not rate_status["can_generate"]:
+        return {
+            "can_generate": False,
+            "next_available_at": rate_status["next_available_at"],
+            "content": None,
+            "horoscope": None,
+            "message": f"You can generate a new {prediction_type} horoscope after {rate_status['next_available_at']}"
+        }
+    
     # Use user's profile zodiac sign if available (overrides request)
     zodiac_sign = current_user.zodiac_sign or horoscope_data.zodiac_sign
     
@@ -432,15 +532,15 @@ async def generate_horoscope(
     # Generate horoscope using Gemini with user's profile data
     content, raw_data = gemini_client.generate_horoscope(
         zodiac_sign=zodiac_sign,
-        prediction_type=horoscope_data.prediction_type,
+        prediction_type=prediction_type,
         user_profile=user_profile
     )
     
     # Save to database - always use the user's profile zodiac_sign
     new_horoscope = Horoscope(
         user_id=current_user.id,
-        zodiac_sign=zodiac_sign,  # Uses profile zodiac, not request data
-        prediction_type=horoscope_data.prediction_type,
+        zodiac_sign=zodiac_sign,
+        prediction_type=prediction_type,
         content=content,
         raw_data=json.dumps(raw_data),
         prediction_date=datetime.utcnow()
@@ -450,7 +550,24 @@ async def generate_horoscope(
     db.commit()
     db.refresh(new_horoscope)
     
-    return new_horoscope
+    # Calculate next available time
+    interval = RATE_LIMIT_INTERVALS[prediction_type]
+    next_available = new_horoscope.created_at + interval
+    
+    return {
+        "can_generate": True,
+        "next_available_at": next_available.isoformat(),
+        "content": content,
+        "horoscope": {
+            "id": new_horoscope.id,
+            "zodiac_sign": new_horoscope.zodiac_sign,
+            "prediction_type": new_horoscope.prediction_type,
+            "content": new_horoscope.content,
+            "raw_data": new_horoscope.raw_data,
+            "created_at": new_horoscope.created_at.isoformat(),
+            "prediction_date": new_horoscope.prediction_date.isoformat()
+        }
+    }
 
 @app.get("/api/horoscopes/my", response_model=list[HoroscopeResponse])
 async def get_my_horoscopes(
