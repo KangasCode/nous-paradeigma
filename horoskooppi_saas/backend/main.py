@@ -104,6 +104,28 @@ async def health():
     """Health check endpoint for Render"""
     return {"status": "ok"}
 
+# Setup endpoint to create test user (for production setup)
+@app.get("/api/setup/test-user")
+async def setup_test_user(db: Session = Depends(get_db)):
+    """Create test user if it doesn't exist - for production setup"""
+    from database import init_test_data_if_needed
+    import os
+    
+    # Force enable test user creation
+    os.environ["CREATE_TEST_USER"] = "true"
+    
+    # Check if user exists first
+    existing = db.query(User).filter(User.email == "test@nousparadeigma.com").first()
+    if existing:
+        return {"status": "exists", "message": "Test user already exists", "email": existing.email}
+    
+    # Create the test user
+    try:
+        init_test_data_if_needed()
+        return {"status": "created", "message": "Test user created successfully", "email": "test@nousparadeigma.com", "password": "cosmos123"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 # Debug endpoint to check file paths (remove in production)
 @app.get("/api/debug/paths")
 async def debug_paths():
