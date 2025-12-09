@@ -25,7 +25,7 @@ from auth import (
     create_access_token,
     get_current_active_user, get_current_subscriber, get_user_by_email
 )
-from gemini_client import gemini_client
+from gemini_client import gemini_client, GeminiAPIError
 from email_service import email_service
 from stripe_webhooks import (
     StripeWebhookHandler, create_checkout_session, create_customer_portal_session
@@ -801,11 +801,23 @@ async def generate_horoscope(
     }
     
     # Generate horoscope using Gemini with user's profile data
-    content, raw_data = gemini_client.generate_horoscope(
-        zodiac_sign=zodiac_sign,
-        prediction_type=prediction_type,
-        user_profile=user_profile
-    )
+    # NO FALLBACKS - Gemini MUST generate the horoscope directly
+    try:
+        content, raw_data = gemini_client.generate_horoscope(
+            zodiac_sign=zodiac_sign,
+            prediction_type=prediction_type,
+            user_profile=user_profile
+        )
+    except GeminiAPIError as e:
+        print(f"❌ Gemini API Error: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "horoscope_generation_failed",
+                "message": "Unable to generate horoscope at this time. Please try again later.",
+                "technical_details": str(e)
+            }
+        )
     
     # Save to database - always use the user's profile zodiac_sign
     new_horoscope = Horoscope(

@@ -7,12 +7,24 @@ IMPORTANT RULES FOR AI PREDICTION GENERATION:
 3. All predictions MUST use the stored profile data, never user-edited temporary values
 4. Every new prediction MUST be saved to the database and listed on /patterns page
 5. Predictions are personalized based on: zodiac_sign, birth_date, birth_time, birth_city
+
+CRITICAL: NO FALLBACK HOROSCOPES ARE ALLOWED
+- Gemini MUST generate all horoscopes directly
+- If Gemini fails, return an error - NEVER return fallback text
 """
 import os
 import google.generativeai as genai
 from typing import Optional, Tuple, Any, Dict
 from datetime import datetime
 import json
+
+# Import generation rules
+from gemini_rules import GENERAL_RULES, DAILY_RULES, WEEKLY_RULES, MONTHLY_RULES, VOCABULARY_BANK
+
+
+class GeminiAPIError(Exception):
+    """Exception raised when Gemini API fails to generate horoscope"""
+    pass
 
 
 class GeminiClient:
@@ -22,6 +34,7 @@ class GeminiClient:
         """Initialize Gemini client"""
         self.model = None
         self._initialized = False
+        self._api_key_available = False
     
     def _ensure_initialized(self):
         """Lazy initialization of Gemini client"""
@@ -30,17 +43,20 @@ class GeminiClient:
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            print("WARNING: GEMINI_API_KEY not set. Using fallback horoscopes.")
+            print("ERROR: GEMINI_API_KEY not set. Horoscope generation will fail.")
             self._initialized = True
+            self._api_key_available = False
             return
         
         try:
             genai.configure(api_key=api_key)
             self.model = genai.GenerativeModel('gemini-pro')
             self._initialized = True
+            self._api_key_available = True
         except Exception as e:
-            print(f"WARNING: Failed to initialize Gemini: {e}. Using fallback horoscopes.")
+            print(f"ERROR: Failed to initialize Gemini: {e}")
             self._initialized = True
+            self._api_key_available = False
     
     def generate_horoscope(
         self, 
@@ -99,18 +115,22 @@ class GeminiClient:
             print(f"Astrology calculation failed: {e}")
             raw_data["transits"] = {"error": str(e)}
 
-        # 2. Generate Content
+        # 2. Generate Content - NO FALLBACKS ALLOWED
         if not self.model:
-            return self._generate_fallback_horoscope(zodiac_sign, prediction_type), raw_data
+            raise GeminiAPIError("Gemini API not initialized. GEMINI_API_KEY may not be set.")
         
         prompt = self._create_prompt(zodiac_sign, prediction_type, raw_data, user_profile)
         
         try:
             response = self.model.generate_content(prompt)
+            if not response.text:
+                raise GeminiAPIError("Gemini returned empty response")
             return response.text, raw_data
+        except GeminiAPIError:
+            raise
         except Exception as e:
-            print(f"Gemini API error: {e}. Using fallback.")
-            return self._generate_fallback_horoscope(zodiac_sign, prediction_type), raw_data
+            print(f"Gemini API error: {e}")
+            raise GeminiAPIError(f"Failed to generate horoscope: {str(e)}")
     
     def _create_prompt(
         self, 
@@ -414,34 +434,6 @@ Use ONLY the data provided above. Do not invent aspects or positions not in the 
         aspects.sort(key=lambda x: x["orb"])
         
         return aspects[:10]  # Return top 10 tightest aspects
-    
-    def _generate_fallback_horoscope(self, zodiac_sign: str, prediction_type: str) -> str:
-        """Generate a fallback horoscope if API fails - matches the 3-section format"""
-        current_sun = self._get_current_sun_sign()
-        
-        return f"""**Key Influences {"Today" if prediction_type == "daily" else "This " + prediction_type.capitalize().replace("ly", "")}**
-
-• Sun in {current_sun} activates your natural {zodiac_sign.capitalize()} energy
-• Current lunar phase supports reflection and planning
-• Mercury aspects encourage clear communication
-
-**Detailed {prediction_type.capitalize()} Prediction**
-
-The cosmic energies are working in your favor, {zodiac_sign.capitalize()}. With the Sun transiting through {current_sun}, there's a natural harmony between your core identity and the current celestial climate. This period invites you to focus on personal growth and authentic self-expression.
-
-Your ruling planetary influences suggest a time of balanced energy. Professional matters may require attention, but you have the celestial support needed to navigate any challenges. Relationships benefit from honest communication—speak your truth with compassion.
-
-Take time for self-care and reflection. The universe is aligning opportunities for you, but patience will be your greatest ally. Trust your intuition when making decisions.
-
-**Technical Summary**
-
-Sun → Natal Sun, Transit, {current_sun}, House 1 (Self and identity)
-Moon → Variable positions through the {prediction_type} period
-Mercury → Communication and mental clarity active
-General planetary harmony supporting {zodiac_sign.capitalize()} archetype
-
----
-*Note: This is a general prediction. Add your birth time for more precise calculations.*"""
 
 
 # Create a singleton instance
