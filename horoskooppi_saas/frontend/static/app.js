@@ -142,13 +142,23 @@ if (window.location.pathname === '/') {
 
                 if (!response.ok) {
                     let errorMessage = 'Login failed';
-                    try {
-                        const error = await response.json();
-                        errorMessage = error.detail || errorMessage;
-                    } catch (e) {
-                        // If response is not JSON, try to get text
-                        const text = await response.text();
-                        errorMessage = text || `Server error: ${response.status}`;
+                    // Check content type before trying to parse
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        try {
+                            const error = await response.json();
+                            errorMessage = error.detail || errorMessage;
+                        } catch (e) {
+                            errorMessage = `Server error: ${response.status}`;
+                        }
+                    } else {
+                        // Not JSON, try to get text
+                        try {
+                            const text = await response.text();
+                            errorMessage = text.substring(0, 100) || `Server error: ${response.status}`;
+                        } catch (e) {
+                            errorMessage = `Server error: ${response.status}`;
+                        }
                     }
                     throw new Error(errorMessage);
                 }
