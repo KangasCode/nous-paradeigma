@@ -188,18 +188,32 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
 @app.post("/api/auth/login", response_model=Token)
 async def login(user_data: UserLogin, db: Session = Depends(get_db)):
     """Login and get access token"""
-    user = authenticate_user(db, user_data.email, user_data.password)
-    if not user:
+    try:
+        print(f"Login attempt for email: {user_data.email}")
+        user = authenticate_user(db, user_data.email, user_data.password)
+        if not user:
+            print(f"Authentication failed for: {user_data.email}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        print(f"Authentication successful for: {user_data.email}")
+        # Create access token
+        access_token = create_access_token(data={"sub": user.email})
+        
+        return {"access_token": access_token, "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Login error: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}"
         )
-    
-    # Create access token
-    access_token = create_access_token(data={"sub": user.email})
-    
-    return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/api/auth/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_active_user)):
