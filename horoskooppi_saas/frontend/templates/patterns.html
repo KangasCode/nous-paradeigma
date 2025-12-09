@@ -281,37 +281,37 @@
                 <h1>✨ Nous Paradeigma</h1>
             </div>
             <nav class="nav">
-                <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
-                <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+                <a href="/dashboard" class="btn btn-ghost" data-i18n="dashboard">Hallintapaneeli</a>
+                <button id="logoutBtn" class="btn btn-ghost" data-i18n="logout">Kirjaudu ulos</button>
             </nav>
         </header>
 
         <main class="dashboard">
             <!-- Back Navigation -->
             <div class="back-nav">
-                <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+                <a href="/dashboard" class="back-link" data-i18n="backToDashboard">← Takaisin hallintapaneeliin</a>
             </div>
 
-            <h2 style="color: var(--gold); margin-bottom: 2rem;">🔮 Your Predictions</h2>
+            <h2 style="color: var(--gold); margin-bottom: 2rem;" data-i18n="yourPredictions">🔮 Ennustuksesi</h2>
 
             <!-- Generate Section -->
             <section class="generate-section" id="generateSection">
-                <h3>Generate New Prediction</h3>
+                <h3 data-i18n="generateNew">Luo uusi ennustus</h3>
                 <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                    Your Zodiac: <strong id="userZodiac">Loading...</strong>
+                    <span data-i18n="yourZodiac">Horoskooppisi:</span> <strong id="userZodiac">Ladataan...</strong>
                 </p>
                 <div class="generate-buttons">
                     <div class="generate-btn-wrapper">
-                        <button class="btn btn-primary" data-type="daily" id="genBtnDaily">🌅 Daily</button>
-                        <span class="rate-status" id="rateDaily">Checking...</span>
+                        <button class="btn btn-primary" data-type="daily" id="genBtnDaily">🌅 <span data-i18n="daily">Päivittäinen</span></button>
+                        <span class="rate-status" id="rateDaily" data-i18n="checking">Tarkistetaan...</span>
                     </div>
                     <div class="generate-btn-wrapper">
-                        <button class="btn btn-primary" data-type="weekly" id="genBtnWeekly">📅 Weekly</button>
-                        <span class="rate-status" id="rateWeekly">Checking...</span>
+                        <button class="btn btn-primary" data-type="weekly" id="genBtnWeekly">📅 <span data-i18n="weekly">Viikottainen</span></button>
+                        <span class="rate-status" id="rateWeekly" data-i18n="checking">Tarkistetaan...</span>
                     </div>
                     <div class="generate-btn-wrapper">
-                        <button class="btn btn-primary" data-type="monthly" id="genBtnMonthly">🌙 Monthly</button>
-                        <span class="rate-status" id="rateMonthly">Checking...</span>
+                        <button class="btn btn-primary" data-type="monthly" id="genBtnMonthly">🌙 <span data-i18n="monthly">Kuukausittainen</span></button>
+                        <span class="rate-status" id="rateMonthly" data-i18n="checking">Tarkistetaan...</span>
                     </div>
                 </div>
                 <div id="generateError" class="error-message" style="margin-top: 1rem;"></div>
@@ -320,16 +320,16 @@
             <!-- Prediction Tabs -->
             <div class="prediction-tabs">
                 <button class="tab-btn active" data-filter="all">
-                    All <span class="tab-count" id="countAll">0</span>
+                    <span data-i18n="all">Kaikki</span> <span class="tab-count" id="countAll">0</span>
                 </button>
                 <button class="tab-btn" data-filter="daily">
-                    Daily <span class="tab-count" id="countDaily">0</span>
+                    <span data-i18n="daily">Päivittäinen</span> <span class="tab-count" id="countDaily">0</span>
                 </button>
                 <button class="tab-btn" data-filter="weekly">
-                    Weekly <span class="tab-count" id="countWeekly">0</span>
+                    <span data-i18n="weekly">Viikottainen</span> <span class="tab-count" id="countWeekly">0</span>
                 </button>
                 <button class="tab-btn" data-filter="monthly">
-                    Monthly <span class="tab-count" id="countMonthly">0</span>
+                    <span data-i18n="monthly">Kuukausittainen</span> <span class="tab-count" id="countMonthly">0</span>
                 </button>
             </div>
 
@@ -337,13 +337,13 @@
             <div class="predictions-grid" id="predictionsGrid">
                 <div class="empty-state">
                     <div class="empty-state-icon">🔮</div>
-                    <h3>Loading predictions...</h3>
+                    <h3 data-i18n="loadingPredictions">Ladataan ennustuksia...</h3>
                 </div>
             </div>
         </main>
 
         <footer class="footer">
-            <p>&copy; 2024 Nous Paradeigma. All rights reserved.</p>
+            <p>&copy; 2024 Nous Paradeigma. Kaikki oikeudet pidätetään.</p>
         </footer>
     </div>
 
@@ -351,11 +351,80 @@
     <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div class="loading-spinner">
             <div class="spinner"></div>
-            <p>Channeling your cosmic message...</p>
+            <p data-i18n="channeling">Kanavoidaan kosmista viestiäsi...</p>
         </div>
     </div>
 
     <script>
+        // ===========================================
+        // TRANSLATIONS
+        // ===========================================
+        const translations = {
+            fi: {
+                'dashboard': 'Hallintapaneeli',
+                'logout': 'Kirjaudu ulos',
+                'backToDashboard': '← Takaisin hallintapaneeliin',
+                'yourPredictions': '🔮 Ennustuksesi',
+                'generateNew': 'Luo uusi ennustus',
+                'yourZodiac': 'Horoskooppisi:',
+                'daily': 'Päivittäinen',
+                'weekly': 'Viikottainen',
+                'monthly': 'Kuukausittainen',
+                'all': 'Kaikki',
+                'checking': 'Tarkistetaan...',
+                'loadingPredictions': 'Ladataan ennustuksia...',
+                'channeling': 'Kanavoidaan kosmista viestiäsi...',
+                'noPredictions': 'Ei ennustuksia vielä. Luo ensimmäinen yllä!',
+                'firstReady': '✨ Ensimmäinen valmis!',
+                'available': '✓ Saatavilla',
+                'showRawData': 'Näytä astrologiset tiedot',
+                'hideRawData': 'Piilota tiedot',
+                // Zodiac names
+                'zodiac.aries': 'Oinas', 'zodiac.taurus': 'Härkä', 'zodiac.gemini': 'Kaksoset',
+                'zodiac.cancer': 'Rapu', 'zodiac.leo': 'Leijona', 'zodiac.virgo': 'Neitsyt',
+                'zodiac.libra': 'Vaaka', 'zodiac.scorpio': 'Skorpioni', 'zodiac.sagittarius': 'Jousimies',
+                'zodiac.capricorn': 'Kauris', 'zodiac.aquarius': 'Vesimies', 'zodiac.pisces': 'Kalat'
+            },
+            en: {
+                'dashboard': 'Dashboard',
+                'logout': 'Logout',
+                'backToDashboard': '← Back to Dashboard',
+                'yourPredictions': '🔮 Your Predictions',
+                'generateNew': 'Generate New Prediction',
+                'yourZodiac': 'Your Zodiac:',
+                'daily': 'Daily',
+                'weekly': 'Weekly',
+                'monthly': 'Monthly',
+                'all': 'All',
+                'checking': 'Checking...',
+                'loadingPredictions': 'Loading predictions...',
+                'channeling': 'Channeling your cosmic message...',
+                'noPredictions': 'No predictions yet. Generate your first one above!',
+                'firstReady': '✨ First ready!',
+                'available': '✓ Available',
+                'showRawData': 'Show astrological data',
+                'hideRawData': 'Hide data',
+                // Zodiac names
+                'zodiac.aries': 'Aries', 'zodiac.taurus': 'Taurus', 'zodiac.gemini': 'Gemini',
+                'zodiac.cancer': 'Cancer', 'zodiac.leo': 'Leo', 'zodiac.virgo': 'Virgo',
+                'zodiac.libra': 'Libra', 'zodiac.scorpio': 'Scorpio', 'zodiac.sagittarius': 'Sagittarius',
+                'zodiac.capricorn': 'Capricorn', 'zodiac.aquarius': 'Aquarius', 'zodiac.pisces': 'Pisces'
+            }
+        };
+
+        let currentLang = 'fi';
+        function t(key) { return translations[currentLang]?.[key] || translations['en']?.[key] || key; }
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang]?.[key]) el.textContent = translations[currentLang][key];
+            });
+        }
+        function getZodiacName(sign) {
+            if (!sign) return '';
+            return t(`zodiac.${sign.toLowerCase()}`) || sign.charAt(0).toUpperCase() + sign.slice(1);
+        }
+
         const ZODIAC_SYMBOLS = {
             'aries': '♈', 'taurus': '♉', 'gemini': '♊', 'cancer': '♋',
             'leo': '♌', 'virgo': '♍', 'libra': '♎', 'scorpio': '♏',
@@ -477,10 +546,14 @@
                 
                 userData = await response.json();
                 
+                // Set language and apply translations
+                currentLang = userData.prediction_language || 'fi';
+                applyTranslations();
+                
                 if (userData.zodiac_sign) {
                     const symbol = ZODIAC_SYMBOLS[userData.zodiac_sign.toLowerCase()] || '✨';
                     document.getElementById('userZodiac').textContent = 
-                        `${symbol} ${userData.zodiac_sign.charAt(0).toUpperCase() + userData.zodiac_sign.slice(1)}`;
+                        `${symbol} ${getZodiacName(userData.zodiac_sign)}`;
                 } else {
                     document.getElementById('generateSection').innerHTML = `
                         <h3>⚠️ Complete Your Profile</h3>

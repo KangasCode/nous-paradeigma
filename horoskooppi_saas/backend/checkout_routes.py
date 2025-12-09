@@ -407,10 +407,11 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             db.add(magic_token)
             db.commit()
             
-            # Send welcome email with magic link
+            # Send welcome email with magic link (in user's language)
             user_name = user_for_email.first_name or user_for_email.full_name or None
-            email_service.send_welcome_email(user_for_email.email, token, user_name)
-            print(f"✅ FREE MODE: Welcome magic link sent to {progress.email}")
+            user_lang = progress.prediction_language or 'fi'
+            email_service.send_welcome_email(user_for_email.email, token, user_name, user_lang)
+            print(f"✅ FREE MODE: Welcome magic link sent to {progress.email} (lang: {user_lang})")
             
             # Sync to ACTIVE_SUBSCRIBERS audience (removes from CHECKOUT_VISITED)
             try:

@@ -404,11 +404,12 @@ async def request_magic_link(data: MagicLinkRequest, db: Session = Depends(get_d
         db.add(magic_token)
         db.commit()
         
-        # Send magic link email
+        # Send magic link email (in user's language)
         user_name = user.first_name or user.full_name or None
-        email_service.send_magic_link(user.email, token, user_name)
+        user_lang = user.prediction_language or 'fi'
+        email_service.send_magic_link(user.email, token, user_name, user_lang)
         
-        print(f"✅ Magic link generated for {user.email}")
+        print(f"✅ Magic link generated for {user.email} (lang: {user_lang})")
     else:
         # Don't reveal that email doesn't exist
         print(f"⚠️ Magic link requested for non-existent email: {data.email}")
