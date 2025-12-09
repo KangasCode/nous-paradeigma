@@ -72,7 +72,7 @@ async def save_email_step(data: CheckoutEmailStep, db: Session = Depends(get_db)
             detail="Checkout session not found"
         )
     
-    progress.email = data.email
+    progress.email = data.email.lower()  # Always store email lowercase
     progress.step_email_completed = True
     progress.email_completed_at = datetime.utcnow()
     
@@ -335,15 +335,14 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
         from email_service import email_service
         import secrets as sec
         
-        # Check if user already exists
-        existing_user = db.query(User).filter(User.email == progress.email).first()
+        # Check if user already exists (case-insensitive)
+        existing_user = db.query(User).filter(User.email.ilike(progress.email)).first()
         user_for_email = None
         
         if not existing_user:
             # Create new user with all checkout data (NO PASSWORD - Magic Link only)
             new_user = User(
-                email=progress.email,
-                hashed_password=None,  # No password - Magic Link only
+                email=progress.email.lower(),  # Always store email lowercase
                 full_name=None,
                 first_name=None,
                 last_name=None,

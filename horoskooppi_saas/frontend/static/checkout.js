@@ -340,7 +340,7 @@ document.getElementById('birthdateForm').addEventListener('submit', async (e) =>
         
         // Update summary
         document.getElementById('summary-plan').textContent = progress.selected_plan ? progress.selected_plan.toUpperCase() : selectedPlan.toUpperCase();
-        document.getElementById('summary-email').textContent = checkoutData.email || progress.email;
+        document.getElementById('summary-email').textContent = (checkoutData.email || progress.email || '').toLowerCase();
         document.getElementById('summary-zodiac').textContent = zodiacSign ? (ZODIAC_DATA[zodiacSign]?.symbol + ' ' + zodiacSign.charAt(0).toUpperCase() + zodiacSign.slice(1)) : '-';
         document.getElementById('summary-birthdate').textContent = formatDate(birthdate);
         
