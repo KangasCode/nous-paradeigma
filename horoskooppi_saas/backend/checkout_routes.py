@@ -309,6 +309,16 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             detail="Complete all checkout steps first"
         )
     
+    # Validate birthdate step is completed (REQUIRED for predictions)
+    if not progress.step_birthdate_completed or not progress.birth_date:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Birth date is required. Please complete the birth date step."
+        )
+    
+    # Debug logging for birth data
+    print(f"📅 Birth data at payment: date={progress.birth_date}, city={progress.birth_city}, zodiac={progress.zodiac_sign}")
+    
     # Mark payment initiated
     progress.step_payment_initiated = True
     progress.payment_initiated_at = datetime.utcnow()

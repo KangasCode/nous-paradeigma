@@ -20,8 +20,11 @@
                     <span class="lang-separator">|</span>
                     <button class="lang-btn active" data-lang="fi">FI</button>
                 </div>
-                <button id="showLogin" class="btn btn-ghost" data-i18n="nav.login">Login</button>
-                <button id="showRegister" class="btn btn-primary" data-i18n="nav.getStarted">Get Started</button>
+                <!-- Buttons for logged OUT users -->
+                <button id="showLogin" class="btn btn-ghost auth-logged-out" data-i18n="nav.login">Login</button>
+                <button id="showRegister" class="btn btn-primary auth-logged-out" data-i18n="nav.getStarted">Get Started</button>
+                <!-- Button for logged IN users -->
+                <a href="/dashboard" id="dashboardBtn" class="btn btn-primary auth-logged-in" style="display: none;">Dashboard</a>
             </nav>
         </header>
 
@@ -616,7 +619,45 @@
                     setLanguage(btn.getAttribute('data-lang'));
                 });
             });
+            
+            // Check if user is logged in and update navigation
+            checkAuthStatus();
         });
+        
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    credentials: 'include'  // Include cookies
+                });
+                
+                if (response.ok) {
+                    // User is logged in - show dashboard button, hide login/register
+                    document.querySelectorAll('.auth-logged-out').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    document.querySelectorAll('.auth-logged-in').forEach(el => {
+                        el.style.display = 'inline-block';
+                    });
+                    // Also hide CTA buttons
+                    const ctaBtn = document.getElementById('ctaRegister');
+                    if (ctaBtn) {
+                        ctaBtn.textContent = currentLang === 'fi' ? 'Hallintapaneeli' : 'Dashboard';
+                        ctaBtn.onclick = () => window.location.href = '/dashboard';
+                    }
+                } else {
+                    // User is not logged in - keep default (login/register visible)
+                    document.querySelectorAll('.auth-logged-out').forEach(el => {
+                        el.style.display = 'inline-block';
+                    });
+                    document.querySelectorAll('.auth-logged-in').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                }
+            } catch (error) {
+                console.log('Auth check failed:', error);
+                // Default to logged out state
+            }
+        }
     </script>
     <script src="/static/app.js"></script>
 </body>

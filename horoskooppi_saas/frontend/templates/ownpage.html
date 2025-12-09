@@ -370,9 +370,32 @@
             'sagittarius': '♐', 'capricorn': '♑', 'aquarius': '♒', 'pisces': '♓'
         };
 
+        // Check if user is authenticated (cookie or localStorage)
+        // Cookie-based auth (Magic Link) takes precedence
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+        
+        const loggedInCookie = getCookie('logged_in');
         const token = localStorage.getItem('token');
-        if (!token) {
+        
+        // If neither cookie nor token, redirect to login
+        if (!loggedInCookie && !token) {
             window.location.href = '/';
+        }
+        
+        // Get auth headers (for API calls)
+        function getAuthHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            // If we have a localStorage token, include it (backwards compatibility)
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            // Cookie-based auth is handled automatically by browser
+            return headers;
         }
 
         let userData = null;
@@ -380,7 +403,8 @@
         async function loadProfile() {
             try {
                 const response = await fetch('/api/auth/me', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: getAuthHeaders(),
+                    credentials: 'include'
                 });
                 
                 if (!response.ok) {
@@ -480,10 +504,8 @@
             try {
                 const response = await fetch('/api/auth/profile', {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: getAuthHeaders(),
+                    credentials: 'include',
                     body: JSON.stringify(formData)
                 });
                 
@@ -509,10 +531,8 @@
             try {
                 const response = await fetch('/api/auth/profile', {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: getAuthHeaders(),
+                    credentials: 'include',
                     body: JSON.stringify({ birth_time: birthTime })
                 });
                 
@@ -534,7 +554,7 @@
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('token');
-            window.location.href = '/';
+            window.location.href = '/logout';  // Clears cookies too
         });
 
         // Initialize

@@ -353,6 +353,23 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     
     return new_user
 
+@app.get("/api/admin/check-user/{email}")
+async def admin_check_user(email: str, db: Session = Depends(get_db)):
+    """
+    Admin endpoint to check if a user exists (for debugging).
+    In production, protect this with authentication.
+    """
+    user = get_user_by_email(db, email)
+    if user:
+        return {
+            "exists": True,
+            "email": user.email,
+            "is_subscriber": user.is_subscriber,
+            "zodiac_sign": user.zodiac_sign,
+            "created_at": user.created_at.isoformat() if user.created_at else None
+        }
+    return {"exists": False, "email": email}
+
 @app.post("/api/auth/magic-link", response_model=MagicLinkResponse)
 async def request_magic_link(data: MagicLinkRequest, db: Session = Depends(get_db)):
     """
@@ -364,11 +381,13 @@ async def request_magic_link(data: MagicLinkRequest, db: Session = Depends(get_d
     - Token expires after 10 minutes
     - Token is single-use
     """
+    print(f"🔐 Magic link requested for email: {data.email}")
+    
     # Always return same message for security (don't reveal if email exists)
     response = MagicLinkResponse()
     
-    # Check if user exists
-    user = get_user_by_email(db, data.email)
+    # Check if user exists (case-insensitive search)
+    user = db.query(User).filter(User.email.ilike(data.email)).first()
     
     if user:
         # Generate secure token
