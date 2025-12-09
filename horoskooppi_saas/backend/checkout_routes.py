@@ -343,6 +343,7 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             # Create new user with all checkout data (NO PASSWORD - Magic Link only)
             new_user = User(
                 email=progress.email.lower(),  # Always store email lowercase
+                hashed_password="",  # Empty - Magic Link only, no password
                 full_name=None,
                 first_name=None,
                 last_name=None,
