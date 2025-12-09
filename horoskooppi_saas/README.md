@@ -216,9 +216,10 @@ stripe trigger checkout.session.completed
    python -c "import secrets; print(secrets.token_urlsafe(32))"
    ```
 
-3. **Update BASE_URL**: Set to your production domain
+3. **Update BASE_URL and SITE_URL**: Set to your production domain
    ```env
-   BASE_URL=https://your-domain.com
+   BASE_URL=https://nousparadeigma.com
+   SITE_URL=https://nousparadeigma.com
    ```
 
 4. **Update Stripe Webhook**: Point to your production webhook endpoint

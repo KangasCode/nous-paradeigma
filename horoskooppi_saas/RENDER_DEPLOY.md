@@ -35,10 +35,11 @@ Click **"Advanced"** → **"Add Environment Variable"**:
 ```
 SECRET_KEY=your-secret-key-generate-with-python
 DEMO_MODE=true
-BASE_URL=https://nous-paradeigma-2.onrender.com
+BASE_URL=https://nousparadeigma.com
+SITE_URL=https://nousparadeigma.com
 DATABASE_URL=(Render auto-provides PostgreSQL)
-GEMINI_API_KEY=not-needed-in-demo-mode
-STRIPE_SECRET_KEY=not-needed-in-demo-mode
+GEMINI_API_KEY=your-gemini-api-key
+RESEND_API_KEY=your-resend-api-key
 ```
 
 **Generate SECRET_KEY:**
@@ -122,7 +123,10 @@ Publish Directory: (leave empty)
 Environment:
 - SECRET_KEY=xxx
 - DEMO_MODE=true
-- BASE_URL=https://nous-paradeigma-2.onrender.com
+- BASE_URL=https://nousparadeigma.com
+- SITE_URL=https://nousparadeigma.com
+- RESEND_API_KEY=xxx
+- GEMINI_API_KEY=xxx
 ```
 
 ---
