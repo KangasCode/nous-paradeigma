@@ -72,7 +72,7 @@ class EmailService:
     def __init__(self):
         self.api_key = os.getenv("RESEND_API_KEY")
         self.site_url = os.getenv("SITE_URL", "http://localhost:8000")
-        self.from_email = os.getenv("FROM_EMAIL", "Nous Paradeigma <noreply@nousparadeigma.com>")
+        self.from_email = os.getenv("FROM_EMAIL", "Nous Paradeigma <hello@nousparadeigma.com>")
         self.api_url = "https://api.resend.com/emails"
     
     def is_configured(self) -> bool:
