@@ -338,23 +338,23 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>✨ Welcome Back</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; text-align: center;">
-                Enter your email and we'll send you a magic login link.
+            <h2 data-i18n="login.welcome">✨ Tervetuloa takaisin</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; text-align: center;" data-i18n="login.instruction">
+                Syötä sähköpostiosoitteesi ja lähetämme sinulle kirjautumislinkin.
             </p>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" required placeholder="you@example.com">
+                    <label for="loginEmail" data-i18n="login.email">Sähköposti</label>
+                    <input type="email" id="loginEmail" required data-i18n-placeholder="login.emailPlaceholder" placeholder="sähköposti@esimerkki.com">
                 </div>
                 <div id="loginError" class="error-message"></div>
-                <div id="loginSuccess" class="success-message" style="display: none; background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3); color: #4caf50; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                    ✓ If your email exists, we've sent you a magic login link. Check your inbox!
+                <div id="loginSuccess" class="success-message" style="display: none; background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3); color: #4caf50; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;" data-i18n="login.success">
+                    ✓ Jos sähköpostiosoitteesi on olemassa, olemme lähettäneet sinulle kirjautumislinkin. Tarkista postilaatikkosi!
                 </div>
-                <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn">Send Magic Link</button>
+                <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn" data-i18n="login.sendLink">Lähetä kirjautumislinkki</button>
             </form>
             <p class="modal-footer" style="text-align: center; margin-top: 1.5rem;">
-                New here? <a href="/checkout?plan=cosmic">Get Started</a>
+                <span data-i18n="login.newHere">Uusi käyttäjä?</span> <a href="/checkout?plan=cosmic" data-i18n="login.getStarted">Aloita tästä</a>
             </p>
         </div>
     </div>
@@ -484,7 +484,15 @@
                 'meaning.paradeigma': 'The essential Model or celestial Pattern—the unique blueprint that governs reality.',
                 'meaning.together': 'Together,  signifies Your Personal Cosmic Blueprint.',
                 'meaning.explanation': 'It is the intelligent, hidden pattern woven into the fabric of the universe at your moment of birth. We translate this unique celestial rhythm into clear, actionable guidance, offering a deeply personalized map to navigate your destiny, purpose, and abundance.',
-                'meaning.final': 'It is your personal guide to the cosmos.'
+                'meaning.final': 'It is your personal guide to the cosmos.',
+                'login.welcome': '✨ Welcome Back',
+                'login.instruction': 'Enter your email and we\'ll send you a magic login link.',
+                'login.email': 'Email',
+                'login.emailPlaceholder': 'you@example.com',
+                'login.sendLink': 'Send Magic Link',
+                'login.success': '✓ If your email exists, we\'ve sent you a magic login link. Check your inbox!',
+                'login.newHere': 'New here?',
+                'login.getStarted': 'Get Started'
             },
             fi: {
                 'nav.login': 'Kirjaudu',
@@ -591,7 +599,15 @@
                 'meaning.paradeigma': 'Olennainen Malli tai taivaallinen Kuvio—ainutlaatuinen suunnitelma, joka hallitsee todellisuutta.',
                 'meaning.together': 'Yhdessä tämä merkitsee henkilökohtaista kosmista suunnitelmaasi.',
                 'meaning.explanation': 'Se on älykäs, näkymätön kuvio, joka on kudottu universumin kankaaseen syntymähetkelläsi. Käännämme tämän ainutlaatuisen taivaallisen rytmin selkeäksi ja toimivaksi ohjaukseksi, tarjoten syvästi personoidun kartan kohtalosi, tarkoituksesi ja runsauden navigointiin.',
-                'meaning.final': 'Se on henkilökohtainen oppaasi kosmokseen.'
+                'meaning.final': 'Se on henkilökohtainen oppaasi kosmokseen.',
+                'login.welcome': '✨ Tervetuloa takaisin',
+                'login.instruction': 'Syötä sähköpostiosoitteesi ja lähetämme sinulle kirjautumislinkin.',
+                'login.email': 'Sähköposti',
+                'login.emailPlaceholder': 'sähköposti@esimerkki.com',
+                'login.sendLink': 'Lähetä kirjautumislinkki',
+                'login.success': '✓ Jos sähköpostiosoitteesi on olemassa, olemme lähettäneet sinulle kirjautumislinkin. Tarkista postilaatikkosi!',
+                'login.newHere': 'Uusi käyttäjä?',
+                'login.getStarted': 'Aloita tästä'
             }
         };
 

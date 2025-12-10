@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import os
@@ -195,6 +196,36 @@ async def startup_event():
     print("Database initialized successfully")
     # Create test user if CREATE_TEST_USER env var is set
     init_test_data_if_needed()
+
+# ============================================================================
+# 404 ERROR HANDLER
+# ============================================================================
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """Handle 404 and other HTTP exceptions"""
+    # If it's a 404, show custom 404 page
+    if exc.status_code == 404:
+        # Don't show 404 for static files or API endpoints
+        path = request.url.path
+        if path.startswith("/static/") or path.startswith("/api/"):
+            # For API endpoints, return JSON error
+            return Response(
+                content=json.dumps({"detail": "Not found"}),
+                status_code=404,
+                media_type="application/json"
+            )
+        # For HTML pages, show custom 404 page
+        return templates.TemplateResponse("404.html", {
+            "request": request
+        }, status_code=404)
+    
+    # For other HTTP exceptions, return default response
+    return Response(
+        content=json.dumps({"detail": exc.detail}),
+        status_code=exc.status_code,
+        media_type="application/json"
+    )
 
 # Root endpoint - serve index page (HEAD requests handled automatically by FastAPI)
 @app.get("/", response_class=HTMLResponse)
