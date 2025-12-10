@@ -830,6 +830,16 @@ async def generate_horoscope(
             detail="No zodiac sign available. Please add your birth date in your profile."
         )
     
+    # Calculate user's age from birth_date
+    age = None
+    if current_user.birth_date:
+        try:
+            birth_date = datetime.strptime(current_user.birth_date, "%Y-%m-%d").date()
+            today = datetime.now().date()
+            age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        except (ValueError, TypeError):
+            age = None
+    
     # Build user profile data for personalized predictions
     user_profile = {
         "birth_date": current_user.birth_date,
@@ -839,7 +849,8 @@ async def generate_horoscope(
         "first_name": current_user.first_name,
         "last_name": current_user.last_name,
         "email": current_user.email,
-        "prediction_language": getattr(current_user, 'prediction_language', 'fi') or 'fi'
+        "prediction_language": getattr(current_user, 'prediction_language', 'fi') or 'fi',
+        "age": age  # Age is required for age-specific voice in Gemini rules
     }
     
     # Generate horoscope using Gemini with user's profile data

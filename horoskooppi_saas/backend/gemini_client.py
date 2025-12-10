@@ -175,10 +175,19 @@ class GeminiClient:
         }
         specific_rules = type_rules.get(prediction_type, DAILY_RULES)
         
+        # Get user age for age-specific voice
+        user_age = None
+        if user_profile:
+            user_age = user_profile.get("age")
+        
+        age_instruction = ""
+        if user_age is not None:
+            age_instruction = f"\nIMPORTANT: The user's age is {user_age} years old. You MUST use the age-specific voice guidelines from GENERAL_RULES section 6 to match the appropriate tone, focus, and language style for this age group."
+        
         # SYSTEM PROMPT - Strict technical rules with gemini_rules
         system_prompt = f"""You are an astrology prediction engine.
 
-{lang_instruction}
+{lang_instruction}{age_instruction}
 
 {GENERAL_RULES}
 
