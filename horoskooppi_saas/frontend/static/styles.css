@@ -566,6 +566,362 @@ body::before {
 }
 
 /* ============================================================================
+   What You Get Section
+   ============================================================================ */
+
+.what-you-get {
+    padding: 100px 0;
+    background: linear-gradient(135deg, var(--obsidian-black) 0%, var(--dark-gray) 100%);
+    border-radius: 0;
+    margin: 60px 0;
+    border-top: 1px solid var(--nebula-gray);
+    border-bottom: 1px solid var(--nebula-gray);
+    box-shadow: 
+        inset 0 1px 0 rgba(193, 161, 90, 0.1),
+        inset 0 -1px 0 rgba(193, 161, 90, 0.1);
+    position: relative;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.what-you-get-title {
+    font-family: var(--font-primary);
+    font-weight: 500;
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 70px;
+    color: var(--starlight-white);
+    text-shadow: 0 0 20px rgba(193, 161, 90, 0.3);
+    letter-spacing: 2px;
+}
+
+.what-you-get-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.what-you-get-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 35px;
+}
+
+.what-you-get-grid .what-you-get-card:nth-child(4) {
+    grid-column: 1 / -1;
+    margin-top: 0;
+}
+
+.what-you-get-card {
+    text-align: center;
+    padding: 40px 30px;
+    background: rgba(30, 28, 31, 0.6);
+    border: 1px solid var(--nebula-gray);
+    border-radius: 8px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.what-you-get-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(193, 161, 90, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.what-you-get-card:hover::before {
+    left: 100%;
+}
+
+.what-you-get-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--muted-gold);
+    box-shadow: 
+        0 10px 30px rgba(193, 161, 90, 0.2),
+        inset 0 0 20px rgba(193, 161, 90, 0.05);
+}
+
+.what-you-get-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 10px rgba(193, 161, 90, 0.5));
+    line-height: 1;
+    animation: subtle-pulse 3s ease-in-out infinite;
+}
+
+@keyframes subtle-pulse {
+    0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+.what-you-get-card h4 {
+    font-family: var(--font-primary);
+    font-weight: 500;
+    font-size: 1.5rem;
+    margin: 0 0 15px 0;
+    color: var(--starlight-white);
+    letter-spacing: 1px;
+}
+
+.what-you-get-card p {
+    font-family: var(--font-secondary);
+    font-weight: 300;
+    color: var(--light-gray);
+    line-height: 1.7;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.lucky-numbers-display {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 25px;
+    min-height: 60px;
+}
+
+.lucky-number {
+    font-family: var(--font-primary);
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--muted-gold);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(193, 161, 90, 0.1);
+    border: 1px solid rgba(193, 161, 90, 0.3);
+    border-radius: 8px;
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+    animation: star-appear 1s ease-out forwards;
+    filter: drop-shadow(0 0 8px rgba(193, 161, 90, 0.4));
+    position: relative;
+}
+
+.lucky-number::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(193, 161, 90, 0.3) 0%, transparent 70%);
+    transform: translate(-50%, -50%) scale(0);
+    animation: star-glow 1s ease-out 0.3s forwards;
+    pointer-events: none;
+}
+
+@keyframes star-appear {
+    0% {
+        opacity: 0;
+        transform: scale(0) rotate(-180deg);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes star-glow {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* Mobile Carousel */
+@media (max-width: 768px) {
+    .what-you-get-title {
+        font-size: 2rem;
+        margin-bottom: 50px;
+    }
+    
+    .what-you-get-container {
+        padding: 0;
+        overflow: visible;
+        position: relative;
+    }
+    
+    .what-you-get-grid {
+        display: flex;
+        gap: 20px;
+        padding: 0 20px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        scroll-padding-left: 20px;
+        scroll-padding-right: 20px;
+        -webkit-overflow-scrolling: touch;
+        cursor: grab;
+    }
+    
+    .what-you-get-grid:active {
+        cursor: grabbing;
+    }
+    
+    .what-you-get-grid::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .what-you-get-card {
+        min-width: calc(85% - 10px);
+        max-width: calc(85% - 10px);
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+    }
+    
+    .what-you-get-card:nth-child(4) {
+        grid-column: unset;
+        margin-top: 0;
+    }
+    
+    .lucky-number {
+        font-size: 1.6rem;
+        width: 45px;
+        height: 45px;
+    }
+    
+    .lucky-numbers-display {
+        gap: 12px;
+        margin-top: 20px;
+    }
+    
+    /* Show partial next card - fade gradient */
+    .what-you-get-container::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 60px;
+        background: linear-gradient(to left, 
+            var(--obsidian-black) 0%,
+            rgba(10, 9, 11, 0.8) 30%,
+            transparent 100%);
+        pointer-events: none;
+        z-index: 2;
+    }
+    
+    .what-you-get-container::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 60px;
+        background: linear-gradient(to right, 
+            var(--obsidian-black) 0%,
+            rgba(10, 9, 11, 0.8) 30%,
+            transparent 100%);
+        pointer-events: none;
+        z-index: 2;
+    }
+    
+    /* Hide gradients at start/end */
+    .what-you-get-container.at-start::before {
+        opacity: 0;
+    }
+    
+    .what-you-get-container.at-end::after {
+        opacity: 0;
+    }
+}
+
+/* ============================================================================
+   CTA Section
+   ============================================================================ */
+
+.cta-section {
+    padding: 80px 0;
+    background: linear-gradient(135deg, var(--background-black) 0%, var(--obsidian-black) 100%);
+    border-top: 1px solid var(--nebula-gray);
+    border-bottom: 1px solid var(--nebula-gray);
+    position: relative;
+    z-index: 10;
+}
+
+.cta-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.cta-button {
+    font-family: var(--font-primary);
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 18px 50px;
+    font-size: 1.2rem;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
+
+.cta-button:hover::before {
+    left: 100%;
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(106, 136, 255, 0.6);
+}
+
+@media (max-width: 768px) {
+    .cta-section {
+        padding: 60px 0;
+    }
+    
+    .cta-button {
+        padding: 16px 40px;
+        font-size: 1rem;
+    }
+}
+
+/* ============================================================================
    How It Works Section
    ============================================================================ */
 

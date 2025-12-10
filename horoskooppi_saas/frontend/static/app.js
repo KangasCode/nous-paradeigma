@@ -526,3 +526,204 @@ if (window.location.pathname === '/dashboard') {
     });
 }
 
+// ============================================================================
+// What You Get Carousel (Mobile Swipe)
+// ============================================================================
+
+function initWhatYouGetCarousel() {
+    const carousel = document.querySelector('.what-you-get-grid');
+    if (!carousel) return;
+
+    // Only enable on mobile
+    if (window.innerWidth > 768) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let startTime;
+
+    // Mouse events for desktop testing
+    carousel.addEventListener('mousedown', (e) => {
+        isDown = true;
+        carousel.style.cursor = 'grabbing';
+        startX = e.pageX - carousel.offsetLeft;
+        scrollLeft = carousel.scrollLeft;
+        startTime = Date.now();
+    });
+
+    carousel.addEventListener('mouseleave', () => {
+        isDown = false;
+        carousel.style.cursor = 'grab';
+    });
+
+    carousel.addEventListener('mouseup', () => {
+        isDown = false;
+        carousel.style.cursor = 'grab';
+    });
+
+    carousel.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - carousel.offsetLeft;
+        const walk = (x - startX) * 2;
+        carousel.scrollLeft = scrollLeft - walk;
+    });
+
+    // Touch events for mobile
+    let touchStartX = 0;
+    let touchScrollLeft = 0;
+
+    carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].pageX - carousel.offsetLeft;
+        touchScrollLeft = carousel.scrollLeft;
+        startTime = Date.now();
+    }, { passive: true });
+
+    carousel.addEventListener('touchmove', (e) => {
+        if (!touchStartX) return;
+        const x = e.touches[0].pageX - carousel.offsetLeft;
+        const walk = (x - touchStartX) * 1.5;
+        carousel.scrollLeft = touchScrollLeft - walk;
+    }, { passive: true });
+
+    carousel.addEventListener('touchend', () => {
+        touchStartX = 0;
+        // Smooth snap to nearest card
+        const cardWidth = carousel.querySelector('.what-you-get-card').offsetWidth + 20; // gap included
+        const scrollPosition = carousel.scrollLeft;
+        const cardIndex = Math.round(scrollPosition / cardWidth);
+        const snapPosition = cardIndex * cardWidth;
+        
+        carousel.scrollTo({
+            left: snapPosition,
+            behavior: 'smooth'
+        });
+    });
+
+    // Set cursor style
+    carousel.style.cursor = 'grab';
+    
+    // Update gradient visibility on scroll
+    const updateGradients = () => {
+        const container = carousel.closest('.what-you-get-container');
+        if (!container) return;
+        
+        const isAtStart = carousel.scrollLeft <= 5;
+        const isAtEnd = carousel.scrollLeft >= carousel.scrollWidth - carousel.clientWidth - 5;
+        
+        if (isAtStart) {
+            container.classList.add('at-start');
+            container.classList.remove('at-end');
+        } else if (isAtEnd) {
+            container.classList.add('at-end');
+            container.classList.remove('at-start');
+        } else {
+            container.classList.remove('at-start', 'at-end');
+        }
+    };
+    
+    carousel.addEventListener('scroll', updateGradients);
+    updateGradients(); // Initial check
+}
+
+// Initialize carousel on page load
+document.addEventListener('DOMContentLoaded', () => {
+    initWhatYouGetCarousel();
+    initLuckyNumbersAnimation();
+    
+    // Reinitialize on window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            initWhatYouGetCarousel();
+        }, 250);
+    });
+});
+
+// ============================================================================
+// Lucky Numbers Animation
+// ============================================================================
+
+function initLuckyNumbersAnimation() {
+    const display = document.getElementById('lucky-numbers-display');
+    const card = document.getElementById('lucky-numbers-card');
+    
+    if (!display || !card) return;
+    
+    // Generate 7 unique random numbers between 1 and 40
+    function generateLuckyNumbers() {
+        const numbers = [];
+        const availableNumbers = Array.from({ length: 40 }, (_, i) => i + 1);
+        
+        for (let i = 0; i < 7; i++) {
+            const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+            numbers.push(availableNumbers[randomIndex]);
+            availableNumbers.splice(randomIndex, 1);
+        }
+        
+        // Sort for better visual appearance
+        return numbers.sort((a, b) => a - b);
+    }
+    
+    // Clear display
+    display.innerHTML = '';
+    
+    const numbers = generateLuckyNumbers();
+    let currentIndex = 0;
+    
+    // Function to add next number
+    function addNextNumber() {
+        if (currentIndex >= numbers.length) {
+            // Reset after all numbers are shown (optional loop)
+            // Uncomment if you want it to loop:
+            // setTimeout(() => {
+            //     display.innerHTML = '';
+            //     currentIndex = 0;
+            //     const newNumbers = generateLuckyNumbers();
+            //     numbers.length = 0;
+            //     numbers.push(...newNumbers);
+            //     addNextNumber();
+            // }, 4000);
+            return;
+        }
+        
+        const number = numbers[currentIndex];
+        const numberElement = document.createElement('div');
+        numberElement.className = 'lucky-number';
+        numberElement.textContent = number;
+        
+        display.appendChild(numberElement);
+        currentIndex++;
+        
+        // Schedule next number after 4 seconds
+        if (currentIndex < numbers.length) {
+            setTimeout(addNextNumber, 4000);
+        }
+    }
+    
+    // Start animation after a short delay
+    setTimeout(addNextNumber, 1000);
+    
+    // Restart animation when card comes into view (using Intersection Observer)
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && currentIndex === 0) {
+                // Reset if already completed and scrolled back
+                if (display.children.length === 7) {
+                    display.innerHTML = '';
+                    currentIndex = 0;
+                    const newNumbers = generateLuckyNumbers();
+                    numbers.length = 0;
+                    numbers.push(...newNumbers);
+                    setTimeout(addNextNumber, 500);
+                }
+            }
+        });
+    }, {
+        threshold: 0.3
+    });
+    
+    observer.observe(card);
+}
+
