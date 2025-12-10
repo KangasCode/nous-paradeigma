@@ -76,6 +76,11 @@ if (window.location.pathname === '/') {
         btn.addEventListener('click', () => {
             loginModal.style.display = 'flex';
             registerModal.style.display = 'none';
+            // Refresh translations when modal opens
+            const currentLang = localStorage.getItem('language') || 'fi';
+            if (window.setLanguage) {
+                window.setLanguage(currentLang);
+            }
         });
     });
 
