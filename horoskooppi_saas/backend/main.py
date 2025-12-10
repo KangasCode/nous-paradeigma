@@ -13,6 +13,9 @@ from datetime import datetime, timedelta
 import os
 import json
 import secrets
+from collections import defaultdict
+from typing import Optional as OptionalType
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from database import get_db, init_db, init_test_data_if_needed
 from models import User, Horoscope, Subscription, MagicLinkToken
@@ -93,6 +96,65 @@ class SiteAccessMiddleware(BaseHTTPMiddleware):
         
         # No valid cookie, redirect to access page
         return RedirectResponse(url="/access", status_code=302)
+
+# ============================================================================
+# IP RATE LIMITING FOR PREVIEW HOROSCOPE
+# ============================================================================
+
+# Simple in-memory cache for IP rate limiting (use Redis in production)
+preview_cache = {}
+BOT_USER_AGENTS = ['bot', 'crawler', 'spider', 'scraper', 'curl', 'wget', 'python-requests']
+
+def get_client_ip(request: Request) -> str:
+    """Extract client IP address from request"""
+    # Check for forwarded headers (from proxy/load balancer)
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        # Take the first IP in the chain
+        return forwarded_for.split(",")[0].strip()
+    
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip.strip()
+    
+    # Fallback to direct client IP
+    if request.client:
+        return request.client.host
+    
+    return "unknown"
+
+def is_bot_request(request: Request) -> bool:
+    """Check if request is from a bot/crawler"""
+    user_agent = request.headers.get("User-Agent", "").lower()
+    return any(bot in user_agent for bot in BOT_USER_AGENTS)
+
+def check_rate_limit(ip: str, request: Request = None) -> tuple[bool, OptionalType[dict]]:
+    """Check if IP is rate limited. Returns (allowed, cached_result)"""
+    # Check for bots
+    if request and is_bot_request(request):
+        return False, None
+    
+    if ip == "unknown":
+        return False, None
+    
+    # Check cache
+    if ip in preview_cache:
+        cached = preview_cache[ip]
+        if datetime.utcnow() < cached['expires_at']:
+            return True, cached['result']  # Return cached result
+    
+    return True, None
+
+def set_rate_limit(ip: str, result: dict):
+    """Store result in cache for 24 hours"""
+    preview_cache[ip] = {
+        'result': result,
+        'expires_at': datetime.utcnow() + timedelta(hours=24)
+    }
+    # Clean old entries (simple cleanup, keep last 1000)
+    if len(preview_cache) > 1000:
+        now = datetime.utcnow()
+        preview_cache.clear()  # Simple: clear all if too many (prevents memory leak)
 
 # Add site access middleware (only does anything if SITE_ACCESS_PASSWORD is set)
 app.add_middleware(SiteAccessMiddleware)
@@ -400,6 +462,59 @@ async def admin_check_user(email: str, db: Session = Depends(get_db)):
             "created_at": user.created_at.isoformat() if user.created_at else None
         }
     return {"exists": False, "email": email}
+
+@app.post("/api/preview-horoscope")
+async def preview_horoscope(request: Request, zodiac_sign: str = Form(...)):
+    """
+    Generate a free preview horoscope for visitors.
+    Rate limited: 1 per IP per 24 hours.
+    Bot protection enabled.
+    """
+    # Get client IP
+    client_ip = get_client_ip(request)
+    
+    # Check if bot
+    if is_bot_request(request):
+        raise HTTPException(status_code=403, detail="Bot requests not allowed")
+    
+    # Check rate limit
+    allowed, cached_result = check_rate_limit(client_ip, request)
+    
+    if not allowed:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+    
+    # Return cached result if available
+    if cached_result:
+        return cached_result
+    
+    # Validate zodiac sign
+    valid_signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
+                   "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+    
+    if zodiac_sign not in valid_signs:
+        raise HTTPException(status_code=400, detail="Invalid zodiac sign")
+    
+    try:
+        # Generate preview horoscope
+        horoscope_text, lucky_number = gemini_client.generate_preview_horoscope(zodiac_sign)
+        
+        result = {
+            "horoscope": horoscope_text,
+            "lucky_number": lucky_number,
+            "zodiac_sign": zodiac_sign,
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+        # Cache result for 24 hours
+        set_rate_limit(client_ip, result)
+        
+        return result
+        
+    except GeminiAPIError as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate horoscope: {str(e)}")
+    except Exception as e:
+        print(f"Error generating preview horoscope: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/api/auth/magic-link", response_model=MagicLinkResponse)
 async def request_magic_link(data: MagicLinkRequest, db: Session = Depends(get_db)):

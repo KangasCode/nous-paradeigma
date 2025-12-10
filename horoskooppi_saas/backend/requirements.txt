@@ -10,4 +10,5 @@ stripe==11.2.0
 google-generativeai==0.8.3
 python-dotenv==1.0.1
 jinja2==3.1.4
+pyswisseph==2.10.3.2  # Python 3.12 compatible version (flatlib 0.2.3 requires older version but this works)
 flatlib==0.2.3

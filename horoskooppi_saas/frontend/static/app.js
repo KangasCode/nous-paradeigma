@@ -630,6 +630,7 @@ function initWhatYouGetCarousel() {
 document.addEventListener('DOMContentLoaded', () => {
     initWhatYouGetCarousel();
     initLuckyNumbersAnimation();
+    initPreviewHoroscope();
     
     // Reinitialize on window resize
     let resizeTimer;
@@ -726,4 +727,75 @@ function initLuckyNumbersAnimation() {
     
     observer.observe(card);
 }
+
+// ============================================================================
+// Preview Horoscope
+// ============================================================================
+
+function initPreviewHoroscope() {
+    const previewBtn = document.getElementById('previewBtn');
+    const zodiacSelect = document.getElementById('zodiacSelect');
+    const previewLoading = document.getElementById('previewLoading');
+    const previewResult = document.getElementById('previewResult');
+    const resultHoroscope = document.getElementById('resultHoroscope');
+    const resultLuckyNumber = document.getElementById('resultLuckyNumber');
+    
+    if (!previewBtn || !zodiacSelect) return;
+    
+    // Enable button when zodiac is selected
+    zodiacSelect.addEventListener('change', () => {
+        previewBtn.disabled = !zodiacSelect.value;
+    });
+    
+    previewBtn.addEventListener('click', async () => {
+        const zodiacSign = zodiacSelect.value;
+        
+        if (!zodiacSign) {
+            alert('Valitse horoskooppimerkkisi ensin.');
+            return;
+        }
+        
+        // Hide result, show loading
+        previewResult.style.display = 'none';
+        previewLoading.style.display = 'block';
+        previewBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/preview-horoscope', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `zodiac_sign=${encodeURIComponent(zodiacSign)}`
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Ennusteen haku epäonnistui');
+            }
+            
+            const data = await response.json();
+            
+            // Display result
+            resultHoroscope.textContent = data.horoscope;
+            resultLuckyNumber.textContent = data.lucky_number;
+            
+            // Hide loading, show result
+            previewLoading.style.display = 'none';
+            previewResult.style.display = 'block';
+            
+            // Scroll to result smoothly
+            previewResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+        } catch (error) {
+            console.error('Preview horoscope error:', error);
+            alert(error.message || 'Ennusteen haku epäonnistui. Yritä myöhemmin uudelleen.');
+            previewLoading.style.display = 'none';
+        } finally {
+            previewBtn.disabled = false;
+        }
+    });
+}
+
+// Initialize preview (will be called from main DOMContentLoaded)
 

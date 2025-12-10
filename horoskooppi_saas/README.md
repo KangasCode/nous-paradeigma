@@ -43,10 +43,12 @@ horoskooppi_saas/
 
 ### Prerequisites
 
-- Python 3.9 or higher
+- Python 3.12 (required for flatlib compatibility)
 - pip (Python package manager)
 - Google Gemini API key
 - Stripe account with API keys
+
+**Note:** Python 3.13 is not currently supported due to flatlib dependency compatibility issues.
 
 ### 1. Clone the Repository
 
@@ -56,21 +58,50 @@ cd horoskooppi_saas
 
 ### 2. Set Up Python Environment
 
+**Important:** This project requires Python 3.12. If you have multiple Python versions:
+
+**On macOS (using Homebrew):**
 ```bash
+# Install Python 3.12 if not already installed
+brew install python@3.12
+
 # Navigate to backend directory
 cd backend
 
-# Create virtual environment
-python -m venv venv
+# Create virtual environment with Python 3.12
+python3.12 -m venv venv
+```
 
-# Activate virtual environment
+**On Linux:**
+```bash
+# Install Python 3.12 (Ubuntu/Debian)
+sudo apt-get update
+sudo apt-get install python3.12 python3.12-venv
+
+# Navigate to backend directory
+cd backend
+
+# Create virtual environment with Python 3.12
+python3.12 -m venv venv
+```
+
+**Activate virtual environment:**
+```bash
 # On macOS/Linux:
 source venv/bin/activate
+
 # On Windows:
 # venv\Scripts\activate
+```
 
-# Install dependencies
+**Install dependencies:**
+```bash
 pip install -r requirements.txt
+```
+
+**Verify Python version:**
+```bash
+python --version  # Should show Python 3.12.x
 ```
 
 ### 3. Configure Environment Variables
@@ -378,7 +409,7 @@ pip install -r requirements.txt
 
 ## 📚 Technologies Used
 
-- **Backend**: FastAPI, SQLAlchemy, Python 3.9+
+- **Backend**: FastAPI, SQLAlchemy, Python 3.12
 - **Authentication**: JWT (python-jose), bcrypt
 - **Payment**: Stripe API
 - **AI**: Google Gemini API

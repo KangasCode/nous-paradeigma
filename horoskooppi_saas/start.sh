@@ -24,10 +24,28 @@ fi
 # Navigate to backend directory
 cd backend
 
+# Check for Python 3.12
+PYTHON_CMD="python3"
+if command -v python3.12 &> /dev/null; then
+    PYTHON_CMD="python3.12"
+    echo "✅ Found Python 3.12"
+elif python3 --version | grep -q "3.12"; then
+    PYTHON_CMD="python3"
+    echo "✅ Python 3.12 detected"
+else
+    echo "⚠️  WARNING: Python 3.12 not found. Using python3 (may cause flatlib installation issues)"
+    echo "   For best results, install Python 3.12: brew install python@3.12"
+    read -p "Continue anyway? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
 # Check if virtual environment exists
 if [ ! -d "venv" ]; then
-    echo "📦 Creating virtual environment..."
-    python3 -m venv venv
+    echo "📦 Creating virtual environment with $PYTHON_CMD..."
+    $PYTHON_CMD -m venv venv
     echo "✅ Virtual environment created"
     echo ""
 fi

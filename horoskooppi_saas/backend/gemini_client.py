@@ -478,6 +478,72 @@ Use ONLY the data provided above. Do not invent aspects or positions not in the 
         aspects.sort(key=lambda x: x["orb"])
         
         return aspects[:10]  # Return top 10 tightest aspects
+    
+    def generate_preview_horoscope(self, zodiac_sign: str) -> tuple[str, int]:
+        """
+        Generate a short one-sentence horoscope preview for the front page.
+        Also generates one lucky number (1-40).
+        
+        Args:
+            zodiac_sign: The zodiac sign (e.g., "Aries", "Taurus")
+        
+        Returns:
+            Tuple containing:
+            - One sentence horoscope text
+            - Lucky number (1-40)
+        """
+        self._ensure_initialized()
+        
+        if not self.model:
+            raise GeminiAPIError("Gemini API not initialized. GEMINI_API_KEY may not be set.")
+        
+        # Calculate current transits
+        raw_data = {"transits": {}}
+        try:
+            from astrology_service import astrology_service
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            raw_data["transits"] = astrology_service.calculate_transits(current_date)
+            raw_data["transits"]["date"] = current_date
+        except Exception as e:
+            print(f"Astrology calculation failed for preview: {e}")
+            raw_data["transits"] = {"error": str(e)}
+        
+        # Create simple prompt for one-sentence preview
+        prompt = f"""You are an astrology prediction engine.
+
+Generate a ONE SENTENCE horoscope for {zodiac_sign} based on current planetary transits.
+
+Current transits data:
+{json.dumps(raw_data.get("transits", {}), indent=2)}
+
+Rules:
+1. Write EXACTLY one complete sentence in Finnish.
+2. Make it personal, warm, and encouraging.
+3. Reference the current planetary energy briefly.
+4. End with a period.
+5. Maximum 25 words.
+
+Output ONLY the sentence, nothing else."""
+
+        try:
+            response = self.model.generate_content(prompt)
+            if not response.text:
+                raise GeminiAPIError("Gemini returned empty response")
+            
+            horoscope_text = response.text.strip()
+            
+            # Generate lucky number (1-40) based on zodiac and current date
+            import random
+            random.seed(zodiac_sign + datetime.now().strftime("%Y-%m-%d"))
+            lucky_number = random.randint(1, 40)
+            
+            return horoscope_text, lucky_number
+            
+        except GeminiAPIError:
+            raise
+        except Exception as e:
+            print(f"Gemini API error for preview: {e}")
+            raise GeminiAPIError(f"Failed to generate preview horoscope: {str(e)}")
 
 
 # Create a singleton instance
