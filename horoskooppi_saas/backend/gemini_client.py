@@ -225,7 +225,8 @@ IMMUTABLE DATA RULES:
                         "planet": planet,
                         "sign": data.get("sign", "Unknown"),
                         "degree": data.get("deg", 0),
-                        "house": house_num % 12 + 1  # Simplified house assignment
+                        "lon": data.get("lon", 0),  # Absolute longitude for aspect calculations
+                        "house": data.get("house", house_num % 12 + 1)
                     })
                     house_num += 1
         else:
@@ -251,6 +252,7 @@ IMMUTABLE DATA RULES:
                         "planet": planet,
                         "sign": data.get("sign", "Unknown"),
                         "degree": data.get("deg", 0),
+                        "lon": data.get("lon", 0),  # Absolute longitude for aspect calculations
                         "house": house_num % 12 + 1
                     })
                     house_num += 1
@@ -422,11 +424,29 @@ Use ONLY the data provided above. Do not invent aspects or positions not in the 
         
         for transit in current_transits:
             for natal in natal_chart:
-                transit_deg = transit.get("degree", 0)
-                natal_deg = natal.get("degree", 0)
+                # Use absolute longitude (lon) for aspect calculations, fallback to degree if lon not available
+                transit_lon = transit.get("lon", transit.get("degree", 0))
+                natal_lon = natal.get("lon", natal.get("degree", 0))
                 
-                # Calculate angle difference
-                diff = abs(transit_deg - natal_deg)
+                # If we only have sign degrees (0-30), we need to estimate absolute longitude
+                # This is approximate - ideally we'd have the full longitude
+                if transit_lon < 30 and natal_lon < 30:
+                    # Estimate: assume middle of sign for approximation
+                    # This is not ideal but better than 0
+                    transit_sign = transit.get("sign", "Aries")
+                    natal_sign = natal.get("sign", "Aries")
+                    sign_order = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
+                                 "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+                    try:
+                        transit_sign_idx = sign_order.index(transit_sign) if transit_sign in sign_order else 0
+                        natal_sign_idx = sign_order.index(natal_sign) if natal_sign in sign_order else 0
+                        transit_lon = (transit_sign_idx * 30) + transit_lon
+                        natal_lon = (natal_sign_idx * 30) + natal_lon
+                    except:
+                        pass
+                
+                # Calculate angle difference (absolute longitude 0-360)
+                diff = abs(transit_lon - natal_lon)
                 if diff > 180:
                     diff = 360 - diff
                 
@@ -440,7 +460,7 @@ Use ONLY the data provided above. Do not invent aspects or positions not in the 
                             "transit_planet": transit.get("planet", "Unknown"),
                             "natal_planet": natal.get("planet", "Unknown"),
                             "aspect": aspect_name,
-                            "angle": round(aspect_angle + (transit_deg - natal_deg) % 360, 1),
+                            "angle": round(diff, 1),
                             "orb": round(orb, 1),
                             "house_effect": house_meanings.get(house, "General life areas")
                         })

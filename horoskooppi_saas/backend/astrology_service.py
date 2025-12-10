@@ -128,16 +128,67 @@ class AstrologyService:
             chart = Chart(date, pos)
 
             # Get planet positions in signs and houses
+            # Map flatlib constants to readable names
+            planet_names = {
+                const.SUN: "Sun",
+                const.MOON: "Moon",
+                const.MERCURY: "Mercury",
+                const.VENUS: "Venus",
+                const.MARS: "Mars",
+                const.JUPITER: "Jupiter",
+                const.SATURN: "Saturn",
+                const.URANUS: "Uranus",
+                const.NEPTUNE: "Neptune",
+                const.PLUTO: "Pluto",
+                const.ASC: "Ascendant",
+                const.MC: "Midheaven"
+            }
+            
             planets = {}
-            for planet in [const.SUN, const.MOON, const.MERCURY, const.VENUS, const.MARS, 
+            for planet_const in [const.SUN, const.MOON, const.MERCURY, const.VENUS, const.MARS, 
                           const.JUPITER, const.SATURN, const.URANUS, const.NEPTUNE, const.PLUTO,
                           const.ASC, const.MC]:
-                obj = chart.get(planet)
-                planets[planet] = {
-                    "sign": obj.sign,
-                    "deg": obj.lon,
-                    "house": chart.houses.get(obj.lon).id  # Simple house lookup
-                }
+                try:
+                    obj = chart.get(planet_const)
+                    planet_name = planet_names.get(planet_const, str(planet_const))
+                    
+                    # Calculate degree within sign (0-30 degrees)
+                    # obj.lon is absolute longitude (0-360), convert to sign degree
+                    sign_degree = obj.lon % 30
+                    
+                    # Get house using flatlib's house system
+                    house_num = 1
+                    try:
+                        # Use flatlib's house calculation
+                        # chart.houses.get() returns the house for a given longitude
+                        house = chart.houses.get(obj.lon)
+                        if house and hasattr(house, 'id'):
+                            house_num = house.id
+                            if house_num > 12:
+                                house_num = 12
+                            if house_num < 1:
+                                house_num = 1
+                    except Exception as house_error:
+                        # Fallback: approximate house from longitude
+                        try:
+                            # Each house is ~30 degrees (360/12)
+                            house_num = int((obj.lon / 30) % 12) + 1
+                            if house_num > 12:
+                                house_num = 12
+                            if house_num < 1:
+                                house_num = 1
+                        except:
+                            house_num = 1
+                    
+                    planets[planet_name] = {
+                        "sign": obj.sign,
+                        "deg": round(sign_degree, 2),  # Degree within sign (0-30)
+                        "lon": round(obj.lon, 2),  # Absolute longitude (0-360) for aspect calculations
+                        "house": house_num
+                    }
+                except Exception as e:
+                    print(f"Error getting planet {planet_const}: {e}")
+                    continue
 
             # Get aspects
             # Note: flatlib might need specific aspect calculation calls
@@ -167,14 +218,38 @@ class AstrologyService:
             pos = GeoPos(0, 0) # Location matters less for planetary sign positions
             chart = Chart(date, pos)
 
+            # Map flatlib constants to readable names for transits
+            transit_planet_names = {
+                const.SUN: "Sun",
+                const.MOON: "Moon",
+                const.MERCURY: "Mercury",
+                const.VENUS: "Venus",
+                const.MARS: "Mars",
+                const.JUPITER: "Jupiter",
+                const.SATURN: "Saturn",
+                const.URANUS: "Uranus",
+                const.NEPTUNE: "Neptune",
+                const.PLUTO: "Pluto"
+            }
+            
             transits = {}
-            for planet in [const.SUN, const.MOON, const.MERCURY, const.VENUS, const.MARS, 
+            for planet_const in [const.SUN, const.MOON, const.MERCURY, const.VENUS, const.MARS, 
                           const.JUPITER, const.SATURN, const.URANUS, const.NEPTUNE, const.PLUTO]:
-                obj = chart.get(planet)
-                transits[planet] = {
-                    "sign": obj.sign,
-                    "deg": obj.lon
-                }
+                try:
+                    obj = chart.get(planet_const)
+                    planet_name = transit_planet_names.get(planet_const, str(planet_const))
+                    
+                    # Calculate degree within sign (0-30 degrees)
+                    sign_degree = obj.lon % 30
+                    
+                    transits[planet_name] = {
+                        "sign": obj.sign,
+                        "deg": round(sign_degree, 2),  # Degree within sign (0-30)
+                        "lon": round(obj.lon, 2)  # Absolute longitude (0-360) for aspect calculations
+                    }
+                except Exception as e:
+                    print(f"Error getting transit planet {planet_const}: {e}")
+                    continue
             
             return {
                 "positions": transits,
@@ -185,34 +260,49 @@ class AstrologyService:
             return self._mock_transit_data()
 
     def _mock_natal_data(self):
+        # Mock data with proper sign degrees (0-30) and absolute longitudes (0-360)
         return {
             "positions": {
-                "Sun": {"sign": "Aries", "deg": 15.0, "house": 1},
-                "Moon": {"sign": "Taurus", "deg": 120.0, "house": 2},
-                "Mercury": {"sign": "Aries", "deg": 10.0, "house": 1},
-                "Venus": {"sign": "Pisces", "deg": 350.0, "house": 12},
-                "Mars": {"sign": "Gemini", "deg": 80.0, "house": 3},
-                "Ascendant": {"sign": "Pisces", "deg": 0.0, "house": 1}
+                "Sun": {"sign": "Aries", "deg": 15.0, "lon": 15.0, "house": 1},
+                "Moon": {"sign": "Taurus", "deg": 20.0, "lon": 50.0, "house": 2},
+                "Mercury": {"sign": "Aries", "deg": 10.0, "lon": 10.0, "house": 1},
+                "Venus": {"sign": "Pisces", "deg": 25.0, "lon": 355.0, "house": 12},
+                "Mars": {"sign": "Gemini", "deg": 5.0, "lon": 65.0, "house": 3},
+                "Jupiter": {"sign": "Sagittarius", "deg": 12.0, "lon": 252.0, "house": 9},
+                "Saturn": {"sign": "Capricorn", "deg": 18.0, "lon": 288.0, "house": 10},
+                "Ascendant": {"sign": "Pisces", "deg": 0.0, "lon": 330.0, "house": 1}
             },
             "planets": {
-                "Sun": {"sign": "Aries", "deg": 15.0, "house": 1},
-                "Moon": {"sign": "Taurus", "deg": 120.0, "house": 2},
-                "Mercury": {"sign": "Aries", "deg": 10.0, "house": 1},
-                "Venus": {"sign": "Pisces", "deg": 350.0, "house": 12},
-                "Mars": {"sign": "Gemini", "deg": 80.0, "house": 3},
-                "Ascendant": {"sign": "Pisces", "deg": 0.0, "house": 1}
+                "Sun": {"sign": "Aries", "deg": 15.0, "lon": 15.0, "house": 1},
+                "Moon": {"sign": "Taurus", "deg": 20.0, "lon": 50.0, "house": 2},
+                "Mercury": {"sign": "Aries", "deg": 10.0, "lon": 10.0, "house": 1},
+                "Venus": {"sign": "Pisces", "deg": 25.0, "lon": 355.0, "house": 12},
+                "Mars": {"sign": "Gemini", "deg": 5.0, "lon": 65.0, "house": 3},
+                "Jupiter": {"sign": "Sagittarius", "deg": 12.0, "lon": 252.0, "house": 9},
+                "Saturn": {"sign": "Capricorn", "deg": 18.0, "lon": 288.0, "house": 10},
+                "Ascendant": {"sign": "Pisces", "deg": 0.0, "lon": 330.0, "house": 1}
             },
-            "houses": {1: "Aries", 10: "Capricorn"},
+            "houses": {1: "Pisces", 2: "Aries", 3: "Taurus", 4: "Gemini", 5: "Cancer", 6: "Leo",
+                      7: "Virgo", 8: "Libra", 9: "Scorpio", 10: "Sagittarius", 11: "Capricorn", 12: "Aquarius"},
             "note": "Mock data - install flatlib for real calculations"
         }
 
     def _mock_transit_data(self):
+        # Mock transit data with proper degrees and longitudes
         return {
             "positions": {
-                "Sun": {"sign": "Leo"},
-                "Moon": {"sign": "Virgo"}
+                "Sun": {"sign": "Leo", "deg": 15.0, "lon": 135.0},
+                "Moon": {"sign": "Virgo", "deg": 20.0, "lon": 170.0},
+                "Mercury": {"sign": "Leo", "deg": 10.0, "lon": 130.0},
+                "Venus": {"sign": "Cancer", "deg": 25.0, "lon": 115.0},
+                "Mars": {"sign": "Gemini", "deg": 5.0, "lon": 65.0},
+                "Jupiter": {"sign": "Taurus", "deg": 12.0, "lon": 42.0},
+                "Saturn": {"sign": "Pisces", "deg": 18.0, "lon": 348.0},
+                "Uranus": {"sign": "Aries", "deg": 8.0, "lon": 8.0},
+                "Neptune": {"sign": "Pisces", "deg": 22.0, "lon": 352.0},
+                "Pluto": {"sign": "Aquarius", "deg": 3.0, "lon": 303.0}
             },
-            "note": "Mock data"
+            "note": "Mock data - install flatlib for real calculations"
         }
 
 astrology_service = AstrologyService()
