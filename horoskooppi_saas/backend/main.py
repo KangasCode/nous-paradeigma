@@ -1,7 +1,8 @@
 """
 FastAPI main application
 """
-from fastapi import FastAPI, Depends, HTTPException, status, Request, Form
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Form, Body
+from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -463,8 +464,11 @@ async def admin_check_user(email: str, db: Session = Depends(get_db)):
         }
     return {"exists": False, "email": email}
 
+class PreviewRequest(BaseModel):
+    zodiac_sign: str
+
 @app.post("/api/preview-horoscope")
-async def preview_horoscope(request: Request, zodiac_sign: str = Form(...)):
+async def preview_horoscope(request: Request, data: PreviewRequest = Body(...)):
     """
     Generate a free preview horoscope for visitors.
     Rate limited: 1 per IP per 24 hours.
@@ -475,24 +479,39 @@ async def preview_horoscope(request: Request, zodiac_sign: str = Form(...)):
     
     # Check if bot
     if is_bot_request(request):
-        raise HTTPException(status_code=403, detail="Bot requests not allowed")
+        raise HTTPException(
+            status_code=403, 
+            detail="Bot-pyynnöt eivät ole sallittuja",
+            headers={"Content-Type": "application/json"}
+        )
     
     # Check rate limit
     allowed, cached_result = check_rate_limit(client_ip, request)
     
     if not allowed:
-        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        raise HTTPException(
+            status_code=429, 
+            detail="Ennuste on jo haettu tältä IP-osoitteelta viimeisen 24 tunnin aikana.",
+            headers={"Content-Type": "application/json"}
+        )
     
     # Return cached result if available
     if cached_result:
         return cached_result
     
-    # Validate zodiac sign
+    # Get zodiac sign from request body (data is a Pydantic model)
+    zodiac_sign = data.zodiac_sign.strip()
+    
+    # Validate zodiac sign (normalize to handle case issues)
     valid_signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
                    "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
     
     if zodiac_sign not in valid_signs:
-        raise HTTPException(status_code=400, detail="Invalid zodiac sign")
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Virheellinen horoskooppimerkki: {zodiac_sign}",
+            headers={"Content-Type": "application/json"}
+        )
     
     try:
         # Generate preview horoscope
@@ -511,10 +530,21 @@ async def preview_horoscope(request: Request, zodiac_sign: str = Form(...)):
         return result
         
     except GeminiAPIError as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate horoscope: {str(e)}")
+        print(f"Gemini API error in preview: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Ennusteen generointi epäonnistui. Yritä myöhemmin uudelleen.",
+            headers={"Content-Type": "application/json"}
+        )
     except Exception as e:
         print(f"Error generating preview horoscope: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500, 
+            detail="Palvelinvirhe. Yritä myöhemmin uudelleen.",
+            headers={"Content-Type": "application/json"}
+        )
 
 @app.post("/api/auth/magic-link", response_model=MagicLinkResponse)
 async def request_magic_link(data: MagicLinkRequest, db: Session = Depends(get_db)):
