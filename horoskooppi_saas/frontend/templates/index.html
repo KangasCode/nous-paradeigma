@@ -306,54 +306,6 @@
             </div>
         </section>
 
-        <!-- Free Preview Section -->
-        <section class="preview-section">
-            <h2 class="preview-title" data-i18n="preview.title">Kokeile Ilmaista Ennustetta</h2>
-            <p class="preview-subtitle" data-i18n="preview.subtitle">Valitse horoskooppimerkkisi ja saat yhden lyhyen ennusteen sekä onnen numeron.</p>
-            
-            <div class="preview-container">
-                <div class="preview-selector">
-                    <label for="zodiacSelect" class="preview-label" data-i18n="preview.selectLabel">Valitse horoskooppimerkkisi:</label>
-                    <select id="zodiacSelect" class="preview-select">
-                        <option value="" data-i18n="preview.selectPlaceholder">Valitse merkki...</option>
-                        <option value="Aries" data-i18n="zodiac.aries">Oinas</option>
-                        <option value="Taurus" data-i18n="zodiac.taurus">Härkä</option>
-                        <option value="Gemini" data-i18n="zodiac.gemini">Kaksoset</option>
-                        <option value="Cancer" data-i18n="zodiac.cancer">Rapu</option>
-                        <option value="Leo" data-i18n="zodiac.leo">Leijona</option>
-                        <option value="Virgo" data-i18n="zodiac.virgo">Neitsyt</option>
-                        <option value="Libra" data-i18n="zodiac.libra">Vaaka</option>
-                        <option value="Scorpio" data-i18n="zodiac.scorpio">Skorpioni</option>
-                        <option value="Sagittarius" data-i18n="zodiac.sagittarius">Jousimies</option>
-                        <option value="Capricorn" data-i18n="zodiac.capricorn">Kauris</option>
-                        <option value="Aquarius" data-i18n="zodiac.aquarius">Vesimies</option>
-                        <option value="Pisces" data-i18n="zodiac.pisces">Kalat</option>
-                    </select>
-                    <button id="previewBtn" class="btn btn-primary preview-btn" data-i18n="preview.getForecast">Hae Ennuste</button>
-                </div>
-                
-                <div id="previewLoading" class="preview-loading" style="display: none;">
-                    <div class="loading-spinner">✦</div>
-                    <p class="loading-text" data-i18n="preview.calculating">Laskemme parhaillaan planeettojen tämänhetkisiä kulmia...</p>
-                </div>
-                
-                <div id="previewResult" class="preview-result" style="display: none;">
-                    <div class="result-content">
-                        <p class="result-horoscope" id="resultHoroscope"></p>
-                        <div class="result-lucky-number">
-                            <span class="lucky-label" data-i18n="preview.luckyNumber">Onnen numerosi:</span>
-                            <span class="lucky-number" id="resultLuckyNumber"></span>
-                        </div>
-                    </div>
-                    <div class="preview-cta">
-                        <h3 class="cta-title" data-i18n="preview.ctaTitle">Haluatko lisää?</h3>
-                        <p class="cta-text" data-i18n="preview.ctaText">Jäsenille kuuluu täysi päivittäinen, viikoittainen ja kuukausittainen ennustepaketti.</p>
-                        <button class="btn btn-primary btn-large" data-i18n="cta.subscribe" onclick="window.location.href='/checkout?plan=cosmic'">Tilaa ja Aloita Matkasi</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Pricing Section -->
         <section class="pricing">
             <h3 class="section-title" data-i18n="pricing.title">Your Personal Cosmic Gateway</h3>
