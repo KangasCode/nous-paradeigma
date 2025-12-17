@@ -12,7 +12,9 @@ python-dotenv==1.0.1
 jinja2==3.1.4
 flatlib==0.2.3
 apscheduler==3.10.4
-requests==2.31.0
+requests==2.32.4
 # Note: flatlib will install pyswisseph==2.08.00-1 as dependency
 # For Python 3.12 compatibility, we may need to install pyswisseph separately after
 # but for now let's use flatlib's dependency to avoid conflicts
+urllib3>=2.6.0 # not directly required, pinned by Snyk to avoid a vulnerability
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
