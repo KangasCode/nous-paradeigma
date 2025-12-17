@@ -596,19 +596,20 @@
                 'dashboard': 'Hallintapaneeli',
                 'logout': 'Kirjaudu ulos',
                 'backToDashboard': '← Takaisin hallintapaneeliin',
-                'yourPredictions': '🔮 Ennustuksesi',
-                'generateNew': 'Luo uusi ennustus',
+                'yourPredictions': '🔮 Tulkintasi',
+                'generateNew': 'Luo uusi tulkinta',
                 'yourZodiac': 'Horoskooppisi:',
                 'daily': 'Päivittäinen',
                 'weekly': 'Viikottainen',
                 'monthly': 'Kuukausittainen',
                 'all': 'Kaikki',
                 'checking': 'Tarkistetaan...',
-                'loadingPredictions': 'Ladataan ennustuksia...',
+                'loadingPredictions': 'Ladataan tulkintoja...',
                 'channeling': 'Kanavoidaan kosmista viestiäsi...',
-                'noPredictions': 'Ei ennustuksia vielä. Luo ensimmäinen yllä!',
+                'noPredictions': 'Ei tulkintoja vielä. Luo ensimmäinen yllä!',
                 'firstReady': '✨ Ensimmäinen valmis!',
                 'available': '✓ Saatavilla',
+                'availableIn': 'Seuraava',
                 'showRawData': 'Näytä astrologiset tiedot',
                 'hideRawData': 'Piilota tiedot',
                 // Zodiac names
@@ -724,20 +725,40 @@
                 
                 if (!status || status.can_generate) {
                     if (status && status.is_first) {
-                        statusEl.textContent = '✨ First ready!';
+                        statusEl.textContent = t('firstReady');
                         statusEl.className = 'rate-status available first';
                     } else {
-                        statusEl.textContent = '✓ Available';
+                        statusEl.textContent = t('available');
                         statusEl.className = 'rate-status available';
                     }
                     btn.classList.remove('disabled');
                 } else {
-                    const nextTime = new Date(status.next_available_at);
-                    statusEl.textContent = `⏳ ${formatTimeUntil(nextTime)}`;
+                    // Show schedule-based next time
+                    const nextTimeStr = formatNextAvailable(type);
+                    const prefix = currentLang === 'fi' ? 'Seuraava' : 'Next';
+                    statusEl.textContent = `⏳ ${prefix} ${nextTimeStr}`;
                     statusEl.className = 'rate-status unavailable';
                     btn.classList.add('disabled');
                 }
             });
+        }
+
+        // Format next available time based on prediction type schedule
+        function formatNextAvailable(type) {
+            const now = new Date();
+            
+            if (type === 'daily') {
+                return currentLang === 'fi' ? 'huomenna klo 7:02' : 'tomorrow 7:02 AM';
+            } else if (type === 'weekly') {
+                return currentLang === 'fi' ? 'sunnuntaina klo 7:02' : 'Sunday 7:02 AM';
+            } else if (type === 'monthly') {
+                const next = new Date(now);
+                if (now.getDate() >= 28) {
+                    next.setMonth(next.getMonth() + 1);
+                }
+                return currentLang === 'fi' ? `${28}.${next.getMonth() + 1}. klo 7:02` : `${next.getMonth() + 1}/28 7:02 AM`;
+            }
+            return '';
         }
 
         function formatTimeUntil(date) {

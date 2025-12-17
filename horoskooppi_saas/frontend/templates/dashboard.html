@@ -435,32 +435,32 @@
                 'yourSign': 'Horoskooppisi',
                 'zodiacNote': 'Horoskooppimerkkisi lasketaan automaattisesti syntymäpäivästäsi eikä sitä voi muuttaa.',
                 'completeProfile': '⚠️ Täydennä profiilisi',
-                'completeProfileDesc': 'Saadaksesi personoituja ennustuksia, lisää syntymäpäiväsi profiiliisi.',
+                'completeProfileDesc': 'Saadaksesi personoituja tulkintoja, lisää syntymäpäiväsi profiiliisi.',
                 'updateProfile': 'Päivitä profiili',
-                'nav.predictions': 'Ennustukset',
-                'nav.predictionsDesc': 'Katso kaikki päivittäiset, viikottaiset ja kuukausittaiset ennustuksesi',
+                'nav.predictions': 'Tulkinnat',
+                'nav.predictionsDesc': 'Katso kaikki päivittäiset, viikottaiset ja kuukausittaiset tulkintasi',
                 'nav.yourInfo': 'Omat tiedot',
                 'nav.yourInfoDesc': 'Hallitse profiiliasi ja syntymätietojasi',
                 'nav.study': 'Opiskelu',
                 'nav.studyDesc': 'Blogi ja oppimateriaali',
                 'nav.membership': 'Jäsenyys',
                 'nav.membershipDesc': 'Hallitse tilaustasi',
-                'generate.title': '✨ Luo uusi ennustus',
+                'generate.title': '✨ Luo uusi tulkinta',
                 'generate.basedOn': 'Horoskooppimerkkisi mukaan:',
-                'generate.daily': 'Päivän ennustus',
-                'generate.weekly': 'Viikon ennustus',
-                'generate.monthly': 'Kuukauden ennustus',
+                'generate.daily': 'Päivän tulkinta',
+                'generate.weekly': 'Viikon tulkinta',
+                'generate.monthly': 'Kuukauden tulkinta',
                 'checking': 'Tarkistetaan...',
-                'yourPrediction': 'Ennustuksesi',
-                'viewPredictions': 'Katso ennustukset →',
-                'recent.title': '📜 Viimeisimmät ennustukset',
+                'yourPrediction': 'Tulkintasi',
+                'viewPredictions': 'Katso tulkinnat →',
+                'recent.title': '📜 Viimeisimmät tulkinnat',
                 'loading': 'Ladataan...',
-                'viewAllPredictions': 'Katso kaikki ennustukset →',
+                'viewAllPredictions': 'Katso kaikki tulkinnat →',
                 'channeling': 'Kanavoidaan kosmista viestiäsi...',
                 'firstReady': '✨ Ensimmäinen valmis!',
                 'available': '✓ Saatavilla',
-                'availableIn': 'Saatavilla',
-                'noPredictions': 'Ei ennustuksia vielä. Luo ensimmäinen yllä!',
+                'availableIn': 'Seuraava',
+                'noPredictions': 'Ei tulkintoja vielä. Luo ensimmäinen yllä!',
                 'daily': 'Päivittäinen',
                 'weekly': 'Viikottainen',
                 'monthly': 'Kuukausittainen',
@@ -669,16 +669,51 @@
                     }
                     btn.classList.remove('disabled');
                 } else {
-                    const nextTime = new Date(status.next_available_at);
-                    const timeStr = formatTimeUntil(nextTime);
-                    statusEl.textContent = `⏳ ${t('availableIn')} ${timeStr}`;
+                    // Show schedule-based next time
+                    const nextTimeStr = formatNextAvailable(type);
+                    statusEl.textContent = `⏳ ${t('availableIn')} ${nextTimeStr}`;
                     statusEl.className = 'rate-limit-status unavailable';
                     btn.classList.add('disabled');
                 }
             });
         }
 
-        // Format time until next available
+        // Format next available time based on prediction type schedule
+        function formatNextAvailable(type) {
+            const now = new Date();
+            
+            if (type === 'daily') {
+                // Next daily at 7:02 AM
+                const next = new Date(now);
+                next.setHours(7, 2, 0, 0);
+                if (now >= next) {
+                    next.setDate(next.getDate() + 1);
+                }
+                return currentLang === 'fi' ? 'huomenna klo 7:02' : 'tomorrow 7:02 AM';
+            } else if (type === 'weekly') {
+                // Next Sunday at 7:02 AM
+                const next = new Date(now);
+                const daysUntilSunday = (7 - now.getDay()) % 7 || 7;
+                next.setDate(now.getDate() + daysUntilSunday);
+                next.setHours(7, 2, 0, 0);
+                return currentLang === 'fi' ? 'sunnuntaina klo 7:02' : 'Sunday 7:02 AM';
+            } else if (type === 'monthly') {
+                // Next 28th at 7:02 AM
+                const next = new Date(now);
+                if (now.getDate() >= 28) {
+                    next.setMonth(next.getMonth() + 1);
+                }
+                next.setDate(28);
+                next.setHours(7, 2, 0, 0);
+                const monthNames = currentLang === 'fi' 
+                    ? ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu']
+                    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return currentLang === 'fi' ? `${next.getDate()}.${next.getMonth() + 1}. klo 7:02` : `${monthNames[next.getMonth()]} 28 7:02 AM`;
+            }
+            return '';
+        }
+
+        // Format time until next available (legacy, for backwards compatibility)
         function formatTimeUntil(date) {
             const now = new Date();
             const diff = date - now;

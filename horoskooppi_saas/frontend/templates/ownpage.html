@@ -14,45 +14,46 @@
         
         .profile-header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 1.5rem;
         }
         
         .profile-avatar {
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary-purple), var(--gold));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
-            margin: 0 auto 1.5rem;
-            border: 3px solid rgba(212, 175, 55, 0.5);
+            font-size: 2.5rem;
+            margin: 0 auto 1rem;
+            border: 2px solid rgba(212, 175, 55, 0.5);
         }
         
         .profile-name {
-            font-size: 2rem;
+            font-size: 1.5rem;
             color: var(--text-primary);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
         
         .profile-email {
             color: var(--text-muted);
+            font-size: 0.9rem;
         }
         
         /* Profile Sections */
         .profile-section {
             background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
             border: 1px solid rgba(138, 116, 249, 0.3);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
         }
         
         .section-title {
             color: var(--gold);
-            font-size: 1.25rem;
-            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -68,46 +69,46 @@
             background: rgba(212, 175, 55, 0.1);
             border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
         
         .immutable-notice-icon {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
         }
         
         .immutable-notice-text {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--gold);
         }
         
         .immutable-notice-text small {
             display: block;
             color: var(--text-muted);
-            margin-top: 0.25rem;
+            margin-top: 0.15rem;
         }
         
         /* Data Display */
         .data-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
         }
         
         .data-item {
             background: rgba(0, 0, 0, 0.2);
-            padding: 1rem;
+            padding: 0.75rem;
             border-radius: 8px;
         }
         
         .data-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.35rem;
         }
         
         .data-value {
@@ -137,8 +138,8 @@
         /* Editable Form */
         .profile-form {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
         }
         
         .form-group {
@@ -147,19 +148,19 @@
         
         .form-group label {
             display: block;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.35rem;
         }
         
         .form-group input {
             width: 100%;
-            padding: 0.75rem 1rem;
+            padding: 0.5rem 0.75rem;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(138, 116, 249, 0.3);
-            border-radius: 8px;
+            border-radius: 6px;
             color: var(--text-primary);
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         
         .form-group input:focus {
@@ -175,34 +176,37 @@
         .form-actions {
             grid-column: 1 / -1;
             display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
         }
         
         /* Usage Info */
         .usage-info {
             background: rgba(138, 116, 249, 0.1);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 2rem;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
         }
         
         .usage-info h4 {
             color: var(--text-primary);
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
         }
         
         .usage-info ul {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
         
         .usage-info li {
-            padding: 0.5rem 0;
+            padding: 0.25rem 0;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 0.85rem;
         }
         
         .usage-info li::before {
@@ -212,7 +216,7 @@
         
         /* Back Navigation */
         .back-nav {
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
         
         .back-link {
@@ -404,12 +408,12 @@
                 'birthCityPlaceholder': 'Esim. Helsinki',
                 'saveBirthData': 'Tallenna syntymätiedot',
                 'birthTimeTitle': '⏰ Syntymäaika (Valinnainen)',
-                'birthTimeDesc': 'Tarkan syntymäajan lisääminen mahdollistaa tarkemmat nousevan merkin ja huoneiden laskelmat ennustuksissasi.',
+                'birthTimeDesc': 'Tarkan syntymäajan lisääminen mahdollistaa tarkemmat nousevan merkin ja huoneiden laskelmat tulkinnoissasi.',
                 'birthTime': 'Syntymäaika',
                 'saveBirthTime': 'Tallenna syntymäaika',
                 'saved': '✓ Tallennettu!',
-                'dataUsageTitle': 'Miten tietojasi käytetään ennustuksiin:',
-                'dataUsage1': 'Horoskooppimerkkisi määrittää ennustuksiesi peruspiirteet',
+                'dataUsageTitle': 'Miten tietojasi käytetään tulkintoihin:',
+                'dataUsage1': 'Horoskooppimerkkisi määrittää tulkintojesi peruspiirteet',
                 'dataUsage2': 'Syntymäaika mahdollistaa tarkat nousevan merkin ja huoneiden laskelmat',
                 'dataUsage3': 'Syntymäkaupunki antaa maantieteelliset koordinaatit tarkkoja planeettojen sijainteja varten',
                 'personalInfo': '👤 Henkilötiedot',
@@ -421,8 +425,8 @@
                 'firstNamePlaceholder': 'Etunimesi',
                 'lastNamePlaceholder': 'Sukunimesi',
                 'addressPlaceholder': 'Osoitteesi',
-                'predictionLanguage': 'Ennustusten kieli',
-                'predictionLanguageDesc': 'Tämä kieli määrittää, millä kielellä kaikki ennustukset luodaan.',
+                'predictionLanguage': 'Tulkintojen kieli',
+                'predictionLanguageDesc': 'Tämä kieli määrittää, millä kielellä kaikki tulkinnat luodaan.',
                 'lang.fi': 'Suomi',
                 'lang.en': 'English',
                 'lang.sv': 'Svenska',
