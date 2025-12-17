@@ -11,6 +11,8 @@ class CheckoutSessionCreate(BaseModel):
 class CheckoutEmailStep(BaseModel):
     session_id: str
     email: EmailStr
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 class CheckoutPhoneStep(BaseModel):
     session_id: str
@@ -40,6 +42,8 @@ class CheckoutProgressResponse(BaseModel):
     current_step: str
     selected_plan: str
     email: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     phone: Optional[str] = None
     birth_date: Optional[str] = None
     zodiac_sign: Optional[str] = None

@@ -49,6 +49,35 @@
         .resend-link a:hover {
             color: var(--gold);
         }
+        
+        .spam-warning {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 152, 0, 0.2) 100%);
+            border: 2px solid rgba(255, 193, 7, 0.6);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        
+        .spam-warning .warning-icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .spam-warning h3 {
+            color: #ffc107;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .spam-warning p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -81,6 +110,13 @@
                     <p class="resend-link">
                         <span data-i18n="didntReceive">Etkö saanut sitä?</span> <a href="/" id="resendLink" data-i18n="requestNewLink">Pyydä uusi linkki</a>
                     </p>
+                </div>
+                
+                <!-- Spam Folder Warning -->
+                <div class="spam-warning">
+                    <div class="warning-icon">⚠️</div>
+                    <h3 data-i18n="checkSpam">TARKISTA ROSKAPOSTIKANSIO!</h3>
+                    <p data-i18n="spamWarning">Jos viesti ei saapunut saapuneet-kansioon, tarkista roskapostikansio.</p>
                 </div>
                 
                 <div class="success-features">
@@ -123,6 +159,8 @@
                 'clickLink': 'Klikkaa linkkiä sähköpostissa päästäksesi kosmiseen hallintapaneeliisi.',
                 'didntReceive': 'Etkö saanut sitä?',
                 'requestNewLink': 'Pyydä uusi linkki',
+                'checkSpam': 'TARKISTA ROSKAPOSTIKANSIO!',
+                'spamWarning': 'Jos viesti ei saapunut saapuneet-kansioon, tarkista roskapostikansio.',
                 'feature1': 'Henkilökohtaiset päiväviestit',
                 'feature2': 'Viikottainen polkusi',
                 'feature3': 'Kuukausittainen sielunohjaus',
@@ -136,6 +174,8 @@
                 'clickLink': 'Click the link in the email to access your cosmic dashboard.',
                 'didntReceive': "Didn't receive it?",
                 'requestNewLink': 'Request a new link',
+                'checkSpam': 'CHECK YOUR SPAM FOLDER!',
+                'spamWarning': 'If the message did not arrive in your inbox, please check your spam folder.',
                 'feature1': 'Personal Daily Messages',
                 'feature2': 'Your Weekly Path',
                 'feature3': 'Monthly Soul Guidance',

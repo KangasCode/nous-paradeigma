@@ -5,9 +5,10 @@ let selectedPlan = null;
 
 // Collected data during checkout
 let checkoutData = {
+    firstName: null,
+    lastName: null,
     email: null,
     phone: null,
-    address: null,
     birthdate: null,
     birthtime: null,
     birthcity: null,
@@ -89,6 +90,14 @@ async function initializeCheckout() {
 // Resume from saved progress
 function resumeFromProgress(progress) {
     // Pre-fill forms
+    if (progress.first_name) {
+        document.getElementById('firstName').value = progress.first_name;
+        checkoutData.firstName = progress.first_name;
+    }
+    if (progress.last_name) {
+        document.getElementById('lastName').value = progress.last_name;
+        checkoutData.lastName = progress.last_name;
+    }
     if (progress.email) {
         document.getElementById('email').value = progress.email;
         checkoutData.email = progress.email;
@@ -107,9 +116,6 @@ function resumeFromProgress(progress) {
     }
     if (progress.step_phone_completed) {
         markStepComplete('phone');
-    }
-    if (progress.step_address_completed) {
-        markStepComplete('address');
     }
     if (progress.step_birthdate_completed) {
         markStepComplete('birthdate');
@@ -133,9 +139,9 @@ function showStep(stepName) {
     updateProgressIndicator(stepName);
 }
 
-// Update progress indicator (5 steps - capacity removed)
+// Update progress indicator (4 steps)
 function updateProgressIndicator(currentStep) {
-    const steps = ['email', 'phone', 'address', 'birthdate', 'payment'];
+    const steps = ['email', 'phone', 'birthdate', 'payment'];
     const currentIndex = steps.indexOf(currentStep);
     
     steps.forEach((step, index) => {
@@ -167,10 +173,12 @@ function goToPreviousStep(stepName) {
     showStep(stepName);
 }
 
-// Email form submission
+// Email form submission (now includes first name and last name)
 document.getElementById('emailForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
     const email = document.getElementById('email').value;
     const errorElement = document.getElementById('emailError');
     errorElement.style.display = 'none';
@@ -183,15 +191,19 @@ document.getElementById('emailForm').addEventListener('submit', async (e) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 session_id: checkoutSessionId,
-                email: email
+                email: email,
+                first_name: firstName,
+                last_name: lastName
             })
         });
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.detail || 'Failed to save email');
+            throw new Error(error.detail || 'Failed to save details');
         }
         
+        checkoutData.firstName = firstName;
+        checkoutData.lastName = lastName;
         checkoutData.email = email;
         markStepComplete('email');
         showStep('phone');
@@ -203,7 +215,7 @@ document.getElementById('emailForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Phone form submission
+// Phone form submission (now goes directly to birthdate)
 document.getElementById('phoneForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -230,48 +242,6 @@ document.getElementById('phoneForm').addEventListener('submit', async (e) => {
         
         checkoutData.phone = phone;
         markStepComplete('phone');
-        showStep('address');
-    } catch (error) {
-        errorElement.textContent = error.message;
-        errorElement.style.display = 'block';
-    } finally {
-        showLoading(false);
-    }
-});
-
-// Address form submission - now goes to birthdate step
-document.getElementById('addressForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const errorElement = document.getElementById('addressError');
-    errorElement.style.display = 'none';
-    
-    const addressData = {
-        session_id: checkoutSessionId,
-        address_line1: document.getElementById('address1').value,
-        city: document.getElementById('city').value,
-        postal_code: document.getElementById('postal').value,
-        country: document.getElementById('country').value
-    };
-    
-    showLoading(true);
-    
-    try {
-        const response = await fetch(`${API_BASE}/checkout/step/address`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(addressData)
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Failed to save address');
-        }
-        
-        checkoutData.address = addressData;
-        markStepComplete('address');
-        
-        // Go to birthdate step (NEW!)
         showStep('birthdate');
     } catch (error) {
         errorElement.textContent = error.message;
@@ -281,7 +251,7 @@ document.getElementById('addressForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Birthdate form submission (NEW!)
+// Birthdate form submission
 document.getElementById('birthdateForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -289,15 +259,7 @@ document.getElementById('birthdateForm').addEventListener('submit', async (e) =>
     errorElement.style.display = 'none';
     
     const birthdate = document.getElementById('birthdate').value;
-    const birthdateConfirm = document.getElementById('birthdateConfirm').value;
     const birthcity = document.getElementById('birthcity').value;
-    
-    // Validation: Check that dates match
-    if (birthdate !== birthdateConfirm) {
-        errorElement.textContent = t('birthdate.error.mismatch');
-        errorElement.style.display = 'block';
-        return;
-    }
     
     // Validation: Required fields
     if (!birthdate || !birthcity) {
@@ -339,12 +301,13 @@ document.getElementById('birthdateForm').addEventListener('submit', async (e) =>
         markStepComplete('birthdate');
         
         // Update summary
-        document.getElementById('summary-plan').textContent = progress.selected_plan ? progress.selected_plan.toUpperCase() : selectedPlan.toUpperCase();
+        const fullName = [checkoutData.firstName, checkoutData.lastName].filter(Boolean).join(' ');
+        document.getElementById('summary-name').textContent = fullName || '-';
         document.getElementById('summary-email').textContent = (checkoutData.email || progress.email || '').toLowerCase();
         document.getElementById('summary-zodiac').textContent = zodiacSign ? (ZODIAC_DATA[zodiacSign]?.symbol + ' ' + zodiacSign.charAt(0).toUpperCase() + zodiacSign.slice(1)) : '-';
         document.getElementById('summary-birthdate').textContent = formatDate(birthdate);
         
-        // Go directly to payment (capacity check removed)
+        // Go directly to payment
         showStep('payment');
     } catch (error) {
         errorElement.textContent = error.message;

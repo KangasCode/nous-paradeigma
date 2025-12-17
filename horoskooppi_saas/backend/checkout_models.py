@@ -15,6 +15,8 @@ class CheckoutProgress(Base):
     
     # User data collected during checkout
     email = Column(String, index=True)
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
     phone = Column(String)
     address_line1 = Column(String)
     city = Column(String)

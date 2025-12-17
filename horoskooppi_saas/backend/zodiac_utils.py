@@ -128,3 +128,4 @@ def validate_birth_date(birth_date: str) -> bool:
     except ValueError:
         return False
 
+

@@ -41,31 +41,6 @@
             gap: 1rem;
         }
         
-        .confirmation-match {
-            color: #4caf50;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            display: none;
-        }
-        
-        .confirmation-match.show {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .confirmation-mismatch {
-            color: #f44336;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            display: none;
-        }
-        
-        .confirmation-mismatch.show {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
         
         .zodiac-preview {
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(138, 116, 249, 0.1) 100%);
@@ -110,46 +85,51 @@
 
         <!-- Checkout Flow -->
         <main class="checkout-flow">
-            <!-- Progress Indicator (5 steps - capacity removed) -->
+            <!-- Progress Indicator (4 steps) -->
             <div class="checkout-progress">
                 <div class="progress-step active" id="progress-email">
                     <div class="progress-circle">1</div>
-                    <span class="progress-label" data-i18n="progress.email">Email</span>
+                    <span class="progress-label" data-i18n="progress.email">Tiedot</span>
                 </div>
                 <div class="progress-line"></div>
                 <div class="progress-step" id="progress-phone">
                     <div class="progress-circle">2</div>
-                    <span class="progress-label" data-i18n="progress.phone">Phone</span>
-                </div>
-                <div class="progress-line"></div>
-                <div class="progress-step" id="progress-address">
-                    <div class="progress-circle">3</div>
-                    <span class="progress-label" data-i18n="progress.address">Address</span>
+                    <span class="progress-label" data-i18n="progress.phone">Puhelin</span>
                 </div>
                 <div class="progress-line"></div>
                 <div class="progress-step" id="progress-birthdate">
-                    <div class="progress-circle">4</div>
-                    <span class="progress-label" data-i18n="progress.birthdate">Birth Date</span>
+                    <div class="progress-circle">3</div>
+                    <span class="progress-label" data-i18n="progress.birthdate">Syntymäpäivä</span>
                 </div>
                 <div class="progress-line"></div>
                 <div class="progress-step" id="progress-payment">
-                    <div class="progress-circle">5</div>
-                    <span class="progress-label" data-i18n="progress.payment">Payment</span>
+                    <div class="progress-circle">4</div>
+                    <span class="progress-label" data-i18n="progress.payment">Maksu</span>
                 </div>
             </div>
 
             <div class="checkout-container">
-                <!-- Step 1: Email -->
+                <!-- Step 1: Email + Name -->
                 <div class="checkout-step active" id="step-email">
-                    <h2 class="checkout-title" data-i18n="email.title">Your Email</h2>
-                    <p class="checkout-subtitle" data-i18n="email.subtitle">We'll send your cosmic insights here</p>
+                    <h2 class="checkout-title" data-i18n="email.title">Tietosi</h2>
+                    <p class="checkout-subtitle" data-i18n="email.subtitle">Lähetämme kosmiset tulkintasi tähän osoitteeseen</p>
                     <form id="emailForm" class="checkout-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName" data-i18n="email.firstName">Etunimi</label>
+                                <input type="text" id="firstName" required data-i18n-placeholder="email.firstNamePlaceholder" placeholder="Matti">
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName" data-i18n="email.lastName">Sukunimi</label>
+                                <input type="text" id="lastName" required data-i18n-placeholder="email.lastNamePlaceholder" placeholder="Meikäläinen">
+                            </div>
+                        </div>
                         <div class="form-group">
-                            <label for="email" data-i18n="email.label">Email Address</label>
-                            <input type="email" id="email" required data-i18n-placeholder="email.placeholder" placeholder="you@example.com">
+                            <label for="email" data-i18n="email.label">Sähköpostiosoite</label>
+                            <input type="email" id="email" required data-i18n-placeholder="email.placeholder" placeholder="nimi@esimerkki.com">
                         </div>
                         <div id="emailError" class="error-message"></div>
-                        <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.continue">Continue</button>
+                        <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.continue">Jatka</button>
                     </form>
                 </div>
 
@@ -168,118 +148,73 @@
                     </form>
                 </div>
 
-                <!-- Step 3: Address -->
-                <div class="checkout-step" id="step-address">
-                    <h2 class="checkout-title" data-i18n="address.title">Your Address</h2>
-                    <p class="checkout-subtitle" data-i18n="address.subtitle">To personalize your cosmic location readings</p>
-                    <form id="addressForm" class="checkout-form">
-                        <div class="form-group">
-                            <label for="address1" data-i18n="address.line1">Address Line 1</label>
-                            <input type="text" id="address1" required data-i18n-placeholder="address.placeholder1" placeholder="123 Cosmic Street">
-                        </div>
-                        <div class="form-group">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="city" data-i18n="address.city">City</label>
-                                <input type="text" id="city" required data-i18n-placeholder="address.placeholderCity" placeholder="San Francisco">
-                            </div>
-                            <div class="form-group">
-                                <label for="postal" data-i18n="address.postal">Postal Code</label>
-                                <input type="text" id="postal" required data-i18n-placeholder="address.placeholderPostal" placeholder="94102">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="country" data-i18n="address.country">Country</label>
-                            <input type="text" id="country" required data-i18n-placeholder="address.placeholderCountry" placeholder="United States">
-                        </div>
-                        <div id="addressError" class="error-message"></div>
-                        <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.continue">Continue</button>
-                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('phone')" data-i18n="button.back">Back</button>
-                    </form>
-                </div>
-
-                <!-- Step 4: Birth Date (NEW!) -->
+                <!-- Step 3: Birth Date -->
                 <div class="checkout-step" id="step-birthdate">
-                    <h2 class="checkout-title" data-i18n="birthdate.title">Your Birth Information</h2>
-                    <p class="checkout-subtitle" data-i18n="birthdate.subtitle">Essential for calculating your personal horoscope</p>
+                    <h2 class="checkout-title" data-i18n="birthdate.title">Syntymätietosi</h2>
+                    <p class="checkout-subtitle" data-i18n="birthdate.subtitle">Välttämätön henkilökohtaisen horoskooppisi laskemiseen</p>
                     
                     <div class="birthdate-info">
                         <div class="birthdate-info-icon">✨</div>
                         <p class="birthdate-info-text" data-i18n="birthdate.info">
-                            Your birth date determines your zodiac sign and is used for all predictions.
-                        </p>
-                        <p class="birthdate-info-warning" data-i18n="birthdate.warning">
-                            Please enter your birth date carefully and confirm it.
+                            Syntymäpäiväsi määrittää horoskooppimerkkisi ja sitä käytetään kaikkiin tulkintoihin.
                         </p>
                     </div>
                     
                     <form id="birthdateForm" class="checkout-form">
                         <div class="form-group">
-                            <label for="birthdate" data-i18n="birthdate.label">Birth Date</label>
+                            <label for="birthdate" data-i18n="birthdate.label">Syntymäpäivä</label>
                             <input type="date" id="birthdate" required max="">
                         </div>
                         
                         <div class="form-group">
-                            <label for="birthdateConfirm" data-i18n="birthdate.confirmLabel">Confirm Birth Date</label>
-                            <input type="date" id="birthdateConfirm" required max="">
-                            <div class="confirmation-match" id="birthdateMatch">
-                                ✓ <span data-i18n="birthdate.match">Dates match</span>
-                            </div>
-                            <div class="confirmation-mismatch" id="birthdateMismatch">
-                                ✗ <span data-i18n="birthdate.mismatch">Dates do not match</span>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="birthcity" data-i18n="birthdate.cityLabel">Birth City</label>
+                            <label for="birthcity" data-i18n="birthdate.cityLabel">Syntymäkaupunki</label>
                             <input type="text" id="birthcity" required data-i18n-placeholder="birthdate.cityPlaceholder" placeholder="Helsinki">
                         </div>
                         
                         <!-- Zodiac Preview -->
                         <div class="zodiac-preview" id="zodiacPreview">
                             <div class="zodiac-preview-icon" id="zodiacIcon">♎</div>
-                            <div class="zodiac-preview-name" id="zodiacName">Libra</div>
+                            <div class="zodiac-preview-name" id="zodiacName">Vaaka</div>
                             <div class="zodiac-preview-text" data-i18n="birthdate.zodiacText">
-                                This will be your zodiac sign for all predictions
+                                Tämä on horoskooppimerkkisi kaikissa tulkinnoissa
                             </div>
                         </div>
                         
                         <div id="birthdateError" class="error-message"></div>
-                        <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.continue">Continue</button>
-                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('address')" data-i18n="button.back">Back</button>
+                        <button type="submit" class="btn btn-primary btn-large btn-full" data-i18n="button.continue">Jatka</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('phone')" data-i18n="button.back">Takaisin</button>
                     </form>
                 </div>
 
-                <!-- Step 5: Payment Ready -->
+                <!-- Step 4: Payment Ready -->
                 <div class="checkout-step" id="step-payment">
                     <div class="payment-ready">
                         <div class="success-icon-small">✓</div>
-                        <h2 class="checkout-title" data-i18n="payment.title">Ready for Payment</h2>
-                        <p class="checkout-subtitle" data-i18n="payment.subtitle">You're one step away from unlocking your cosmic guidance</p>
+                        <h2 class="checkout-title" data-i18n="payment.title">Valmis Maksamaan</h2>
+                        <p class="checkout-subtitle" data-i18n="payment.subtitle">Olet yhden askeleen päässä kosmisen ohjauksesi avaamisesta</p>
                         
                         <div class="order-summary">
-                            <h3 data-i18n="payment.summary">Order Summary</h3>
+                            <h3 data-i18n="payment.summary">Tilauksen Yhteenveto</h3>
                             <div class="summary-item">
-                                <span class="summary-label" data-i18n="payment.plan">Plan:</span>
-                                <span class="summary-value" id="summary-plan">-</span>
+                                <span class="summary-label" data-i18n="payment.name">Nimi:</span>
+                                <span class="summary-value" id="summary-name">-</span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label" data-i18n="payment.email">Email:</span>
+                                <span class="summary-label" data-i18n="payment.email">Sähköposti:</span>
                                 <span class="summary-value" id="summary-email">-</span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label" data-i18n="payment.zodiac">Zodiac Sign:</span>
+                                <span class="summary-label" data-i18n="payment.zodiac">Horoskooppimerkki:</span>
                                 <span class="summary-value" id="summary-zodiac">-</span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label" data-i18n="payment.birthdate">Birth Date:</span>
+                                <span class="summary-label" data-i18n="payment.birthdate">Syntymäpäivä:</span>
                                 <span class="summary-value" id="summary-birthdate">-</span>
                             </div>
                         </div>
                         
-                        <button id="proceedToPayment" class="btn btn-primary btn-large btn-full" data-i18n="payment.proceed">Proceed to Secure Payment</button>
-                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('birthdate')" data-i18n="button.back">Back</button>
+                        <button id="proceedToPayment" class="btn btn-primary btn-large btn-full" data-i18n="payment.proceed">Jatka Turvalliseen Maksuun</button>
+                        <button type="button" class="btn btn-ghost btn-full" onclick="goToPreviousStep('birthdate')" data-i18n="button.back">Takaisin</button>
                     </div>
                 </div>
             </div>
@@ -357,149 +292,81 @@
             }
         }
 
-        function checkBirthdateMatch() {
-            const date1 = document.getElementById('birthdate').value;
-            const date2 = document.getElementById('birthdateConfirm').value;
-            const matchEl = document.getElementById('birthdateMatch');
-            const mismatchEl = document.getElementById('birthdateMismatch');
-            
-            if (!date1 || !date2) {
-                matchEl.classList.remove('show');
-                mismatchEl.classList.remove('show');
-                return false;
-            }
-            
-            if (date1 === date2) {
-                matchEl.classList.add('show');
-                mismatchEl.classList.remove('show');
-                return true;
-            } else {
-                matchEl.classList.remove('show');
-                mismatchEl.classList.add('show');
-                return false;
-            }
-        }
 
         // Checkout translations (exposed globally)
         window.checkoutTranslations = {
             en: {
-                'progress.email': 'Email',
+                'progress.email': 'Details',
                 'progress.phone': 'Phone',
-                'progress.address': 'Address',
                 'progress.birthdate': 'Birth Date',
-                'progress.verification': 'Verification',
                 'progress.payment': 'Payment',
-                'email.title': 'Your Email',
+                'email.title': 'Your Details',
                 'email.subtitle': 'We\'ll send your cosmic insights here',
+                'email.firstName': 'First Name',
+                'email.lastName': 'Last Name',
+                'email.firstNamePlaceholder': 'John',
+                'email.lastNamePlaceholder': 'Doe',
                 'email.label': 'Email Address',
                 'email.placeholder': 'you@example.com',
                 'phone.title': 'Your Phone Number',
                 'phone.subtitle': 'For important updates about your readings',
                 'phone.label': 'Phone Number',
                 'phone.placeholder': '+1 (555) 123-4567',
-                'address.title': 'Your Address',
-                'address.subtitle': 'To personalize your cosmic location readings',
-                'address.line1': 'Address Line 1',
-                'address.line2Placeholder': 'Apartment, suite, etc.',
-                'address.city': 'City',
-                'address.postal': 'Postal Code',
-                'address.country': 'Country',
-                'address.placeholder1': '123 Cosmic Street',
-                'address.placeholderCity': 'San Francisco',
-                'address.placeholderPostal': '94102',
-                'address.placeholderCountry': 'United States',
                 'birthdate.title': 'Your Birth Information',
                 'birthdate.subtitle': 'Essential for calculating your personal horoscope',
-                'birthdate.info': 'Your birth date determines your zodiac sign and is used for all predictions.',
-                'birthdate.warning': 'Please enter your birth date carefully and confirm it.',
+                'birthdate.info': 'Your birth date determines your zodiac sign and is used for all interpretations.',
                 'birthdate.label': 'Birth Date',
-                'birthdate.confirmLabel': 'Confirm Birth Date',
-                'birthdate.match': 'Dates match',
-                'birthdate.mismatch': 'Dates do not match',
                 'birthdate.cityLabel': 'Birth City',
                 'birthdate.cityPlaceholder': 'New York',
-                'birthdate.zodiacText': 'This will be your zodiac sign for all predictions',
-                'birthdate.error.mismatch': 'Birth dates do not match. Please verify.',
+                'birthdate.zodiacText': 'This will be your zodiac sign for all interpretations',
                 'birthdate.error.required': 'Please fill in all required fields.',
-                'capacity.checking': 'Verifying Membership Availability',
-                'capacity.checkingSubtitle': 'Checking current capacity...',
-                'capacity.fullTitle': 'We\'re At Full Capacity',
-                'capacity.fullSubtitle': 'Our exclusive membership is currently full to ensure we can provide the highest quality cosmic guidance to each member.',
-                'capacity.waitlistTitle': 'Join our priority waiting list',
-                'capacity.waitlistSubtitle': 'Be the first to know when a spot opens up',
-                'capacity.emailLabel': 'Your Email',
-                'capacity.success': '✓ You\'ve been added to the waiting list! We\'ll notify you as soon as a spot opens.',
                 'payment.title': 'Ready for Payment',
                 'payment.subtitle': 'You\'re one step away from unlocking your cosmic guidance',
                 'payment.summary': 'Order Summary',
-                'payment.plan': 'Plan:',
+                'payment.name': 'Name:',
                 'payment.email': 'Email:',
                 'payment.zodiac': 'Zodiac Sign:',
                 'payment.birthdate': 'Birth Date:',
                 'payment.proceed': 'Proceed to Secure Payment',
                 'button.continue': 'Continue',
                 'button.back': 'Back',
-                'button.joinWaitlist': 'Join Waiting List',
                 'loading.processing': 'Processing...'
             },
             fi: {
-                'progress.email': 'Sähköposti',
+                'progress.email': 'Tiedot',
                 'progress.phone': 'Puhelin',
-                'progress.address': 'Osoite',
                 'progress.birthdate': 'Syntymäpäivä',
-                'progress.verification': 'Vahvistus',
                 'progress.payment': 'Maksu',
-                'email.title': 'Sähköpostiosoitteesi',
-                'email.subtitle': 'Lähetämme kosmiset oivallukset tähän osoitteeseen',
+                'email.title': 'Tietosi',
+                'email.subtitle': 'Lähetämme kosmiset tulkintasi tähän osoitteeseen',
+                'email.firstName': 'Etunimi',
+                'email.lastName': 'Sukunimi',
+                'email.firstNamePlaceholder': 'Matti',
+                'email.lastNamePlaceholder': 'Meikäläinen',
                 'email.label': 'Sähköpostiosoite',
                 'email.placeholder': 'nimi@esimerkki.com',
                 'phone.title': 'Puhelinnumerosi',
-                'phone.subtitle': 'Tärkeiden päivitysten saamiseksi lukemistasi',
+                'phone.subtitle': 'Tärkeiden päivitysten saamiseksi',
                 'phone.label': 'Puhelinnumero',
                 'phone.placeholder': '+358 50 123 4567',
-                'address.title': 'Osoitteesi',
-                'address.subtitle': 'Kosmisten sijaintilukemistesi personointia varten',
-                'address.line1': 'Osoiterivi 1',
-                'address.line2Placeholder': 'Asunto, huoneisto jne.',
-                'address.city': 'Kaupunki',
-                'address.postal': 'Postinumero',
-                'address.country': 'Maa',
-                'address.placeholder1': 'Kosminen katu 123',
-                'address.placeholderCity': 'Helsinki',
-                'address.placeholderPostal': '00100',
-                'address.placeholderCountry': 'Suomi',
                 'birthdate.title': 'Syntymätietosi',
                 'birthdate.subtitle': 'Välttämätön henkilökohtaisen horoskooppisi laskemiseen',
-                'birthdate.info': 'Syntymäpäiväsi määrittää horoskooppimerkkisi ja sitä käytetään kaikkiin ennustuksiin.',
-                'birthdate.warning': 'Syötä syntymäpäiväsi huolellisesti ja vahvista se.',
+                'birthdate.info': 'Syntymäpäiväsi määrittää horoskooppimerkkisi ja sitä käytetään kaikkiin tulkintoihin.',
                 'birthdate.label': 'Syntymäpäivä',
-                'birthdate.confirmLabel': 'Vahvista syntymäpäivä',
-                'birthdate.match': 'Päivämäärät täsmäävät',
-                'birthdate.mismatch': 'Päivämäärät eivät täsmää',
                 'birthdate.cityLabel': 'Syntymäkaupunki',
                 'birthdate.cityPlaceholder': 'Helsinki',
-                'birthdate.zodiacText': 'Tämä on horoskooppimerkkisi kaikissa ennustuksissa',
-                'birthdate.error.mismatch': 'Syntymäpäivät eivät täsmää. Tarkista.',
+                'birthdate.zodiacText': 'Tämä on horoskooppimerkkisi kaikissa tulkinnoissa',
                 'birthdate.error.required': 'Täytä kaikki pakolliset kentät.',
-                'capacity.checking': 'Jäsenyyden Saatavuuden Vahvistaminen',
-                'capacity.checkingSubtitle': 'Tarkistetaan nykyistä kapasiteettia...',
-                'capacity.fullTitle': 'Emme voi ottaa uusia jäseniä tällä hetkellä.',
-                'capacity.fullSubtitle': 'Eksklusiivinen jäsenyytemme on tällä hetkellä täynnä varmistaaksemme, että voimme tarjota korkeimman laadun kosmista ohjausta jokaiselle jäsenelle.',
-                'capacity.waitlistTitle': 'Liity prioriteettijonoon',
-                'capacity.waitlistSubtitle': 'Ole ensimmäinen, joka saa tietää kun paikka aukeaa. Pahoittelemme tilannetta.',
-                'capacity.emailLabel': 'Sähköpostiosoitteesi',
-                'capacity.success': '✓ Olet lisätty jonoon! Ilmoitamme heti kun paikka aukeaa.',
                 'payment.title': 'Valmis Maksamaan',
                 'payment.subtitle': 'Olet yhden askeleen päässä kosmisen ohjauksesi avaamisesta',
                 'payment.summary': 'Tilauksen Yhteenveto',
-                'payment.plan': 'Suunnitelma:',
+                'payment.name': 'Nimi:',
                 'payment.email': 'Sähköposti:',
                 'payment.zodiac': 'Horoskooppimerkki:',
                 'payment.birthdate': 'Syntymäpäivä:',
                 'payment.proceed': 'Jatka Turvalliseen Maksuun',
                 'button.continue': 'Jatka',
                 'button.back': 'Takaisin',
-                'button.joinWaitlist': 'Liity Jonoon',
                 'loading.processing': 'Käsitellään...'
             }
         };
@@ -540,23 +407,18 @@
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('birthdate').setAttribute('max', today);
-            document.getElementById('birthdateConfirm').setAttribute('max', today);
             
             // Set min date (reasonable: 1900)
             document.getElementById('birthdate').setAttribute('min', '1900-01-01');
-            document.getElementById('birthdateConfirm').setAttribute('min', '1900-01-01');
             
             const currentLang = localStorage.getItem('language') || 'fi';
             setCheckoutLanguage(currentLang);
         });
 
-        // Event listeners for birthdate fields
+        // Event listener for birthdate field
         document.getElementById('birthdate').addEventListener('change', () => {
             updateZodiacPreview();
-            checkBirthdateMatch();
         });
-
-        document.getElementById('birthdateConfirm').addEventListener('change', checkBirthdateMatch);
     </script>
     <script src="/static/checkout.js?v=4"></script>
 </body>

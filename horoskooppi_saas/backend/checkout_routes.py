@@ -60,7 +60,7 @@ async def start_checkout(data: CheckoutSessionCreate, db: Session = Depends(get_
 @router.post("/step/email", response_model=CheckoutProgressResponse)
 async def save_email_step(data: CheckoutEmailStep, db: Session = Depends(get_db)):
     """
-    Save email and mark email step as completed
+    Save email, first name, last name and mark email step as completed
     """
     progress = db.query(CheckoutProgress).filter(
         CheckoutProgress.session_id == data.session_id
@@ -73,6 +73,8 @@ async def save_email_step(data: CheckoutEmailStep, db: Session = Depends(get_db)
         )
     
     progress.email = data.email.lower()  # Always store email lowercase
+    progress.first_name = data.first_name
+    progress.last_name = data.last_name
     progress.step_email_completed = True
     progress.email_completed_at = datetime.utcnow()
     
@@ -97,6 +99,8 @@ async def save_email_step(data: CheckoutEmailStep, db: Session = Depends(get_db)
         current_step="phone",
         selected_plan=progress.selected_plan,
         email=progress.email,
+        first_name=progress.first_name,
+        last_name=progress.last_name,
         step_email_completed=True,
         step_phone_completed=False,
         step_address_completed=False
@@ -105,7 +109,8 @@ async def save_email_step(data: CheckoutEmailStep, db: Session = Depends(get_db)
 @router.post("/step/phone", response_model=CheckoutProgressResponse)
 async def save_phone_step(data: CheckoutPhoneStep, db: Session = Depends(get_db)):
     """
-    Save phone and mark phone step as completed
+    Save phone and mark phone step as completed.
+    Goes directly to birthdate step (address step removed from checkout).
     """
     progress = db.query(CheckoutProgress).filter(
         CheckoutProgress.session_id == data.session_id
@@ -132,13 +137,15 @@ async def save_phone_step(data: CheckoutPhoneStep, db: Session = Depends(get_db)
     
     return CheckoutProgressResponse(
         session_id=progress.session_id,
-        current_step="address",
+        current_step="birthdate",
         selected_plan=progress.selected_plan,
         email=progress.email,
+        first_name=progress.first_name,
+        last_name=progress.last_name,
         phone=progress.phone,
         step_email_completed=True,
         step_phone_completed=True,
-        step_address_completed=False
+        step_address_completed=True  # Mark as completed since we skip it
     )
 
 def get_language_from_country(country: str) -> str:
@@ -273,6 +280,8 @@ async def save_birthdate_step(data: CheckoutBirthdateStep, db: Session = Depends
         current_step="payment",
         selected_plan=progress.selected_plan,
         email=progress.email,
+        first_name=progress.first_name,
+        last_name=progress.last_name,
         phone=progress.phone,
         birth_date=progress.birth_date,
         zodiac_sign=progress.zodiac_sign,
@@ -310,7 +319,7 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             detail="Checkout session not found"
         )
     
-    if not progress.step_address_completed:
+    if not progress.step_birthdate_completed:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Complete all checkout steps first"
@@ -348,12 +357,13 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
         
         if not existing_user:
             # Create new user with all checkout data (NO PASSWORD - Magic Link only)
+            full_name = ' '.join(filter(None, [progress.first_name, progress.last_name])) or None
             new_user = User(
                 email=progress.email.lower(),  # Always store email lowercase
                 hashed_password="",  # Empty - Magic Link only, no password
-                full_name=None,
-                first_name=None,
-                last_name=None,
+                full_name=full_name,
+                first_name=progress.first_name,
+                last_name=progress.last_name,
                 phone=progress.phone,
                 address=progress.address_line1,
                 birth_date=progress.birth_date,
@@ -408,7 +418,7 @@ async def create_payment_session(session_id: str, db: Session = Depends(get_db))
             db.commit()
             
             # Send welcome email with magic link (in user's language)
-            user_name = user_for_email.first_name or user_for_email.full_name or None
+            user_name = progress.first_name or user_for_email.first_name or user_for_email.full_name or None
             user_lang = progress.prediction_language or 'fi'
             email_service.send_welcome_email(user_for_email.email, token, user_name, user_lang)
             print(f"✅ FREE MODE: Welcome magic link sent to {progress.email} (lang: {user_lang})")
@@ -464,12 +474,12 @@ async def get_checkout_progress(session_id: str, db: Session = Depends(get_db)):
             detail="Checkout session not found"
         )
     
-    # Determine current step
+    # Determine current step (4 steps: email, phone, birthdate, payment)
     current_step = "email"
-    if progress.step_address_completed:
-        current_step = "capacity"  # After address, show capacity check
+    if progress.step_birthdate_completed:
+        current_step = "payment"
     elif progress.step_phone_completed:
-        current_step = "address"
+        current_step = "birthdate"
     elif progress.step_email_completed:
         current_step = "phone"
     
@@ -478,10 +488,13 @@ async def get_checkout_progress(session_id: str, db: Session = Depends(get_db)):
         current_step=current_step,
         selected_plan=progress.selected_plan,
         email=progress.email,
+        first_name=progress.first_name,
+        last_name=progress.last_name,
         phone=progress.phone,
         step_email_completed=progress.step_email_completed,
         step_phone_completed=progress.step_phone_completed,
-        step_address_completed=progress.step_address_completed
+        step_address_completed=progress.step_phone_completed,  # Auto-complete since we skip address
+        step_birthdate_completed=progress.step_birthdate_completed
     )
 
 @router.get("/analytics", response_model=CheckoutAnalytics)
