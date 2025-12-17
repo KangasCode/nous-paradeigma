@@ -1013,6 +1013,7 @@ async def generate_horoscope(
             age = None
     
     # Build user profile data for personalized predictions
+    # SECURITY: Do NOT send email, phone, or address to Gemini
     user_profile = {
         "birth_date": current_user.birth_date,
         "birth_time": current_user.birth_time,
@@ -1020,7 +1021,6 @@ async def generate_horoscope(
         "zodiac_sign": zodiac_sign,
         "first_name": current_user.first_name,
         "last_name": current_user.last_name,
-        "email": current_user.email,
         "prediction_language": getattr(current_user, 'prediction_language', 'fi') or 'fi',
         "age": age  # Age is required for age-specific voice in Gemini rules
     }

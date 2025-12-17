@@ -57,7 +57,7 @@ def generate_prediction_for_user(
         except (ValueError, TypeError):
             age = None
     
-    # Build user profile
+    # Build user profile for Gemini (NO personal contact data - email/phone/address excluded)
     user_profile = {
         "birth_date": user.birth_date,
         "birth_time": user.birth_time,
@@ -65,7 +65,6 @@ def generate_prediction_for_user(
         "zodiac_sign": user.zodiac_sign,
         "first_name": user.first_name,
         "last_name": user.last_name,
-        "email": user.email,
         "prediction_language": getattr(user, 'prediction_language', 'fi') or 'fi',
         "age": age
     }
