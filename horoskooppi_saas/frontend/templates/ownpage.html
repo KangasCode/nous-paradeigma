@@ -290,19 +290,26 @@
                                 <span id="zodiacSymbol">✨</span>
                                 <span id="zodiacName">Ladataan...</span>
                             </div>
+                            <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.5rem; display: block;" data-i18n="zodiacAutoCalculated">Lasketaan automaattisesti syntymäpäivästä</small>
                         </div>
                         <div class="data-item">
-                            <div class="data-label" data-i18n="birthDateLocked">Syntymäpäivä 🔒</div>
-                            <div class="data-value locked" id="displayBirthDate">
-                                <span>Ladataan...</span>
+                            <div class="data-label" data-i18n="birthDate">Syntymäpäivä</div>
+                            <div class="form-group" style="margin-top: 0.5rem;">
+                                <input type="date" id="birthDate" name="birth_date" style="width: 100%;">
                             </div>
                         </div>
                         <div class="data-item">
-                            <div class="data-label" data-i18n="birthCityLocked">Syntymäkaupunki 🔒</div>
-                            <div class="data-value locked" id="displayBirthCity">
-                                <span>Ladataan...</span>
+                            <div class="data-label" data-i18n="birthCity">Syntymäkaupunki</div>
+                            <div class="form-group" style="margin-top: 0.5rem;">
+                                <input type="text" id="birthCity" name="birth_city" data-i18n-placeholder="birthCityPlaceholder" placeholder="Esim. Helsinki" style="width: 100%;">
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Save Birth Data Button -->
+                    <div style="margin-top: 1rem;">
+                        <button type="button" id="saveBirthData" class="btn btn-primary" data-i18n="saveBirthData">Tallenna syntymätiedot</button>
+                        <span id="birthDataSuccess" style="color: #4caf50; margin-left: 1rem; display: none;" data-i18n="saved">✓ Tallennettu!</span>
                     </div>
                     
                     <!-- Birth Time - EDITABLE -->
@@ -391,8 +398,11 @@
                 'backToDashboard': '← Takaisin hallintapaneeliin',
                 'birthDataTitle': '🌟 Syntymätietosi & Horoskooppimerkkisi',
                 'zodiacSign': 'Horoskooppimerkki',
-                'birthDateLocked': 'Syntymäpäivä 🔒',
-                'birthCityLocked': 'Syntymäkaupunki 🔒',
+                'zodiacAutoCalculated': 'Lasketaan automaattisesti syntymäpäivästä',
+                'birthDate': 'Syntymäpäivä',
+                'birthCity': 'Syntymäkaupunki',
+                'birthCityPlaceholder': 'Esim. Helsinki',
+                'saveBirthData': 'Tallenna syntymätiedot',
                 'birthTimeTitle': '⏰ Syntymäaika (Valinnainen)',
                 'birthTimeDesc': 'Tarkan syntymäajan lisääminen mahdollistaa tarkemmat nousevan merkin ja huoneiden laskelmat ennustuksissasi.',
                 'birthTime': 'Syntymäaika',
@@ -423,6 +433,7 @@
                 'lang.es': 'Español',
                 'lang.it': 'Italiano',
                 'profileUpdated': 'Profiili päivitetty onnistuneesti!',
+                'birthDataUpdated': 'Syntymätiedot päivitetty! Horoskooppimerkkisi on nyt päivitetty.',
                 'notSet': 'Ei asetettu',
                 // Zodiac names
                 'zodiac.aries': 'Oinas', 'zodiac.taurus': 'Härkä', 'zodiac.gemini': 'Kaksoset',
@@ -436,8 +447,11 @@
                 'backToDashboard': '← Back to Dashboard',
                 'birthDataTitle': '🌟 Your Birth Data & Zodiac Sign',
                 'zodiacSign': 'Zodiac Sign',
-                'birthDateLocked': 'Birth Date 🔒',
-                'birthCityLocked': 'Birth City 🔒',
+                'zodiacAutoCalculated': 'Automatically calculated from birth date',
+                'birthDate': 'Birth Date',
+                'birthCity': 'Birth City',
+                'birthCityPlaceholder': 'e.g. Helsinki',
+                'saveBirthData': 'Save Birth Data',
                 'birthTimeTitle': '⏰ Birth Time (Optional)',
                 'birthTimeDesc': 'Adding your exact birth time allows for more precise ascendant and house calculations in your predictions.',
                 'birthTime': 'Birth Time',
@@ -468,6 +482,7 @@
                 'lang.es': 'Español',
                 'lang.it': 'Italiano',
                 'profileUpdated': 'Profile updated successfully!',
+                'birthDataUpdated': 'Birth data updated! Your zodiac sign has been recalculated.',
                 'notSet': 'Not set',
                 // Zodiac names
                 'zodiac.aries': 'Aries', 'zodiac.taurus': 'Taurus', 'zodiac.gemini': 'Gemini',
@@ -586,14 +601,9 @@
                 document.getElementById('zodiacName').textContent = t('notSet');
             }
             
-            // Birth data (read-only except birth_time)
-            document.getElementById('displayBirthDate').innerHTML = userData.birth_date 
-                ? `<span>${formatDate(userData.birth_date)}</span>`
-                : `<span style="opacity: 0.5">${t('notSet')}</span>`;
-            
-            document.getElementById('displayBirthCity').innerHTML = userData.birth_city 
-                ? `<span>${userData.birth_city}</span>`
-                : `<span style="opacity: 0.5">${t('notSet')}</span>`;
+            // Birth data - now editable
+            document.getElementById('birthDate').value = userData.birth_date || '';
+            document.getElementById('birthCity').value = userData.birth_city || '';
             
             // Birth time - editable
             document.getElementById('birthTime').value = userData.birth_time || '';
@@ -667,6 +677,42 @@
                 userData = updated;
                 displayProfile();
                 showMessage('success', t('profileUpdated'));
+            } catch (error) {
+                showMessage('error', error.message);
+            }
+        });
+
+        // Save birth data (date + city)
+        document.getElementById('saveBirthData').addEventListener('click', async () => {
+            const birthDate = document.getElementById('birthDate').value || null;
+            const birthCity = document.getElementById('birthCity').value || null;
+            const successEl = document.getElementById('birthDataSuccess');
+            
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    credentials: 'include',
+                    body: JSON.stringify({ 
+                        birth_date: birthDate,
+                        birth_city: birthCity
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to save birth data');
+                }
+                
+                const updated = await response.json();
+                userData = updated;
+                
+                // Update zodiac display
+                displayProfile();
+                
+                // Show success indicator
+                successEl.style.display = 'inline';
+                showMessage('success', t('birthDataUpdated'));
+                setTimeout(() => { successEl.style.display = 'none'; }, 3000);
             } catch (error) {
                 showMessage('error', error.message);
             }

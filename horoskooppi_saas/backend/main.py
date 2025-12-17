@@ -722,16 +722,12 @@ async def update_profile(
     """
     Update user profile information.
     
-    IMPORTANT: This endpoint can only update editable fields:
+    Editable fields:
     - first_name, last_name, phone, address, full_name, prediction_language
+    - birth_date, birth_city, birth_time
     
-    The following fields are IMMUTABLE and CANNOT be changed:
-    - birth_date (set at registration)
-    - birth_city (set at registration)
-    - zodiac_sign (auto-calculated from birth_date, never editable)
-    
-    Birth time can be added/updated for more precise predictions.
-    Prediction language determines the language for all horoscope predictions.
+    Note: zodiac_sign is auto-calculated from birth_date and cannot be set directly.
+    When birth_date is changed, the zodiac_sign is automatically recalculated.
     """
     # Only update allowed fields
     if profile_data.first_name is not None:
@@ -744,9 +740,23 @@ async def update_profile(
         current_user.address = profile_data.address
     if profile_data.full_name is not None:
         current_user.full_name = profile_data.full_name
+    
+    # Birth data - now editable
+    if profile_data.birth_date is not None:
+        current_user.birth_date = profile_data.birth_date
+        # Recalculate zodiac sign when birth date changes
+        if profile_data.birth_date:
+            current_user.zodiac_sign = calculate_zodiac_sign(profile_data.birth_date)
+        else:
+            current_user.zodiac_sign = None
+    
+    if profile_data.birth_city is not None:
+        current_user.birth_city = profile_data.birth_city
+    
     # Birth time can be added/updated for more precise predictions
     if profile_data.birth_time is not None:
         current_user.birth_time = profile_data.birth_time
+    
     # Prediction language - determines language for all horoscopes
     if profile_data.prediction_language is not None:
         # Validate language code (common languages)

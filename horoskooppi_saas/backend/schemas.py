@@ -38,16 +38,17 @@ class MagicLinkResponse(BaseModel):
 class UserProfileUpdate(BaseModel):
     """
     Schema for updating user profile.
-    NOTE: birth_date, birth_city, and zodiac_sign are NOT included
-    because they CANNOT be changed after registration.
-    Birth time CAN be added/updated by the user.
+    Users can update their birth data (birth_date, birth_city, birth_time).
+    The zodiac_sign is auto-calculated from birth_date and cannot be set directly.
     """
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
     full_name: Optional[str] = None
-    # Birth time can be added/updated (for more precise predictions)
+    # Birth data - can be added/updated by the user
+    birth_date: Optional[str] = None  # YYYY-MM-DD - zodiac_sign is recalculated
+    birth_city: Optional[str] = None
     birth_time: Optional[str] = None
     # Prediction language - determines language for all horoscopes
     prediction_language: Optional[str] = None  # 'fi', 'en', 'sv', etc.
