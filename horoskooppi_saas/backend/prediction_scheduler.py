@@ -203,8 +203,8 @@ async def run_monthly_predictions():
 
 def generate_initial_predictions(db: Session, user: User) -> dict:
     """
-    Generate all initial predictions right after purchase.
-    Creates daily, weekly, and monthly predictions immediately.
+    Generate initial daily prediction right after purchase.
+    Only creates daily prediction immediately - weekly and monthly come on schedule.
     
     Args:
         db: Database session
@@ -213,7 +213,7 @@ def generate_initial_predictions(db: Session, user: User) -> dict:
     Returns:
         Dict with results for each prediction type
     """
-    print(f"🎉 Generating initial predictions for new subscriber: {user.email}")
+    print(f"🎉 Generating initial daily prediction for new subscriber: {user.email}")
     
     results = {
         "daily": None,
@@ -221,13 +221,12 @@ def generate_initial_predictions(db: Session, user: User) -> dict:
         "monthly": None
     }
     
-    for prediction_type in ["daily", "weekly", "monthly"]:
-        horoscope = generate_prediction_for_user(db, user, prediction_type)
-        if horoscope:
-            results[prediction_type] = horoscope
-    
-    # Send welcome email with all initial predictions
-    send_welcome_predictions_email(user, results)
+    # Only generate daily prediction immediately after purchase
+    horoscope = generate_prediction_for_user(db, user, "daily")
+    if horoscope:
+        results["daily"] = horoscope
+        # Send daily prediction email (full content, no link needed)
+        send_prediction_email(user, horoscope, "daily")
     
     return results
 
@@ -501,9 +500,9 @@ WELCOME_PREDICTIONS_TRANSLATIONS = {
         'intro': 'Olemme luoneet sinulle henkilökohtaiset päivä-, viikko- ja kuukausikohtaiset ennustukset. Tässä on esimakua siitä, mitä sinua odottaa:',
         'button': '🔮 Lue kaikki ennustuksesi',
         'schedule_title': 'Ennustusaikataulusi',
-        'schedule_daily': '☀️ Päivittäinen ennustus: joka päivä klo 7:00',
-        'schedule_weekly': '📅 Viikottainen ennustus: joka sunnuntai',
-        'schedule_monthly': '🌙 Kuukausittainen ennustus: joka kuun 30. päivä',
+        'schedule_daily': '☀️ Päivittäinen ennustus: joka päivä klo 7:02',
+        'schedule_weekly': '📅 Viikottainen ennustus: joka sunnuntai klo 7:02',
+        'schedule_monthly': '🌙 Kuukausittainen ennustus: joka kuun 28. päivä klo 7:02',
         'daily_title': 'Päivän ennustus',
         'weekly_title': 'Viikon ennustus',
         'monthly_title': 'Kuukauden ennustus',
@@ -516,9 +515,9 @@ WELCOME_PREDICTIONS_TRANSLATIONS = {
         'intro': 'We have created personalized daily, weekly, and monthly predictions for you. Here is a preview of what awaits you:',
         'button': '🔮 Read all your predictions',
         'schedule_title': 'Your Prediction Schedule',
-        'schedule_daily': '☀️ Daily prediction: every day at 7:00 AM',
-        'schedule_weekly': '📅 Weekly prediction: every Sunday',
-        'schedule_monthly': '🌙 Monthly prediction: every 30th of the month',
+        'schedule_daily': '☀️ Daily prediction: every day at 7:02 AM',
+        'schedule_weekly': '📅 Weekly prediction: every Sunday at 7:02 AM',
+        'schedule_monthly': '🌙 Monthly prediction: every 28th of the month at 7:02 AM',
         'daily_title': 'Daily Prediction',
         'weekly_title': 'Weekly Prediction',
         'monthly_title': 'Monthly Prediction',
@@ -531,9 +530,9 @@ WELCOME_PREDICTIONS_TRANSLATIONS = {
         'intro': 'Vi har skapat personliga dagliga, veckovisa och månatliga förutsägelser för dig. Här är en förhandstitt på vad som väntar dig:',
         'button': '🔮 Läs alla dina förutsägelser',
         'schedule_title': 'Ditt förutsägelseschema',
-        'schedule_daily': '☀️ Daglig förutsägelse: varje dag kl 7:00',
-        'schedule_weekly': '📅 Veckovis förutsägelse: varje söndag',
-        'schedule_monthly': '🌙 Månadsvis förutsägelse: varje 30:e i månaden',
+        'schedule_daily': '☀️ Daglig förutsägelse: varje dag kl 7:02',
+        'schedule_weekly': '📅 Veckovis förutsägelse: varje söndag kl 7:02',
+        'schedule_monthly': '🌙 Månadsvis förutsägelse: varje 28:e i månaden kl 7:02',
         'daily_title': 'Daglig förutsägelse',
         'weekly_title': 'Veckans förutsägelse',
         'monthly_title': 'Månads förutsägelse',
@@ -565,12 +564,38 @@ def build_prediction_email_html(
     dashboard_link: str,
     translations: dict
 ) -> str:
-    """Build HTML content for prediction email."""
+    """
+    Build HTML content for prediction email.
+    
+    - Daily & Weekly: Full content, no link (fits in newsletter)
+    - Monthly: 100 char preview + "Read more" link
+    """
     greeting = f"{translations['greeting']} {user_name}," if user_name else f"{translations['greeting']},"
     emoji = get_prediction_emoji(prediction_type)
     
-    # Truncate content for email (show preview, full content in dashboard)
-    preview_content = content[:800] + "..." if len(content) > 800 else content
+    # Monthly: short preview with link
+    # Daily & Weekly: full content, no link
+    if prediction_type == "monthly":
+        preview_content = content[:100] + "..." if len(content) > 100 else content
+        show_button = True
+    else:
+        # Daily and Weekly - full content, no button
+        preview_content = content
+        show_button = False
+    
+    # Button section (only for monthly)
+    button_html = ""
+    if show_button:
+        button_html = f"""
+                    <!-- Button -->
+                    <tr>
+                        <td align="center" style="padding: 20px 40px 30px;">
+                            <a href="{dashboard_link}" style="display: inline-block; background: linear-gradient(135deg, #8a74f9 0%, #6b5ce7 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600;">
+                                {translations['button']}
+                            </a>
+                        </td>
+                    </tr>
+        """
     
     return f"""
 <!DOCTYPE html>
@@ -618,16 +643,7 @@ def build_prediction_email_html(
                             </div>
                         </td>
                     </tr>
-                    
-                    <!-- Button -->
-                    <tr>
-                        <td align="center" style="padding: 20px 40px 30px;">
-                            <a href="{dashboard_link}" style="display: inline-block; background: linear-gradient(135deg, #8a74f9 0%, #6b5ce7 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600;">
-                                {translations['button']}
-                            </a>
-                        </td>
-                    </tr>
-                    
+                    {button_html}
                     <!-- Footer -->
                     <tr>
                         <td style="padding: 20px 40px; border-top: 1px solid rgba(138, 116, 249, 0.2);">
@@ -653,9 +669,22 @@ def build_prediction_email_text(
     dashboard_link: str,
     translations: dict
 ) -> str:
-    """Build plain text content for prediction email."""
+    """
+    Build plain text content for prediction email.
+    
+    - Daily & Weekly: Full content, no link
+    - Monthly: 100 char preview + link
+    """
     greeting = f"{translations['greeting']} {user_name}," if user_name else f"{translations['greeting']},"
-    preview_content = content[:800] + "..." if len(content) > 800 else content
+    
+    # Monthly: short preview with link
+    # Daily & Weekly: full content, no link
+    if prediction_type == "monthly":
+        preview_content = content[:100] + "..." if len(content) > 100 else content
+        link_section = f"\n{translations['button']}: {dashboard_link}\n"
+    else:
+        preview_content = content
+        link_section = ""
     
     return f"""
 {translations['title']} - {zodiac_sign.capitalize()}
@@ -669,9 +698,7 @@ def build_prediction_email_text(
 {preview_content}
 
 {'='*50}
-
-{translations['button']}: {dashboard_link}
-
+{link_section}
 {translations['footer']}
 """
 
@@ -801,9 +828,9 @@ class PredictionScheduler:
     Manages scheduled prediction generation jobs.
     
     Schedule:
-    - Daily: Every day at 7:00 AM local time
-    - Weekly: Every Sunday at 7:00 AM
-    - Monthly: Every 30th of the month at 7:00 AM
+    - Daily: Every day at 7:02 AM local time
+    - Weekly: Every Sunday at 7:02 AM
+    - Monthly: Every 28th of the month at 7:02 AM
     """
     
     def __init__(self):
@@ -819,28 +846,28 @@ class PredictionScheduler:
         # Get timezone from environment or default to Europe/Helsinki (Finland)
         timezone = os.getenv("PREDICTION_TIMEZONE", "Europe/Helsinki")
         
-        # Daily predictions - every day at 7:00 AM
+        # Daily predictions - every day at 7:02 AM
         self.scheduler.add_job(
             run_daily_predictions,
-            CronTrigger(hour=7, minute=0, timezone=timezone),
+            CronTrigger(hour=7, minute=2, timezone=timezone),
             id="daily_predictions",
             name="Generate daily predictions",
             replace_existing=True
         )
         
-        # Weekly predictions - every Sunday at 7:00 AM
+        # Weekly predictions - every Sunday at 7:02 AM
         self.scheduler.add_job(
             run_weekly_predictions,
-            CronTrigger(day_of_week="sun", hour=7, minute=0, timezone=timezone),
+            CronTrigger(day_of_week="sun", hour=7, minute=2, timezone=timezone),
             id="weekly_predictions",
             name="Generate weekly predictions",
             replace_existing=True
         )
         
-        # Monthly predictions - every 30th at 7:00 AM
+        # Monthly predictions - every 28th at 7:02 AM
         self.scheduler.add_job(
             run_monthly_predictions,
-            CronTrigger(day=30, hour=7, minute=0, timezone=timezone),
+            CronTrigger(day=28, hour=7, minute=2, timezone=timezone),
             id="monthly_predictions",
             name="Generate monthly predictions",
             replace_existing=True
@@ -850,9 +877,9 @@ class PredictionScheduler:
         self._started = True
         
         print(f"🚀 Prediction scheduler started (timezone: {timezone})")
-        print("   📅 Daily predictions: Every day at 7:00 AM")
-        print("   📅 Weekly predictions: Every Sunday at 7:00 AM")
-        print("   📅 Monthly predictions: Every 30th at 7:00 AM")
+        print("   📅 Daily predictions: Every day at 7:02 AM")
+        print("   📅 Weekly predictions: Every Sunday at 7:02 AM")
+        print("   📅 Monthly predictions: Every 28th at 7:02 AM")
     
     def stop(self):
         """Stop the scheduler."""
