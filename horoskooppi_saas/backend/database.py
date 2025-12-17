@@ -164,6 +164,17 @@ def migrate_database():
                 print("Adding prediction_language column to checkout_progress table...")
                 conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN prediction_language VARCHAR DEFAULT 'en'"))
                 conn.commit()
+            
+            # Add first_name and last_name for checkout (added in simplified checkout flow)
+            if 'first_name' not in columns:
+                print("Adding first_name column to checkout_progress table...")
+                conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN first_name VARCHAR"))
+                conn.commit()
+            
+            if 'last_name' not in columns:
+                print("Adding last_name column to checkout_progress table...")
+                conn.execute(text("ALTER TABLE checkout_progress ADD COLUMN last_name VARCHAR"))
+                conn.commit()
     
     # Create magic_link_tokens table if it doesn't exist
     if 'magic_link_tokens' not in inspector.get_table_names():
