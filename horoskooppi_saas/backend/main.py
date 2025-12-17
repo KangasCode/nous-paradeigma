@@ -36,6 +36,7 @@ from stripe_webhooks import (
     StripeWebhookHandler, create_checkout_session, create_customer_portal_session
 )
 from checkout_routes import router as checkout_router
+from prediction_scheduler import prediction_scheduler
 
 # Create FastAPI app
 app = FastAPI(
@@ -254,11 +255,27 @@ async def access_submit(request: Request, password: str = Form(...)):
 # Initialize database on startup
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database on startup"""
+    """Initialize database and prediction scheduler on startup"""
     init_db()
     print("Database initialized successfully")
     # Create test user if CREATE_TEST_USER env var is set
     init_test_data_if_needed()
+    
+    # Start the automatic prediction scheduler
+    # Schedule: daily at 7:00 AM, weekly on Sundays, monthly on 30th
+    try:
+        prediction_scheduler.start()
+    except Exception as e:
+        print(f"⚠️ Failed to start prediction scheduler: {e}")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    try:
+        prediction_scheduler.stop()
+    except Exception as e:
+        print(f"⚠️ Error stopping prediction scheduler: {e}")
 
 # ============================================================================
 # 404 ERROR HANDLER
@@ -1151,6 +1168,69 @@ async def health_check():
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat()
     }
+
+
+# ============================================================================
+# Prediction Scheduler Admin Endpoints
+# ============================================================================
+
+@app.get("/api/admin/scheduler/status")
+async def get_scheduler_status():
+    """
+    Get the status of the prediction scheduler.
+    Returns list of scheduled jobs and their next run times.
+    """
+    jobs = prediction_scheduler.get_jobs()
+    return {
+        "status": "running" if jobs else "stopped",
+        "jobs": jobs,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+
+@app.post("/api/admin/scheduler/trigger/{prediction_type}")
+async def trigger_prediction_generation(
+    prediction_type: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Manually trigger prediction generation for all active subscribers.
+    Useful for testing or catching up after downtime.
+    
+    Args:
+        prediction_type: 'daily', 'weekly', or 'monthly'
+    """
+    if prediction_type not in ["daily", "weekly", "monthly"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid prediction type. Must be 'daily', 'weekly', or 'monthly'"
+        )
+    
+    from prediction_scheduler import (
+        run_daily_predictions, 
+        run_weekly_predictions, 
+        run_monthly_predictions
+    )
+    
+    try:
+        if prediction_type == "daily":
+            await run_daily_predictions()
+        elif prediction_type == "weekly":
+            await run_weekly_predictions()
+        else:
+            await run_monthly_predictions()
+        
+        return {
+            "status": "success",
+            "prediction_type": prediction_type,
+            "message": f"Successfully triggered {prediction_type} prediction generation",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate predictions: {str(e)}"
+        )
 
 if __name__ == "__main__":
     import uvicorn

@@ -44,7 +44,16 @@ class StripeWebhookHandler:
     
     @staticmethod
     def handle_checkout_completed(event_data: dict, db: Session):
-        """Handle checkout.session.completed event"""
+        """
+        Handle checkout.session.completed event.
+        
+        After successful checkout:
+        1. Create/update subscription
+        2. Mark user as subscriber
+        3. Sync to email audience
+        4. Generate initial predictions (daily, weekly, monthly) immediately
+        5. Send welcome email with predictions
+        """
         session = event_data['object']
         customer_email = session.get('customer_email')
         customer_id = session.get('customer')
@@ -87,6 +96,19 @@ class StripeWebhookHandler:
             print(f"✅ Stripe: Synced {user.email} to active subscribers")
         except Exception as e:
             print(f"⚠️ Resend sync error in checkout_completed (non-critical): {e}")
+        
+        # Generate initial predictions immediately after purchase
+        # This creates daily, weekly, and monthly predictions right away
+        try:
+            from prediction_scheduler import generate_initial_predictions
+            print(f"🎉 Generating initial predictions for new subscriber: {user.email}")
+            results = generate_initial_predictions(db, user)
+            
+            generated = sum(1 for v in results.values() if v is not None)
+            print(f"✅ Generated {generated}/3 initial predictions for {user.email}")
+        except Exception as e:
+            print(f"⚠️ Error generating initial predictions (non-critical): {e}")
+            # Don't fail the checkout - predictions can be generated later
     
     @staticmethod
     def handle_subscription_updated(event_data: dict, db: Session):
