@@ -298,57 +298,81 @@ IMMUTABLE DATA RULES:
         }
         
         # Output format instructions based on prediction type
-        output_instructions = {
-            "daily": """
-OUTPUT FORMAT (3 sections required):
+        # IMPORTANT: No markdown (** or *) - email clients don't support it
+        # Use Finnish headers when language is Finnish
+        
+        if prediction_language == "fi":
+            output_instructions = {
+                "daily": """
+MUOTO (TÄRKEÄÄ - ÄLÄ KÄYTÄ ** TAI * MERKINTÖJÄ):
 
-**Key Influences Today**
-Short bullet points of the strongest transits (orb under 2 degrees).
+Päivän sana: [yksi sana tai lyhyt ilmaus]
 
-**Detailed Daily Prediction**
-A coherent text of 120 to 200 words that directly references the technical data.
+[Ennustuksen teksti 80-140 sanaa, suoraan lukijalle]
 
-**Technical Summary**
-A compact list of all aspects used.
-Format: Planet A → Planet B, Aspect, Angle, Orb, House impact.""",
-            
-            "weekly": """
-OUTPUT FORMAT (3 sections required):
+Päivän neuvo: [yksi käytännön vinkki]""",
+                
+                "weekly": """
+MUOTO (TÄRKEÄÄ - ÄLÄ KÄYTÄ ** TAI * MERKINTÖJÄ):
 
-**Key Influences This Week**
-Bullet points of the strongest transits affecting the week (orb under 3 degrees).
+Viikon lause: [yksi lause]
 
-**Detailed Weekly Prediction**
-A coherent text of 250 to 400 words covering:
-- Overall energy of the week
-- Key days to watch
-- Themes: growth, relationships, challenges
-Directly reference the technical data throughout.
+The Seven Lights Index: [7 eri numeroa väliltä 1-40]
+Index-huomio: [lyhyt lause numeroiden yhteydestä viikon energiaan]
 
-**Technical Summary**
-A compact list of all major aspects for the week.
-Format: Planet A → Planet B, Aspect, Angle, Orb, House impact.""",
-            
-            "monthly": """
-OUTPUT FORMAT (3 sections required):
+[Ennustuksen teksti 150-230 sanaa, suoraan lukijalle]
 
-**Key Influences This Month**
-Bullet points of major planetary movements and lunar phases affecting the month.
+Viikon neuvo: [yksi toimintaehdotus]""",
+                
+                "monthly": """
+MUOTO (TÄRKEÄÄ - ÄLÄ KÄYTÄ ** TAI * MERKINTÖJÄ):
 
-**Detailed Monthly Prediction**
-A coherent text of 500 to 700 words covering:
+Kuukauden miete: [yksi tai kaksi lausetta]
+
+[Ennustuksen teksti 180-300 sanaa kattaen:
+- Kuukauden pääteema
+- Työ ja ura
+- Ihmissuhteet
+- Hyvinvointi]
+
+Kuukauden aikomus: [tiivistelmälause]"""
+            }
+        else:
+            output_instructions = {
+                "daily": """
+OUTPUT FORMAT (IMPORTANT - DO NOT USE ** OR * MARKERS):
+
+Word of the Day: [one word or short phrase]
+
+[Prediction text 80-140 words, addressing reader directly]
+
+Daily Advice: [one practical tip]""",
+                
+                "weekly": """
+OUTPUT FORMAT (IMPORTANT - DO NOT USE ** OR * MARKERS):
+
+Weekly Phrase: [one sentence]
+
+The Seven Lights Index: [7 different numbers between 1-40]
+Index note: [short sentence connecting numbers to weekly energy]
+
+[Prediction text 150-230 words, addressing reader directly]
+
+Weekly Advice: [one actionable recommendation]""",
+                
+                "monthly": """
+OUTPUT FORMAT (IMPORTANT - DO NOT USE ** OR * MARKERS):
+
+Monthly Thought: [one or two sentences]
+
+[Prediction text 180-300 words covering:
 - Main theme of the month
-- Career and professional life
-- Relationships and social connections
-- Finances and material matters
-- Health and well-being
-- Key dates to note
-Directly reference the technical data throughout.
+- Career and work
+- Relationships
+- Well-being]
 
-**Technical Summary**
-A comprehensive list of all major aspects and transits for the month.
-Format: Planet A → Planet B, Aspect, Angle, Orb, House impact."""
-        }
+Monthly Intention: [summary sentence]"""
+            }
         
         # Assemble full prompt
         full_prompt = f"""{system_prompt}

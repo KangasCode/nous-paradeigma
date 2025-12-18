@@ -33,6 +33,8 @@ GENERAL HOROSCOPE GENERATION RULES
    - Make content zodiac-specific where relevant.
    - Avoid guaranteed outcomes, health claims, financial promises, or fortune-telling.
    - No fallback texts are permitted.
+   - NEVER use markdown formatting symbols like ** or * for bold/italic. Email clients do not support them.
+   - All section headers must be in the customer's language (e.g. "Päivän sana:" not "Word of the Day:").
 
 5. Word Count Guidelines:
    - Daily: 80 to 140 words, excluding the Päivän sana line.
@@ -109,7 +111,7 @@ DAILY HOROSCOPE RULES
    - No fallback or placeholder text allowed.
 
 4. Output Requirement:
-   - End with: Daily Advice: followed by one practical suggestion in the customer language.
+   - End with a practical suggestion line (in customer's language, e.g. "Päivän neuvo:" for Finnish).
 """
 
 WEEKLY_RULES = """
@@ -140,7 +142,7 @@ WEEKLY HOROSCOPE RULES
    - Do not describe the numbers as lottery or betting advice. They are symbolic, reflective elements only.
 
 4. Output Requirement:
-   - End with: Weekly Advice: followed by one actionable recommendation in the customer language.
+   - End with an actionable recommendation (in customer's language, e.g. "Viikon neuvo:" for Finnish).
 """
 
 MONTHLY_RULES = """
@@ -163,7 +165,7 @@ MONTHLY HOROSCOPE RULES
    - No fallback text is allowed under any circumstances.
 
 4. Output Requirement:
-   - End with: Monthly Intention: or Power Statement: summarizing the month's focus, in the customer language.
+   - End with a summary statement (in customer's language, e.g. "Kuukauden aikomus:" for Finnish).
 """
 
 VOCABULARY_BANK = """

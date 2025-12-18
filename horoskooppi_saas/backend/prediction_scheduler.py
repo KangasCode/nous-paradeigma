@@ -410,6 +410,21 @@ def get_prediction_emoji(prediction_type: str) -> str:
     return emojis.get(prediction_type, "✨")
 
 
+def strip_markdown(text: str) -> str:
+    """
+    Remove markdown formatting from text for email clients.
+    Removes ** (bold) and * (italic) markers.
+    """
+    import re
+    # Remove **text** (bold)
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+    # Remove *text* (italic) - but not bullet points (lines starting with *)
+    text = re.sub(r'(?<!\n)\*([^*\n]+)\*(?!\*)', r'\1', text)
+    # Remove --- horizontal lines
+    text = re.sub(r'\n---\n', '\n\n', text)
+    return text
+
+
 PREDICTION_EMAIL_TRANSLATIONS = {
     'fi': {
         'daily': {
@@ -572,14 +587,17 @@ def build_prediction_email_html(
     greeting = f"{translations['greeting']} {user_name}," if user_name else f"{translations['greeting']},"
     emoji = get_prediction_emoji(prediction_type)
     
+    # Strip markdown symbols from content (email clients don't support them)
+    clean_content = strip_markdown(content)
+    
     # Monthly: short preview with link
     # Daily & Weekly: full content, no link
     if prediction_type == "monthly":
-        preview_content = content[:100] + "..." if len(content) > 100 else content
+        preview_content = clean_content[:100] + "..." if len(clean_content) > 100 else clean_content
         show_button = True
     else:
         # Daily and Weekly - full content, no button
-        preview_content = content
+        preview_content = clean_content
         show_button = False
     
     # Button section (only for monthly)
@@ -604,31 +622,31 @@ def build_prediction_email_html(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0a0f;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0f; padding: 40px 20px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0f; padding: 8px 2px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%); border-radius: 16px; border: 1px solid rgba(138, 116, 249, 0.3);">
+                <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%); border-radius: 12px; border: 1px solid rgba(138, 116, 249, 0.3);">
                     <!-- Header -->
                     <tr>
-                        <td align="center" style="padding: 40px 40px 20px;">
-                            <h1 style="color: #d4af37; font-size: 28px; margin: 0;">✨ Nous Paradeigma</h1>
+                        <td align="center" style="padding: 20px 8px 10px;">
+                            <h1 style="color: #d4af37; font-size: 24px; margin: 0;">✨ Nous Paradeigma</h1>
                         </td>
                     </tr>
                     
                     <!-- Title -->
                     <tr>
-                        <td align="center" style="padding: 10px 40px;">
-                            <div style="font-size: 40px; margin-bottom: 10px;">{emoji}</div>
-                            <h2 style="color: #ffffff; font-size: 22px; margin: 0;">{translations['title']}</h2>
-                            <p style="color: #8a74f9; font-size: 14px; margin: 5px 0 0;">{zodiac_sign.capitalize()}</p>
+                        <td align="center" style="padding: 8px;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">{emoji}</div>
+                            <h2 style="color: #ffffff; font-size: 20px; margin: 0;">{translations['title']}</h2>
+                            <p style="color: #8a74f9; font-size: 13px; margin: 4px 0 0;">{zodiac_sign.capitalize()}</p>
                         </td>
                     </tr>
                     
                     <!-- Greeting -->
                     <tr>
-                        <td style="padding: 20px 40px;">
-                            <p style="color: #ffffff; font-size: 18px; margin-bottom: 10px;">{greeting}</p>
-                            <p style="color: #b8b8c8; font-size: 14px; line-height: 1.6;">
+                        <td style="padding: 12px 8px;">
+                            <p style="color: #ffffff; font-size: 16px; margin-bottom: 8px;">{greeting}</p>
+                            <p style="color: #b8b8c8; font-size: 13px; line-height: 1.5;">
                                 {translations['intro']}
                             </p>
                         </td>
@@ -636,17 +654,17 @@ def build_prediction_email_html(
                     
                     <!-- Prediction Content -->
                     <tr>
-                        <td style="padding: 0 40px 20px;">
-                            <div style="background: rgba(138, 116, 249, 0.1); border-radius: 12px; padding: 20px; border-left: 4px solid #d4af37;">
-                                <div style="color: #e8e8f0; font-size: 15px; line-height: 1.7; white-space: pre-wrap;">{preview_content}</div>
+                        <td style="padding: 0 4px 16px;">
+                            <div style="background: rgba(138, 116, 249, 0.1); border-radius: 10px; padding: 12px 8px; border-left: 3px solid #d4af37;">
+                                <div style="color: #e8e8f0; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">{preview_content}</div>
                             </div>
                         </td>
                     </tr>
                     {button_html}
                     <!-- Footer -->
                     <tr>
-                        <td style="padding: 20px 40px; border-top: 1px solid rgba(138, 116, 249, 0.2);">
-                            <p style="color: #6b6b7b; font-size: 12px; text-align: center; margin: 0;">
+                        <td style="padding: 12px 8px; border-top: 1px solid rgba(138, 116, 249, 0.2);">
+                            <p style="color: #6b6b7b; font-size: 11px; text-align: center; margin: 0;">
                                 {translations['footer']}
                             </p>
                         </td>
@@ -676,13 +694,16 @@ def build_prediction_email_text(
     """
     greeting = f"{translations['greeting']} {user_name}," if user_name else f"{translations['greeting']},"
     
+    # Strip markdown symbols from content
+    clean_content = strip_markdown(content)
+    
     # Monthly: short preview with link
     # Daily & Weekly: full content, no link
     if prediction_type == "monthly":
-        preview_content = content[:100] + "..." if len(content) > 100 else content
+        preview_content = clean_content[:100] + "..." if len(clean_content) > 100 else clean_content
         link_section = f"\n{translations['button']}: {dashboard_link}\n"
     else:
-        preview_content = content
+        preview_content = clean_content
         link_section = ""
     
     return f"""
