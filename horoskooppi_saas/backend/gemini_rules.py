@@ -1,5 +1,11 @@
 """
-Gemini Horoscope Generation Rules
+Gemini Horoscope Generation Rules - SHARED BASE
+
+This file contains GENERAL rules that apply to ALL prediction types.
+Type-specific rules are in separate files:
+- gemini_rules_daily.py  - Daily prediction rules
+- gemini_rules_weekly.py - Weekly prediction rules  
+- gemini_rules_monthly.py - Monthly prediction rules
 
 IMPORTANT SYSTEM NOTE:
 - The backend must NOT use any fallback horoscope generation.
@@ -36,12 +42,7 @@ GENERAL HOROSCOPE GENERATION RULES
    - NEVER use markdown formatting symbols like ** or * for bold/italic. Email clients do not support them.
    - All section headers must be in the customer's language (e.g. "Päivän sana:" not "Word of the Day:").
 
-5. Word Count Guidelines:
-   - Daily: 80 to 140 words, excluding the Päivän sana line.
-   - Weekly: 150 to 230 words, excluding the Viikon lause line and The Seven Lights Index lines.
-   - Monthly: 180 to 300 words, excluding the Kuukauden miete line.
-
-6. Age-specific voice: Age is ALWAYS known and given as an integer.
+5. Age-specific voice: Age is ALWAYS known and given as an integer.
    - Age 13 to 17:
      * Typical focus: school life, friends, hobbies, digital life, family everyday routines.
      * Language: simple, clear sentences, you form, gentle and encouraging tone.
@@ -82,90 +83,10 @@ GENERAL HOROSCOPE GENERATION RULES
    - Under 30: tone may be slightly more relaxed and light, still clear and respectful.
    - 30 and above: neutral, adult, calm tone without slang, but not stiff or bureaucratic.
 
-7. Implementation note for summary elements:
+6. Implementation note for summary elements:
    - For all horoscope types, Gemini must FIRST form the full main text of the horoscope internally.
-   - Only AFTER the full text is internally clear, Gemini creates:
-     * Päivän sana for daily horoscopes.
-     * Viikon lause and The Seven Lights Index for weekly horoscopes.
-     * Kuukauden miete for monthly horoscopes.
+   - Only AFTER the full text is internally clear, Gemini creates the summary element.
    - These summary elements must clearly reflect the main message of the longer text and must NOT introduce new, unrelated topics.
-"""
-
-DAILY_RULES = """
-DAILY HOROSCOPE RULES
-
-1. Focus of the Day:
-   - Describe the energetic or emotional tone of the day.
-   - Highlight one opportunity or subtle challenge.
-   - Keep the scope limited to today, short-term dynamics only.
-
-2. Structure:
-   - Internally draft the full daily horoscope body first.
-   - Then derive one short Päivän sana, one word or very short phrase that clearly captures the core energy or theme of the already drafted text.
-   - The final output MUST begin with a separate line: Päivän sana: <word or short phrase>
-   - Immediately after this line, output the full daily horoscope text in paragraph form, addressing the reader directly.
-
-3. Limitations:
-   - No long-term predictions.
-   - No references to weekly or monthly patterns.
-   - No fallback or placeholder text allowed.
-
-4. Output Requirement:
-   - End with a practical suggestion line (in customer's language, e.g. "Päivän neuvo:" for Finnish).
-"""
-
-WEEKLY_RULES = """
-WEEKLY HOROSCOPE RULES
-
-1. Focus of the Week:
-   - Explain the rhythm of the week: beginning, middle, end.
-   - Identify one background theme that influences the entire week.
-   - Discuss progress, delays, or evolving emotional dynamics.
-
-2. Structure:
-   - Internally draft the full weekly horoscope body first.
-   - Then create Viikon lause, exactly one complete sentence that summarizes the main theme or learning of the week, clearly connected to the drafted text.
-   - Also create The Seven Lights Index:
-     * Seven distinct integers between 1 and 40, inclusive.
-     * All seven numbers must be different from each other.
-     * The numbers are symbolic only, not for gambling or financial use.
-     * After choosing the seven numbers, create one short sentence that links the feeling of the numbers to the weekly theme.
-   - The final output MUST follow this order:
-     1. First line: Viikon lause: <one sentence in the customer language>
-     2. Second line: The Seven Lights Index: n1 n2 n3 n4 n5 n6 n7 where n1 to n7 are the seven distinct integers between 1 and 40.
-     3. Third line: Index note: <one short sentence in the customer language that connects the numbers to the weekly energy>
-     4. After these three lines, output the full weekly horoscope text in paragraph form, addressing the reader directly.
-
-3. Tone:
-   - Motivational, perspective-building, non-prescriptive.
-   - No fallback content is permitted.
-   - Do not describe the numbers as lottery or betting advice. They are symbolic, reflective elements only.
-
-4. Output Requirement:
-   - End with an actionable recommendation (in customer's language, e.g. "Viikon neuvo:" for Finnish).
-"""
-
-MONTHLY_RULES = """
-MONTHLY HOROSCOPE RULES
-
-1. Focus of the Month:
-   - Describe two or three major themes shaping the month.
-   - Emphasize development, clarity, internal shifts, and long-term influences.
-   - Describe how energy may evolve from early to later weeks.
-
-2. Structure:
-   - Internally draft the full monthly horoscope body first.
-   - Then create Kuukauden miete, one or two sentences that condense the main themes and emotional focus of the month, clearly derived from the drafted text.
-   - The final output MUST begin with a separate line: Kuukauden miete: <one or two sentences in the customer language>
-   - Immediately after this line, output the full monthly horoscope text in paragraph form, addressing the reader directly.
-
-3. Restrictions:
-   - No exact dates, promises, or deterministic predictions.
-   - No health or financial guarantees.
-   - No fallback text is allowed under any circumstances.
-
-4. Output Requirement:
-   - End with a summary statement (in customer's language, e.g. "Kuukauden aikomus:" for Finnish).
 """
 
 VOCABULARY_BANK = """
@@ -200,3 +121,26 @@ Rules for the Vocabulary Bank:
 """
 
 
+def load_prediction_rules(prediction_type: str):
+    """
+    Load the appropriate rules file for the given prediction type.
+    
+    Args:
+        prediction_type: 'daily', 'weekly', or 'monthly'
+    
+    Returns:
+        Tuple of (specific_rules, get_output_format_func)
+    """
+    if prediction_type == "daily":
+        from gemini_rules_daily import DAILY_RULES, get_daily_output_format
+        return DAILY_RULES, get_daily_output_format
+    elif prediction_type == "weekly":
+        from gemini_rules_weekly import WEEKLY_RULES, get_weekly_output_format
+        return WEEKLY_RULES, get_weekly_output_format
+    elif prediction_type == "monthly":
+        from gemini_rules_monthly import MONTHLY_RULES, get_monthly_output_format
+        return MONTHLY_RULES, get_monthly_output_format
+    else:
+        # Default to daily
+        from gemini_rules_daily import DAILY_RULES, get_daily_output_format
+        return DAILY_RULES, get_daily_output_format

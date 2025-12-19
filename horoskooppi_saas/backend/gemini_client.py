@@ -19,7 +19,7 @@ from datetime import datetime
 import json
 
 # Import generation rules
-from gemini_rules import GENERAL_RULES, DAILY_RULES, WEEKLY_RULES, MONTHLY_RULES, VOCABULARY_BANK
+from gemini_rules import GENERAL_RULES, VOCABULARY_BANK, load_prediction_rules
 
 
 class GeminiAPIError(Exception):
@@ -167,13 +167,8 @@ class GeminiClient:
         
         lang_instruction = language_instructions.get(prediction_language, language_instructions["en"])
         
-        # Get type-specific rules
-        type_rules = {
-            "daily": DAILY_RULES,
-            "weekly": WEEKLY_RULES,
-            "monthly": MONTHLY_RULES
-        }
-        specific_rules = type_rules.get(prediction_type, DAILY_RULES)
+        # Load type-specific rules from separate file
+        specific_rules, get_output_format = load_prediction_rules(prediction_type)
         
         # Get user age for age-specific voice
         user_age = None
@@ -297,87 +292,13 @@ IMMUTABLE DATA RULES:
             "aspects": aspects_array
         }
         
-        # Output format instructions based on prediction type
-        # IMPORTANT: No markdown (** or *) - email clients don't support it
-        # Use Finnish headers when language is Finnish
-        
-        if prediction_language == "fi":
-            output_instructions = {
-                "daily": """
-MUOTO (TÄRKEÄÄ - ÄLÄ KÄYTÄ ** TAI * MERKINTÖJÄ):
-
-Päivän sana: [yksi sana tai lyhyt ilmaus]
-
-[Ennustuksen teksti 80-140 sanaa, suoraan lukijalle]
-
-Päivän neuvo: [yksi käytännön vinkki]""",
-                
-                "weekly": """
-MUOTO (TÄRKEÄÄ - ÄLÄ KÄYTÄ ** TAI * MERKINTÖJÄ):
-
-Viikon lause: [yksi lause]
-
-The Seven Lights Index: [7 eri numeroa väliltä 1-40]
-Index-huomio: [lyhyt lause numeroiden yhteydestä viikon energiaan]
-
-[Ennustuksen teksti 150-230 sanaa, suoraan lukijalle]
-
-Viikon neuvo: [yksi toimintaehdotus]""",
-                
-                "monthly": """
-MUOTO (TÄRKEÄÄ - ÄLÄ KÄYTÄ ** TAI * MERKINTÖJÄ):
-
-Kuukauden miete: [yksi tai kaksi lausetta]
-
-[Ennustuksen teksti 180-300 sanaa kattaen:
-- Kuukauden pääteema
-- Työ ja ura
-- Ihmissuhteet
-- Hyvinvointi]
-
-Kuukauden aikomus: [tiivistelmälause]"""
-            }
-        else:
-            output_instructions = {
-                "daily": """
-OUTPUT FORMAT (IMPORTANT - DO NOT USE ** OR * MARKERS):
-
-Word of the Day: [one word or short phrase]
-
-[Prediction text 80-140 words, addressing reader directly]
-
-Daily Advice: [one practical tip]""",
-                
-                "weekly": """
-OUTPUT FORMAT (IMPORTANT - DO NOT USE ** OR * MARKERS):
-
-Weekly Phrase: [one sentence]
-
-The Seven Lights Index: [7 different numbers between 1-40]
-Index note: [short sentence connecting numbers to weekly energy]
-
-[Prediction text 150-230 words, addressing reader directly]
-
-Weekly Advice: [one actionable recommendation]""",
-                
-                "monthly": """
-OUTPUT FORMAT (IMPORTANT - DO NOT USE ** OR * MARKERS):
-
-Monthly Thought: [one or two sentences]
-
-[Prediction text 180-300 words covering:
-- Main theme of the month
-- Career and work
-- Relationships
-- Well-being]
-
-Monthly Intention: [summary sentence]"""
-            }
+        # Get output format from the type-specific rules file
+        output_format = get_output_format(prediction_language)
         
         # Assemble full prompt
         full_prompt = f"""{system_prompt}
 
-{output_instructions.get(prediction_type, output_instructions['daily'])}
+{output_format}
 
 === INPUT DATA (JSON) ===
 {json.dumps(input_data, indent=2)}
